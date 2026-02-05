@@ -1,0 +1,1 @@
+# gestao.igreja.2026
