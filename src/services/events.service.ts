@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseClient';
 import type { Database } from '@/lib/database.types';
 
 type Event = Database['public']['Tables']['events']['Row'];

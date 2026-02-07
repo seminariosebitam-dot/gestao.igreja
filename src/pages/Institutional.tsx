@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Sidebar } from '@/components/Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Institutional() {
   const { toast } = useToast();

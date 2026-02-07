@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { UserCircle, Camera, Loader2 } from 'lucide-react';
 import {

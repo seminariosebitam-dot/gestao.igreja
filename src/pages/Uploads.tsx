@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { useToast } from '@/hooks/use-toast';
 import { documentsService, ChurchDocument } from '@/services/documents.service';
 import { format } from 'date-fns';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 
 const typeLabels: Record<string, string> = {
