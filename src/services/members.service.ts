@@ -50,7 +50,7 @@ export const membersService = {
     /**
      * Create a new member
      */
-    async create(member: MemberInsert) {
+    async create(member: MemberInsert): Promise<Member> {
         const { data, error } = await supabase
             .from('members')
             .insert(member)
@@ -58,13 +58,13 @@ export const membersService = {
             .single();
 
         if (error) throw error;
-        return data;
+        return data as Member;
     },
 
     /**
      * Update a member
      */
-    async update(id: string, updates: MemberUpdate) {
+    async update(id: string, updates: MemberUpdate): Promise<Member> {
         const { data, error } = await supabase
             .from('members')
             .update(updates)
@@ -73,7 +73,7 @@ export const membersService = {
             .single();
 
         if (error) throw error;
-        return data;
+        return data as Member;
     },
 
     /**
@@ -159,5 +159,20 @@ export const membersService = {
         await this.update(memberId, { photo_url: publicUrl });
 
         return publicUrl;
+    },
+    /**
+     * Add member to ministry
+     */
+    async addToMinistry(memberId: string, ministryId: string) {
+        const { error } = await supabase
+            .from('ministry_members')
+            .upsert({
+                member_id: memberId,
+                ministry_id: ministryId,
+            }, {
+                onConflict: 'member_id,ministry_id'
+            });
+
+        if (error) throw error;
     },
 };

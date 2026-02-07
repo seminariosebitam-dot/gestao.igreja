@@ -59,10 +59,9 @@ export const ministriesService = {
     /**
      * Create a new ministry
      */
-    async create(ministry: MinistryInsert) {
-        const { data, error } = await supabase
-            .from('ministries')
-            .insert(ministry)
+    async create(ministry: any) {
+        const { data, error } = await (supabase.from('ministries') as any)
+            .insert(ministry as any)
             .select()
             .single();
 
@@ -73,10 +72,9 @@ export const ministriesService = {
     /**
      * Update a ministry
      */
-    async update(id: string, updates: MinistryUpdate) {
-        const { data, error } = await supabase
-            .from('ministries')
-            .update(updates)
+    async update(id: string, updates: any) {
+        const { data, error } = await (supabase.from('ministries') as any)
+            .update(updates as any)
             .eq('id', id)
             .select()
             .single();
@@ -117,13 +115,12 @@ export const ministriesService = {
      * Add member to ministry
      */
     async addMember(ministryId: string, memberId: string, role?: string) {
-        const { data, error } = await supabase
-            .from('ministry_members')
+        const { data, error } = await (supabase.from('ministry_members') as any)
             .insert({
                 ministry_id: ministryId,
                 member_id: memberId,
                 role,
-            })
+            } as any)
             .select()
             .single();
 

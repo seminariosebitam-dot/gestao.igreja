@@ -7,6 +7,7 @@ import { MemberForm, MemberFormData } from '@/components/MemberForm';
 import { Member } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services/members.service';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Members() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -14,6 +15,7 @@ export default function Members() {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     loadMembers();
@@ -31,7 +33,8 @@ export default function Members() {
         phone: m.phone || '',
         birthDate: m.birth_date || '',
         address: m.address || '',
-        ministries: [],
+        photoUrl: m.photo_url || '',
+        category: m.status === 'visitante' ? 'congregado' : 'membro',
         createdAt: m.created_at,
       }));
       setMembers(mappedMembers);
@@ -56,20 +59,27 @@ export default function Members() {
           phone: data.phone,
           birth_date: data.birthDate,
           address: data.address,
+          photo_url: data.photoUrl,
+          status: data.category === 'congregado' ? 'visitante' : 'ativo',
         });
+
+
         toast({
           title: 'Cadastro atualizado!',
           description: `${data.name} foi atualizado com sucesso.`,
         });
       } else {
-        await membersService.create({
+        const newMember = await membersService.create({
           name: data.name,
           email: data.email || null,
           phone: data.phone || null,
           birth_date: data.birthDate || null,
           address: data.address || null,
-          status: 'ativo',
+          photo_url: data.photoUrl || null,
+          status: data.category === 'congregado' ? 'visitante' : 'ativo',
         });
+
+
         toast({
           title: 'Membro cadastrado!',
           description: `${data.name} foi adicionado com sucesso.`,
@@ -115,12 +125,12 @@ export default function Members() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Membros</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Membros e Congregados</h1>
           <p className="text-muted-foreground">
             Gerencie os membros da igreja
           </p>
         </div>
-        {!showForm && (
+        {!showForm && user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && user?.role !== 'tesoureiro' && (
           <Button onClick={() => { setEditingMember(null); setShowForm(true); }} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Novo Membro

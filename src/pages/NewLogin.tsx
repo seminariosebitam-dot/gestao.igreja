@@ -38,10 +38,7 @@ export default function NewLogin() {
             setError('Por favor, preencha todos os campos');
             return;
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            setError('E-mail inválido');
-            return;
-        }
+        // Removida validação de email para facilitar acesso
         setStep(2);
     };
 
@@ -69,13 +66,9 @@ export default function NewLogin() {
         setError('');
         const pinString = formData.pin.join('');
 
-        if (pinString.length < 6) {
-            setError('Digite o PIN de 6 dígitos completo');
-            return;
-        }
-
-        login(formData.email, pinString, formData.role);
-        navigate('/cadastro');
+        // Aceita qualquer PIN digitado (mesmo que não esteja completo)
+        login(formData.email, pinString, formData.role, formData.fullName);
+        navigate('/dashboard');
     };
 
     return (
@@ -221,6 +214,12 @@ export default function NewLogin() {
                                             label="Membro"
                                             active={formData.role === 'membro'}
                                             onClick={() => setFormData({ ...formData, role: 'membro' })}
+                                        />
+                                        <RoleCard
+                                            icon={<User className="h-5 w-5" />}
+                                            label="Congregado"
+                                            active={formData.role === 'congregado'}
+                                            onClick={() => setFormData({ ...formData, role: 'congregado' })}
                                         />
                                     </div>
                                 </div>

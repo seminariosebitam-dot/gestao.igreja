@@ -1,20 +1,43 @@
-import { Users, Church, Calendar, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, Church, Calendar, TrendingUp, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sidebar } from '@/components/Sidebar';
 import { DailyVerse } from '@/components/DailyVerse';
 import { BirthdayCard } from '@/components/BirthdayCard';
-import { mockMembers, mockMinistries } from '@/data/mockData';
+import { ministriesService } from '@/services/ministries.service';
+import { cellsService } from '@/services/cells.service';
 import { useAuth } from '@/contexts/AuthContext';
-
-const stats = [
-  { label: 'Total de Membros', value: mockMembers.length.toString(), icon: Users, color: 'text-primary' },
-  { label: 'Ministérios Ativos', value: mockMinistries.length.toString(), icon: Church, color: 'text-primary' },
-  { label: 'Células', value: '12', icon: Calendar, color: 'text-primary' },
-  { label: 'Crescimento', value: '+15%', icon: TrendingUp, color: 'text-primary' },
-];
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [counts, setCounts] = useState({ ministries: 0, cells: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [ministries, cells] = await Promise.all([
+          ministriesService.getActive(),
+          cellsService.getActive()
+        ]);
+        setCounts({
+          ministries: ministries?.length || 0,
+          cells: cells?.length || 0
+        });
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, []);
+
+  const stats = [
+    { label: 'Ministérios Ativos', value: loading ? '...' : counts.ministries.toString(), icon: Church, color: 'text-primary' },
+    { label: 'Células', value: loading ? '...' : counts.cells.toString(), icon: Calendar, color: 'text-primary' },
+    { label: 'Crescimento', value: '+15%', icon: TrendingUp, color: 'text-primary' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -38,7 +61,11 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{stat.value}</p>
+              {loading && stat.label !== 'Crescimento' ? (
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              ) : (
+                <p className="text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{stat.value}</p>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -51,19 +78,25 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="border-primary/10 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold">Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <QuickAction icon={Users} label="Novo Membro" href="/membros" />
-            <QuickAction icon={Church} label="Ministérios" href="/ministerios" />
-            <QuickAction icon={Calendar} label="Relatório Célula" href="/celulas" />
-            <QuickAction icon={TrendingUp} label="Financeiro" href="/relatorios" />
-          </div>
-        </CardContent>
-      </Card>
+      {user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && (
+        <Card className="border-primary/10 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold">Ações Rápidas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {user?.role !== 'tesoureiro' && (
+                <QuickAction icon={Users} label="Novo Membro/Congregado" href="/membros" />
+              )}
+              <QuickAction icon={Church} label="Ministérios" href="/ministerios" />
+              {user?.role !== 'tesoureiro' && (
+                <QuickAction icon={Calendar} label="Relatório Célula" href="/celulas" />
+              )}
+              <QuickAction icon={TrendingUp} label="Financeiro" href="/relatorios" />
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

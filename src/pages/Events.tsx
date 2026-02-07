@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { MonthCalendar } from '@/components/MonthCalendar';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Event {
     id: string;
@@ -99,6 +100,8 @@ export default function Events() {
     const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
     const [isCreateWorshipOpen, setIsCreateWorshipOpen] = useState(false);
     const [isCreateChecklistOpen, setIsCreateChecklistOpen] = useState(false);
+    const { user } = useAuth();
+    const canManage = user?.role && !['aluno', 'membro', 'congregado'].includes(user.role);
 
     const filteredEvents = events.filter(event => {
         const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,61 +142,63 @@ export default function Events() {
                         Gerencie cultos, eventos especiais e escalas de serviço
                     </p>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                    <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all">
-                                <Plus className="h-4 w-4 mr-2" />
-                                Criar Evento
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle>Criar Novo Evento</DialogTitle>
-                                <DialogDescription>
-                                    Preencha as informações do evento
-                                </DialogDescription>
-                            </DialogHeader>
-                            <CreateEventForm onClose={() => setIsCreateEventOpen(false)} />
-                        </DialogContent>
-                    </Dialog>
+                {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && (
+                    <div className="flex gap-2 flex-wrap">
+                        <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Criar Evento
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                    <DialogTitle>Criar Novo Evento</DialogTitle>
+                                    <DialogDescription>
+                                        Preencha as informações do evento
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <CreateEventForm onClose={() => setIsCreateEventOpen(false)} />
+                            </DialogContent>
+                        </Dialog>
 
-                    <Dialog open={isCreateWorshipOpen} onOpenChange={setIsCreateWorshipOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" className="border-primary/30 hover:bg-primary/5">
-                                <Calendar className="h-4 w-4 mr-2" />
-                                Planejar Culto
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle>Planejar Culto</DialogTitle>
-                                <DialogDescription>
-                                    Configure todos os detalhes do culto
-                                </DialogDescription>
-                            </DialogHeader>
-                            <PlanWorshipForm onClose={() => setIsCreateWorshipOpen(false)} />
-                        </DialogContent>
-                    </Dialog>
+                        <Dialog open={isCreateWorshipOpen} onOpenChange={setIsCreateWorshipOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="border-primary/30 hover:bg-primary/5">
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Planejar Culto
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                    <DialogTitle>Planejar Culto</DialogTitle>
+                                    <DialogDescription>
+                                        Configure todos os detalhes do culto
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <PlanWorshipForm onClose={() => setIsCreateWorshipOpen(false)} />
+                            </DialogContent>
+                        </Dialog>
 
-                    <Dialog open={isCreateChecklistOpen} onOpenChange={setIsCreateChecklistOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" className="border-primary/30 hover:bg-primary/5">
-                                <ListChecks className="h-4 w-4 mr-2" />
-                                Gerar Checklist
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle>Gerar Checklist Operacional</DialogTitle>
-                                <DialogDescription>
-                                    Crie uma lista de tarefas para o evento
-                                </DialogDescription>
-                            </DialogHeader>
-                            <CreateChecklistForm onClose={() => setIsCreateChecklistOpen(false)} />
-                        </DialogContent>
-                    </Dialog>
-                </div>
+                        <Dialog open={isCreateChecklistOpen} onOpenChange={setIsCreateChecklistOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="border-primary/30 hover:bg-primary/5">
+                                    <ListChecks className="h-4 w-4 mr-2" />
+                                    Gerar Checklist
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                    <DialogTitle>Gerar Checklist Operacional</DialogTitle>
+                                    <DialogDescription>
+                                        Crie uma lista de tarefas para o evento
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <CreateChecklistForm onClose={() => setIsCreateChecklistOpen(false)} />
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                )}
             </div>
 
             {/* Search and Filter */}

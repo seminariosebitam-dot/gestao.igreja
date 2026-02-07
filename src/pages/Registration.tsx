@@ -12,14 +12,22 @@ export default function Registration() {
     const handleRegistrationSubmit = async (data: MemberFormData) => {
         try {
             // Save member to Supabase with null for empty strings
-            await membersService.create({
+            const newMember = await membersService.create({
                 name: data.name,
                 email: data.email || null,
                 phone: data.phone || null,
                 birth_date: data.birthDate || null,
                 address: data.address || null,
+                photo_url: data.photoUrl || null,
                 status: 'ativo',
             });
+
+            // Vincular ministérios selecionados
+            if (newMember && data.ministries.length > 0) {
+                for (const mId of data.ministries) {
+                    await membersService.addToMinistry(newMember.id, mId);
+                }
+            }
 
             toast({
                 title: 'Cadastro Realizado!',

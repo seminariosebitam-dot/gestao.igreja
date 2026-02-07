@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { documentsService, ChurchDocument } from '@/services/documents.service';
 import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 const typeLabels: Record<string, string> = {
   study: 'Estudos para Células',
@@ -41,7 +42,9 @@ export default function Uploads() {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [youtubeTitle, setYoutubeTitle] = useState('');
   const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false);
+  const { user } = useAuth();
   const { toast } = useToast();
+  const canManage = user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeCategory, setActiveCategory] = useState('study');
 
@@ -242,7 +245,7 @@ export default function Uploads() {
                     {typeLabels[type]}
                   </CardTitle>
                   <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                    {type === 'videos' && (
+                    {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && type === 'videos' && (
                       <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
                         <DialogTrigger asChild>
                           <Button variant="outline" className="w-full sm:w-auto border-primary/20 hover:bg-primary/5">
@@ -282,18 +285,20 @@ export default function Uploads() {
                         </DialogContent>
                       </Dialog>
                     )}
-                    <Button
-                      onClick={() => handleFileClick(type)}
-                      disabled={uploading !== null}
-                      className="w-full sm:w-auto"
-                    >
-                      {uploading === type ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Upload className="h-4 w-4 mr-2" />
-                      )}
-                      {uploading === type ? 'Enviando...' : 'Enviar Arquivo'}
-                    </Button>
+                    {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && (
+                      <Button
+                        onClick={() => handleFileClick(type)}
+                        disabled={uploading !== null}
+                        className="w-full sm:w-auto"
+                      >
+                        {uploading === type ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4 mr-2" />
+                        )}
+                        {uploading === type ? 'Enviando...' : 'Enviar Arquivo'}
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -334,14 +339,16 @@ export default function Uploads() {
                               </div>
                             </div>
                             <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDelete(file)}
-                                className="flex-shrink-0 hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDelete(file)}
+                                  className="flex-shrink-0 hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
                           </div>
 

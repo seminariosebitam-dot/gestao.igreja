@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Login - Gestão Church</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .info {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info p {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ Gestão Church</h1>
+        <p class="subtitle">Sistema de Gestão de Igreja</p>
+        
+        <div class="info">
+            <h3>✅ Servidor Funcionando!</h3>
+            <p>O servidor está rodando em <strong>http://localhost:3000/</strong></p>
+            <p>Clique em um dos botões abaixo para fazer login:</p>
+        </div>
+        
+        <div class="buttons">
+            <button onclick="login('admin', 'Pastor')">👑 Pastor</button>
+            <button onclick="login('secretario', 'Secretário')">📝 Secretário</button>
+            <button onclick="login('tesoureiro', 'Tesoureiro')">💰 Tesoureiro</button>
+            <button onclick="login('lider_celula', 'Líder Célula')">📍 Líder Célula</button>
+            <button onclick="login('lider_ministerio', 'Líder Ministério')">⛪ Líder Ministério</button>
+            <button onclick="login('membro', 'Membro')">👥 Membro</button>
+        </div>
+        
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+    
+    <script>
+        function login(role, name) {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.innerHTML = `Entrando como ${name}...`;
+            
+            // Simula login e redireciona
+            setTimeout(() => {
+                window.location.href = `http://localhost:3000/login?role=${role}&name=${encodeURIComponent(name)}`;
+            }, 500);
+        }
+        
+        // Testa se o servidor está respondendo
+        fetch('http://localhost:3000/')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Servidor está respondendo corretamente!');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Erro ao conectar com o servidor:', error);
+                alert('ERRO: Não foi possível conectar ao servidor. Certifique-se de que npm run dev está rodando.');
+            });
+    </script>
+</body>
+</html>

@@ -12,7 +12,8 @@ import {
   Target,
   Award,
   Activity,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   ChartContainer,
   ChartTooltip,
@@ -44,70 +46,122 @@ import {
   Tooltip
 } from 'recharts';
 
-// Mock Data
-const financialData = [
-  { month: 'Jan', income: 15000, expenses: 8500, tithes: 12000, offerings: 3000 },
-  { month: 'Fev', income: 18200, expenses: 9100, tithes: 14500, offerings: 3700 },
-  { month: 'Mar', income: 16800, expenses: 8800, tithes: 13400, offerings: 3400 },
-  { month: 'Abr', income: 19500, expenses: 9500, tithes: 15600, offerings: 3900 },
-  { month: 'Mai', income: 21000, expenses: 10200, tithes: 16800, offerings: 4200 },
-  { month: 'Jun', income: 17500, expenses: 9800, tithes: 14000, offerings: 3500 },
-];
-
-const churchHealthData = {
-  attendance: [
-    { month: 'Jan', total: 245, adults: 180, youth: 45, children: 20 },
-    { month: 'Fev', total: 268, adults: 195, youth: 50, children: 23 },
-    { month: 'Mar', total: 252, adults: 185, youth: 47, children: 20 },
-    { month: 'Abr', total: 280, adults: 205, youth: 52, children: 23 },
-    { month: 'Mai', total: 295, adults: 215, youth: 55, children: 25 },
-    { month: 'Jun', total: 310, adults: 225, youth: 60, children: 25 },
-  ],
-  newMembers: 15,
-  baptisms: 8,
-  conversions: 12,
-  activeCells: 12,
-  activeMinistries: 8,
-};
-
-const ministriesData = [
-  { name: 'Louvor', members: 25, activities: 12, engagement: 92 },
-  { name: 'Intercessão', members: 18, activities: 8, engagement: 88 },
-  { name: 'Crianças', members: 15, activities: 10, engagement: 85 },
-  { name: 'Jovens', members: 30, activities: 15, engagement: 90 },
-  { name: 'Mídia', members: 12, activities: 20, engagement: 95 },
-  { name: 'Recepção', members: 20, activities: 18, engagement: 87 },
-];
-
-const spiritualGrowthData = {
-  bibleStudy: [
-    { month: 'Jan', participants: 85 },
-    { month: 'Fev', participants: 92 },
-    { month: 'Mar', participants: 88 },
-    { month: 'Abr', participants: 95 },
-    { month: 'Mai', participants: 102 },
-    { month: 'Jun', participants: 110 },
-  ],
-  prayerMeetings: [
-    { month: 'Jan', participants: 65 },
-    { month: 'Fev', participants: 70 },
-    { month: 'Mar', participants: 68 },
-    { month: 'Abr', participants: 75 },
-    { month: 'Mai', participants: 80 },
-    { month: 'Jun', participants: 85 },
-  ],
-  discipleship: {
-    active: 45,
-    completed: 12,
-    inProgress: 33,
-  },
-};
-
+// Configurações e Utilitários
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#8884d8', '#82ca9d', '#ffc658', '#ff8042'];
+
+import { financialService } from '@/services/financial.service';
+import { membersService } from '@/services/members.service';
+import { cellsService } from '@/services/cells.service';
+import { ministriesService } from '@/services/ministries.service';
+import { discipleshipService } from '@/services/discipleship.service';
+import { useEffect } from 'react';
 
 export default function Reports() {
   const [selectedTab, setSelectedTab] = useState('saude');
+  const [loading, setLoading] = useState(true);
+  const [financialData, setFinancialData] = useState<any[]>([]);
+  const [churchHealthData, setChurchHealthData] = useState<any>({
+    attendance: [],
+    newMembers: 0,
+    baptisms: 0,
+    conversions: 0,
+    activeCells: 0,
+    activeMinistries: 0,
+  });
+  const [ministriesData, setMinistriesData] = useState<any[]>([]);
+  const [spiritualGrowthData, setSpiritualGrowthData] = useState<any>({
+    bibleStudy: [],
+    prayerMeetings: [],
+    discipleship: { active: 0, completed: 0, inProgress: 0 },
+  });
+
   const { toast } = useToast();
+  const { user } = useAuth();
+  const canDownload = user?.role && !['aluno', 'membro', 'congregado'].includes(user.role);
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  async function loadAllData() {
+    try {
+      setLoading(true);
+
+      // Load Financial Data
+      const finSummary = await financialService.getSummary();
+      const formattedFinData = finSummary ? finSummary.map((f: any) => ({
+        month: f.month,
+        income: Number(f.total_income) || 0,
+        expenses: Number(f.total_expenses) || 0,
+        tithes: 0, // Need detailed breakdown if available
+        offerings: 0,
+      })).reverse() : [];
+      setFinancialData(formattedFinData);
+
+      // Load Church Health Data
+      const stats = await membersService.getStatistics();
+      const activeCellsCount = await (await cellsService.getActive()).length;
+      const activeMinistriesCount = await (await ministriesService.getActive()).length;
+
+      // Calculate attendance from cell reports
+      const allReports = await cellsService.getAllReports();
+      const attendanceByMonthMap = new Map();
+
+      allReports?.forEach((report: any) => {
+        const month = new Date(report.date).toLocaleString('default', { month: 'short' });
+        const current = attendanceByMonthMap.get(month) || { total: 0, adults: 0, youth: 0, children: 0 };
+        attendanceByMonthMap.set(month, {
+          total: current.total + report.members_present + report.visitors,
+          adults: current.adults + report.members_present, // Approximation
+          youth: current.youth,
+          children: current.children,
+          month
+        });
+      });
+
+      const attendanceData = Array.from(attendanceByMonthMap.values()).reverse();
+
+      setChurchHealthData({
+        attendance: attendanceData.length > 0 ? attendanceData : [{ month: 'Sem dados', total: 0, adults: 0, youth: 0, children: 0 }],
+        newMembers: stats?.total_members || 0,
+        baptisms: stats?.baptized_members || 0,
+        conversions: 0, // Need specific tracking for this
+        activeCells: activeCellsCount,
+        activeMinistries: activeMinistriesCount,
+      });
+
+      // Load Ministries Data
+      const ministries = await ministriesService.getActive();
+      const mappedMinistries = await Promise.all((ministries || []).map(async (m: any) => {
+        const count = await ministriesService.getMemberCount(m.id);
+        return {
+          name: m.name,
+          members: count,
+          activities: 0, // Need activities tracking
+          engagement: 100,
+        };
+      }));
+      setMinistriesData(mappedMinistries);
+
+      // Load Spiritual Growth Data
+      const discStats = await discipleshipService.getStatistics();
+      setSpiritualGrowthData({
+        bibleStudy: attendanceData.map(a => ({ month: a.month, participants: a.total })), // Using cell attendance as proxy
+        prayerMeetings: [],
+        discipleship: discStats,
+      });
+
+    } catch (error) {
+      console.error('Erro ao carregar relatórios:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados dos relatórios.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleExport = () => {
     let dataToExport: any[] = [];
@@ -186,6 +240,15 @@ export default function Reports() {
     offerings: { label: 'Ofertas', color: 'hsl(var(--secondary))' },
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-muted-foreground animate-pulse">Carregando dados reais dos relatórios...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -198,13 +261,15 @@ export default function Reports() {
             Análises completas da saúde e crescimento da igreja
           </p>
         </div>
-        <Button
-          onClick={handleExport}
-          className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Exportar Relatórios
-        </Button>
+        {canDownload && (
+          <Button
+            onClick={handleExport}
+            className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Exportar Relatórios
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -264,9 +329,11 @@ export default function Reports() {
 
 // Church Health Report Component
 function ChurchHealthReport({ data }: { data: typeof churchHealthData }) {
-  const latestAttendance = data.attendance[data.attendance.length - 1];
-  const previousAttendance = data.attendance[data.attendance.length - 2];
-  const growthRate = ((latestAttendance.total - previousAttendance.total) / previousAttendance.total * 100).toFixed(1);
+  const latestAttendance = data.attendance[data.attendance.length - 1] || { total: 0 };
+  const previousAttendance = data.attendance[data.attendance.length - 2] || { total: 0 };
+  const growthRate = previousAttendance.total > 0
+    ? ((latestAttendance.total - previousAttendance.total) / previousAttendance.total * 100).toFixed(1)
+    : "0";
 
   return (
     <>
@@ -402,11 +469,15 @@ function ChurchHealthReport({ data }: { data: typeof churchHealthData }) {
 
 // Financial Report Component
 function FinancialReport({ data, totalIncome, totalExpenses, balance, chartConfig }: any) {
+  // Aggregate expenses by category from real data
+  const categoryMap = new Map();
+  data.forEach((item: any) => {
+    // If we had categories in the summary, we would use them. 
+    // For now, let's use a placeholder until we have a real breakdown.
+  });
+
   const expenseCategories = [
-    { name: 'Pessoal', value: 35000 },
-    { name: 'Infraestrutura', value: 15000 },
-    { name: 'Missões', value: 8000 },
-    { name: 'Eventos', value: 5000 },
+    { name: 'Geral', value: totalExpenses },
   ];
 
   return (
@@ -595,18 +666,6 @@ function MinistriesReport({ data }: { data: typeof ministriesData }) {
           </CardContent>
         </Card>
 
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Membros
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">
-              {data.reduce((sum, m) => sum + m.members, 0)}
-            </p>
-          </CardContent>
-        </Card>
 
         <Card className="border-primary/10 shadow-lg">
           <CardHeader className="pb-2">
@@ -639,10 +698,6 @@ function MinistriesReport({ data }: { data: typeof ministriesData }) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Membros</p>
-                  <p className="text-2xl font-bold text-primary">{ministry.members}</p>
-                </div>
                 <div>
                   <p className="text-muted-foreground">Atividades</p>
                   <p className="text-2xl font-bold text-primary">{ministry.activities}</p>
@@ -706,10 +761,10 @@ function SpiritualGrowthReport({ data }: { data: typeof spiritualGrowthData }) {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-primary">
-              {((data.discipleship.completed / data.discipleship.active) * 100).toFixed(0)}%
+              {data.discipleship.active > 0 ? ((data.discipleship.completed / data.discipleship.active) * 100).toFixed(0) : 0}%
             </p>
             <Progress
-              value={(data.discipleship.completed / data.discipleship.active) * 100}
+              value={data.discipleship.active > 0 ? (data.discipleship.completed / data.discipleship.active) * 100 : 0}
               className="h-2 mt-2"
             />
           </CardContent>
@@ -793,7 +848,7 @@ function SpiritualGrowthReport({ data }: { data: typeof spiritualGrowthData }) {
                 <span className="font-bold text-primary">{data.discipleship.inProgress}</span>
               </div>
               <Progress
-                value={(data.discipleship.inProgress / data.discipleship.active) * 100}
+                value={data.discipleship.active > 0 ? (data.discipleship.inProgress / data.discipleship.active) * 100 : 0}
                 className="h-3"
               />
             </div>
@@ -803,7 +858,7 @@ function SpiritualGrowthReport({ data }: { data: typeof spiritualGrowthData }) {
                 <span className="font-bold text-green-600">{data.discipleship.completed}</span>
               </div>
               <Progress
-                value={(data.discipleship.completed / data.discipleship.active) * 100}
+                value={data.discipleship.active > 0 ? (data.discipleship.completed / data.discipleship.active) * 100 : 0}
                 className="h-3 [&>div]:bg-green-600"
               />
             </div>

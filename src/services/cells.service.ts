@@ -62,10 +62,9 @@ export const cellsService = {
     /**
      * Create a new cell
      */
-    async create(cell: CellInsert) {
-        const { data, error } = await supabase
-            .from('cells')
-            .insert(cell)
+    async create(cell: any) {
+        const { data, error } = await (supabase.from('cells') as any)
+            .insert(cell as any)
             .select()
             .single();
 
@@ -76,10 +75,9 @@ export const cellsService = {
     /**
      * Update a cell
      */
-    async update(id: string, updates: CellUpdate) {
-        const { data, error } = await supabase
-            .from('cells')
-            .update(updates)
+    async update(id: string, updates: any) {
+        const { data, error } = await (supabase.from('cells') as any)
+            .update(updates as any)
             .eq('id', id)
             .select()
             .single();
@@ -120,12 +118,11 @@ export const cellsService = {
      * Add member to cell
      */
     async addMember(cellId: string, memberId: string) {
-        const { data, error } = await supabase
-            .from('cell_members')
+        const { data, error } = await (supabase.from('cell_members') as any)
             .insert({
                 cell_id: cellId,
                 member_id: memberId,
-            })
+            } as any)
             .select()
             .single();
 
@@ -147,13 +144,15 @@ export const cellsService = {
     },
 
     /**
-     * Get cell reports
+     * Get all cell reports
      */
-    async getReports(cellId: string) {
+    async getAllReports() {
         const { data, error } = await supabase
             .from('cell_reports')
-            .select('*')
-            .eq('cell_id', cellId)
+            .select(`
+                *,
+                cell:cells(id, name)
+            `)
             .order('date', { ascending: false });
 
         if (error) throw error;
@@ -164,9 +163,8 @@ export const cellsService = {
      * Create cell report
      */
     async createReport(report: any) {
-        const { data, error } = await supabase
-            .from('cell_reports')
-            .insert(report)
+        const { data, error } = await (supabase.from('cell_reports') as any)
+            .insert(report as any)
             .select()
             .single();
 

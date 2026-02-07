@@ -17,6 +17,7 @@ import DailyCash from "./pages/DailyCash";
 import Uploads from "./pages/Uploads";
 import Registration from "./pages/Registration";
 import Institutional from "./pages/Institutional";
+import Secretariat from "./pages/Secretariat";
 import NotFound from "./pages/NotFound";
 import { MainLayout } from "@/components/MainLayout";
 
@@ -37,7 +38,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Index />} />
+      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <NewLogin />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <NewLogin />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/membros" element={<ProtectedRoute><Members /></ProtectedRoute>} />
@@ -48,6 +49,7 @@ function AppRoutes() {
       <Route path="/cadastro" element={<ProtectedRoute><Registration /></ProtectedRoute>} />
       <Route path="/relatorios" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/uploads" element={<ProtectedRoute><Uploads /></ProtectedRoute>} />
+      <Route path="/secretaria" element={<ProtectedRoute><Secretariat /></ProtectedRoute>} />
       <Route path="/institucional" element={<ProtectedRoute><Institutional /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { financialService } from '@/services/financial.service';
+import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfDay, endOfDay, addDays, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,9 @@ export default function DailyCash() {
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const { toast } = useToast();
+    const { user } = useAuth();
+    const canTransact = user && ['admin', 'secretario', 'tesoureiro'].includes(user.role);
+    const canReport = user && !['aluno', 'membro', 'congregado'].includes(user.role);
 
     // Form states
     const [type, setType] = useState<'entrada' | 'saida'>('entrada');
@@ -162,105 +166,109 @@ export default function DailyCash() {
                     </Button>
                 </div>
 
-                <div className="flex gap-2">
-                    <Button onClick={handlePrint} variant="outline" className="gap-2">
-                        <Printer className="h-4 w-4" />
-                        Imprimir
-                    </Button>
-                    <Button variant="outline" className="gap-2">
-                        <Download className="h-4 w-4" />
-                        PDF
-                    </Button>
-                </div>
+                {canReport && (
+                    <div className="flex gap-2">
+                        <Button onClick={handlePrint} variant="outline" className="gap-2">
+                            <Printer className="h-4 w-4" />
+                            Imprimir
+                        </Button>
+                        <Button variant="outline" className="gap-2">
+                            <Download className="h-4 w-4" />
+                            PDF
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Lançamento Form */}
-                <Card className="lg:col-span-1 print:hidden border-primary/20 shadow-md">
-                    <CardHeader>
-                        <CardTitle>Novo Lançamento</CardTitle>
-                        <CardDescription>Registre dízimos, ofertas ou despesas</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleAddTransaction} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-2">
-                                <Button
-                                    type="button"
-                                    variant={type === 'entrada' ? 'default' : 'outline'}
-                                    onClick={() => setType('entrada')}
-                                    className={type === 'entrada' ? 'bg-green-600 hover:bg-green-700' : ''}
-                                >
-                                    <ArrowUpCircle className="mr-2 h-4 w-4" />
-                                    Entrada
+                {canTransact && (
+                    <Card className="lg:col-span-1 print:hidden border-primary/20 shadow-md">
+                        <CardHeader>
+                            <CardTitle>Novo Lançamento</CardTitle>
+                            <CardDescription>Registre dízimos, ofertas ou despesas</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleAddTransaction} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                        type="button"
+                                        variant={type === 'entrada' ? 'default' : 'outline'}
+                                        onClick={() => setType('entrada')}
+                                        className={type === 'entrada' ? 'bg-green-600 hover:bg-green-700' : ''}
+                                    >
+                                        <ArrowUpCircle className="mr-2 h-4 w-4" />
+                                        Entrada
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant={type === 'saida' ? 'default' : 'outline'}
+                                        onClick={() => setType('saida')}
+                                        className={type === 'saida' ? 'bg-red-600 hover:bg-red-700' : ''}
+                                    >
+                                        <ArrowDownCircle className="mr-2 h-4 w-4" />
+                                        Saída
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Categoria</label>
+                                    <Select value={category} onValueChange={setCategory}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {type === 'entrada' ? (
+                                                <>
+                                                    <SelectItem value="Dízimo">Dízimo</SelectItem>
+                                                    <SelectItem value="Oferta">Oferta</SelectItem>
+                                                    <SelectItem value="Oferta Especial">Oferta Especial</SelectItem>
+                                                    <SelectItem value="Doação">Doação</SelectItem>
+                                                    <SelectItem value="Outros">Outros</SelectItem>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <SelectItem value="Aluguel">Aluguel</SelectItem>
+                                                    <SelectItem value="Água/Luz">Água/Luz</SelectItem>
+                                                    <SelectItem value="Pessoal">Pessoal</SelectItem>
+                                                    <SelectItem value="Missões">Missões</SelectItem>
+                                                    <SelectItem value="Manutenção">Manutenção</SelectItem>
+                                                    <SelectItem value="Outros">Outros</SelectItem>
+                                                </>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Valor (R$)</label>
+                                    <Input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0,00"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Descrição</label>
+                                    <Input
+                                        placeholder="Nome do doador ou motivo da despesa"
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                    />
+                                </div>
+
+                                <Button type="submit" className="w-full" disabled={submitting}>
+                                    {submitting ? <Loader2 className="animate-spin h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+                                    Lançar no Caixa
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant={type === 'saida' ? 'default' : 'outline'}
-                                    onClick={() => setType('saida')}
-                                    className={type === 'saida' ? 'bg-red-600 hover:bg-red-700' : ''}
-                                >
-                                    <ArrowDownCircle className="mr-2 h-4 w-4" />
-                                    Saída
-                                </Button>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Categoria</label>
-                                <Select value={category} onValueChange={setCategory}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {type === 'entrada' ? (
-                                            <>
-                                                <SelectItem value="Dízimo">Dízimo</SelectItem>
-                                                <SelectItem value="Oferta">Oferta</SelectItem>
-                                                <SelectItem value="Oferta Especial">Oferta Especial</SelectItem>
-                                                <SelectItem value="Doação">Doação</SelectItem>
-                                                <SelectItem value="Outros">Outros</SelectItem>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <SelectItem value="Aluguel">Aluguel</SelectItem>
-                                                <SelectItem value="Água/Luz">Água/Luz</SelectItem>
-                                                <SelectItem value="Pessoal">Pessoal</SelectItem>
-                                                <SelectItem value="Missões">Missões</SelectItem>
-                                                <SelectItem value="Manutenção">Manutenção</SelectItem>
-                                                <SelectItem value="Outros">Outros</SelectItem>
-                                            </>
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Valor (R$)</label>
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0,00"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Descrição</label>
-                                <Input
-                                    placeholder="Nome do doador ou motivo da despesa"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                />
-                            </div>
-
-                            <Button type="submit" className="w-full" disabled={submitting}>
-                                {submitting ? <Loader2 className="animate-spin h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-                                Lançar no Caixa
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Listagem e Relatório */}
                 <div className="lg:col-span-2 space-y-6 print:w-full print:m-0">
@@ -326,14 +334,16 @@ export default function DailyCash() {
                                                 {t.type === 'saida' ? `R$ ${t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : '-'}
                                             </td>
                                             <td className="py-2 text-right print:hidden">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                    onClick={() => handleDelete(t.id)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                {canTransact && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                        onClick={() => handleDelete(t.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -391,25 +401,27 @@ export default function DailyCash() {
                     </div>
 
                     {/* Configuration for signatures (printable header details) */}
-                    <Card className="print:hidden border-dashed">
-                        <CardHeader className="py-3">
-                            <CardTitle className="text-sm font-semibold">Configurar Assinaturas do Relatório</CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-                            <div className="space-y-1">
-                                <label className="text-xs font-medium">Pastor Presidente</label>
-                                <Input size={1} className="h-8 text-xs" value={pastorName} onChange={e => setPastorName(e.target.value)} />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-medium">Tesoureiro</label>
-                                <Input size={1} className="h-8 text-xs" value={treasurerName} onChange={e => setTreasurerName(e.target.value)} />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-medium">Comissão de Contas</label>
-                                <Input size={1} className="h-8 text-xs" value={comissionName} onChange={e => setComissionName(e.target.value)} />
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {canTransact && (
+                        <Card className="print:hidden border-dashed">
+                            <CardHeader className="py-3">
+                                <CardTitle className="text-sm font-semibold">Configurar Assinaturas do Relatório</CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium">Pastor Presidente</label>
+                                    <Input size={1} className="h-8 text-xs" value={pastorName} onChange={e => setPastorName(e.target.value)} />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium">Tesoureiro</label>
+                                    <Input size={1} className="h-8 text-xs" value={treasurerName} onChange={e => setTreasurerName(e.target.value)} />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium">Comissão de Contas</label>
+                                    <Input size={1} className="h-8 text-xs" value={comissionName} onChange={e => setComissionName(e.target.value)} />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
 

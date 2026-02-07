@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio';
+export type UserRole = 'admin' | 'pastor' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio' | 'aluno' | 'congregado';
 
 export interface User {
   id: string;
@@ -15,7 +15,7 @@ export interface Member {
   address: string;
   email: string;
   phone: string;
-  ministries: string[];
+  category: 'membro' | 'congregado';
   photoUrl?: string;
   createdAt: string;
 }
@@ -24,6 +24,7 @@ export interface Ministry {
   id: string;
   name: string;
   description: string;
+  leader: string;
   icon: string;
   memberCount: number;
 }

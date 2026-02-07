@@ -14,7 +14,7 @@ export interface Database {
                     id: string
                     email: string
                     name: string
-                    role: 'admin' | 'secretario' | 'tesoureiro' | 'membro'
+                    role: 'admin' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio' | 'aluno' | 'congregado'
                     phone: string | null
                     avatar_url: string | null
                     created_at: string
@@ -24,7 +24,7 @@ export interface Database {
                     id: string
                     email: string
                     name: string
-                    role: 'admin' | 'secretario' | 'tesoureiro' | 'membro'
+                    role: 'admin' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio' | 'aluno' | 'congregado'
                     phone?: string | null
                     avatar_url?: string | null
                     created_at?: string
@@ -34,13 +34,13 @@ export interface Database {
                     id?: string
                     email?: string
                     name?: string
-                    role?: 'admin' | 'secretario' | 'tesoureiro' | 'membro'
+                    role?: 'admin' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio' | 'aluno' | 'congregado'
                     phone?: string | null
                     avatar_url?: string | null
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
             members: {
                 Row: {
                     id: string
@@ -105,7 +105,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
             ministries: {
                 Row: {
                     id: string
@@ -140,7 +140,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
             events: {
                 Row: {
                     id: string
@@ -187,7 +187,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
             cells: {
                 Row: {
                     id: string
@@ -231,7 +231,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
             financial_transactions: {
                 Row: {
                     id: string
@@ -281,7 +281,56 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
+            cell_members: {
+                Row: {
+                    cell_id: string
+                    member_id: string
+                    joined_at: string
+                }
+                Insert: {
+                    cell_id: string
+                    member_id: string
+                    joined_at?: string
+                }
+                Update: {
+                    cell_id?: string
+                    member_id?: string
+                    joined_at?: string
+                }
+            },
+            cell_reports: {
+                Row: {
+                    id: string
+                    cell_id: string
+                    date: string
+                    members_present: number
+                    visitors: number
+                    study_topic: string | null
+                    notes: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    cell_id: string
+                    date: string
+                    members_present: number
+                    visitors: number
+                    study_topic?: string | null
+                    notes?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    cell_id?: string
+                    date?: string
+                    members_present?: number
+                    visitors?: number
+                    study_topic?: string | null
+                    notes?: string | null
+                    created_at?: string
+                }
+            },
             discipleships: {
                 Row: {
                     id: string
@@ -316,7 +365,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                 }
-            }
+            },
             notifications: {
                 Row: {
                     id: string
@@ -347,6 +396,26 @@ export interface Database {
                     read?: boolean
                     link?: string | null
                     created_at?: string
+                }
+            },
+            ministry_members: {
+                Row: {
+                    member_id: string
+                    ministry_id: string
+                    role: string | null
+                    joined_at: string
+                }
+                Insert: {
+                    member_id: string
+                    ministry_id: string
+                    role?: string | null
+                    joined_at?: string
+                }
+                Update: {
+                    member_id?: string
+                    ministry_id?: string
+                    role?: string | null
+                    joined_at?: string
                 }
             }
         }
