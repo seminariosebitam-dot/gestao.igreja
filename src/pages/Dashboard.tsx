@@ -84,12 +84,12 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       {user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && (
-        <Card className="bg-white border-primary/10 shadow-lg">
-          <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
-            <CardTitle className="text-lg sm:text-xl font-bold">Ações Rápidas</CardTitle>
+        <Card className="bg-white border-primary/10 shadow-lg mt-4 sm:mt-6">
+          <CardHeader className="px-5 py-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl font-black text-primary">Ações Rápidas</CardTitle>
           </CardHeader>
-          <CardContent className="px-3 pb-6 sm:px-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+          <CardContent className="px-4 pb-8 sm:px-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
               {user?.role !== 'tesoureiro' && (
                 <QuickAction icon={Users} label="Novo Membro" href="/membros" />
               )}
@@ -120,12 +120,12 @@ function QuickAction({ icon: Icon, label, href, onClick }: { icon: React.Element
     <a
       href={href}
       onClick={onClick}
-      className="flex flex-col items-center gap-3 p-6 rounded-xl bg-white hover:bg-primary/5 border border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group shadow-sm"
+      className="flex flex-col items-center gap-4 p-8 sm:p-6 rounded-2xl bg-white hover:bg-primary/5 border-2 border-primary/10 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-xl group shadow-md"
     >
-      <div className="p-3 rounded-lg bg-primary group-hover:scale-110 transition-transform">
-        <Icon className="h-6 w-6 text-primary-foreground" />
+      <div className="p-4 rounded-xl bg-primary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+        <Icon className="h-8 w-8 sm:h-6 sm:w-6 text-primary-foreground" />
       </div>
-      <span className="text-sm font-semibold text-center">{label}</span>
+      <span className="text-base sm:text-sm font-black text-center text-foreground group-hover:text-primary transition-colors">{label}</span>
     </a>
   );
 }

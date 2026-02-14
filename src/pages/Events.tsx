@@ -224,17 +224,17 @@ export default function Events() {
                     </p>
                 </div>
                 {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && (
-                    <div className="grid grid-cols-2 sm:flex gap-2">
+                    <div className="grid grid-cols-2 sm:flex gap-3">
                         <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
                             <DialogTrigger asChild>
-                                <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:shadow-lg transition-all text-xs sm:text-sm h-10 sm:h-11">
-                                    <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                                <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:shadow-lg transition-all text-sm sm:text-base h-14 sm:h-11 font-bold">
+                                    <Plus className="h-5 w-5 mr-1 sm:mr-2" />
                                     <span>Evento</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+                            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
                                 <DialogHeader>
-                                    <DialogTitle>Criar Novo Evento</DialogTitle>
+                                    <DialogTitle className="text-xl">Criar Novo Evento</DialogTitle>
                                     <DialogDescription>
                                         Preencha as informações do evento
                                     </DialogDescription>
@@ -245,14 +245,14 @@ export default function Events() {
 
                         <Dialog open={isCreateWorshipOpen} onOpenChange={setIsCreateWorshipOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="w-full sm:w-auto border-primary/30 hover:bg-primary/5 text-xs sm:text-sm h-10 sm:h-11">
-                                    <Calendar className="h-4 w-4 mr-1 sm:mr-2" />
+                                <Button variant="outline" className="w-full sm:w-auto border-2 border-primary/20 hover:bg-primary/5 text-sm sm:text-base h-14 sm:h-11 font-bold">
+                                    <Calendar className="h-5 w-5 mr-1 sm:mr-2" />
                                     <span>Culto</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+                            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
                                 <DialogHeader>
-                                    <DialogTitle>Planejar Culto</DialogTitle>
+                                    <DialogTitle className="text-xl">Planejar Culto</DialogTitle>
                                     <DialogDescription>
                                         Configure todos os detalhes do culto
                                     </DialogDescription>
@@ -263,14 +263,14 @@ export default function Events() {
 
                         <Dialog open={isCreateChecklistOpen} onOpenChange={setIsCreateChecklistOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="w-full sm:w-auto border-primary/30 hover:bg-primary/5 text-xs sm:text-sm h-10 sm:h-11">
-                                    <ListChecks className="h-4 w-4 mr-1 sm:mr-2" />
+                                <Button variant="outline" className="w-full sm:w-auto border-2 border-primary/20 hover:bg-primary/5 text-sm sm:text-base h-14 sm:h-11 font-bold">
+                                    <ListChecks className="h-5 w-5 mr-1 sm:mr-2" />
                                     <span>Checklist</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+                            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
                                 <DialogHeader>
-                                    <DialogTitle>Gerar Checklist Operacional</DialogTitle>
+                                    <DialogTitle className="text-xl">Gerar Checklist Operacional</DialogTitle>
                                     <DialogDescription>
                                         Crie uma lista de tarefas para o evento
                                     </DialogDescription>
@@ -285,14 +285,14 @@ export default function Events() {
 
                         <Dialog open={isCreateScaleOpen} onOpenChange={setIsCreateScaleOpen}>
                             <DialogTrigger asChild>
-                                <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:shadow-lg transition-all gap-2 text-xs sm:text-sm h-10 sm:h-11">
-                                    <Users className="h-4 w-4" />
+                                <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:shadow-lg transition-all gap-2 text-sm sm:text-base h-14 sm:h-11 font-bold">
+                                    <Users className="h-5 w-5" />
                                     <span>Escalar</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+                            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
                                 <DialogHeader>
-                                    <DialogTitle>Escalar Equipe de Serviço</DialogTitle>
+                                    <DialogTitle className="text-xl">Escalar Equipe de Serviço</DialogTitle>
                                     <DialogDescription>
                                         Designe membros para funções específicas no evento
                                     </DialogDescription>
@@ -310,20 +310,20 @@ export default function Events() {
 
             {/* Search and Filter */}
             <Card className="border-primary/10 shadow-lg">
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 px-4 pb-6">
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <Input
                                 placeholder="Buscar eventos..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10"
+                                className="pl-12 h-14 sm:h-11 text-base sm:text-sm rounded-xl border-primary/20"
                             />
                         </div>
                         <Select value={filterType} onValueChange={setFilterType}>
-                            <SelectTrigger className="w-full md:w-[200px]">
-                                <Filter className="h-4 w-4 mr-2" />
+                            <SelectTrigger className="w-full md:w-[220px] h-14 sm:h-11 text-base sm:text-sm rounded-xl border-primary/20">
+                                <Filter className="h-5 w-5 mr-3" />
                                 <SelectValue placeholder="Filtrar por tipo" />
                             </SelectTrigger>
                             <SelectContent>
@@ -340,23 +340,23 @@ export default function Events() {
 
             {/* Main Content Tabs */}
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-                <div className="overflow-x-auto pb-1 -mx-2 px-2 scrollbar-hide">
-                    <TabsList className="flex w-max lg:w-auto lg:inline-flex min-w-full lg:min-w-0">
-                        <TabsTrigger value="calendario" className="gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span className="hidden sm:inline">Calendário</span>
+                <div className="overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide">
+                    <TabsList className="flex w-max lg:w-auto lg:inline-flex min-w-full lg:min-w-0 bg-primary/5 p-1 rounded-2xl">
+                        <TabsTrigger value="calendario" className="gap-3 px-6 py-4 sm:py-2 text-base sm:text-sm data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl transition-all">
+                            <Calendar className="h-5 w-5" />
+                            <span>Calendário</span>
                         </TabsTrigger>
-                        <TabsTrigger value="eventos" className="gap-2">
-                            <Tag className="h-4 w-4" />
-                            <span className="hidden sm:inline">Eventos</span>
+                        <TabsTrigger value="eventos" className="gap-3 px-6 py-4 sm:py-2 text-base sm:text-sm data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl transition-all">
+                            <Tag className="h-5 w-5" />
+                            <span>Eventos</span>
                         </TabsTrigger>
-                        <TabsTrigger value="escalas" className="gap-2">
-                            <Users className="h-4 w-4" />
-                            <span className="hidden sm:inline">Escalas</span>
+                        <TabsTrigger value="escalas" className="gap-3 px-6 py-4 sm:py-2 text-base sm:text-sm data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl transition-all">
+                            <Users className="h-5 w-5" />
+                            <span>Escalas</span>
                         </TabsTrigger>
-                        <TabsTrigger value="checklists" className="gap-2">
-                            <ListChecks className="h-4 w-4" />
-                            <span className="hidden sm:inline">Checklists</span>
+                        <TabsTrigger value="checklists" className="gap-3 px-6 py-4 sm:py-2 text-base sm:text-sm data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl transition-all">
+                            <ListChecks className="h-5 w-5" />
+                            <span>Checklists</span>
                         </TabsTrigger>
                     </TabsList>
 

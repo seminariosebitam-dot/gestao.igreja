@@ -16,24 +16,24 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-background" translate="no">
-            {/* Desktop Sidebar - Hidden on mobile/tablet */}
-            <div className="hidden lg:flex print:hidden">
+            {/* Desktop Sidebars - Hidden on mobile, shown on tablets and desktop */}
+            <div className="hidden md:flex print:hidden border-r border-border">
                 <Sidebar />
             </div>
 
             {/* Mobile/Tablet Header & Sidebar */}
             <div className="flex-1 flex flex-col min-w-0">
-                <header className="lg:hidden flex items-center justify-between p-3 sm:p-4 border-b border-border bg-card print:hidden">
-                    <Logo size="xs" />
-                    <div className="flex items-center gap-1 sm:gap-2">
+                <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden">
+                    <Logo size="sm" />
+                    <div className="flex items-center gap-3">
                         <NotificationCenter />
                         <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-9 w-9">
-                                    <Menu className="h-5 w-5" />
+                                <Button variant="ghost" size="icon" className="h-11 w-11 shadow-sm border border-border/50 bg-background/50">
+                                    <Menu className="h-6 w-6" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="p-0 w-[280px] sm:w-64 border-r-0">
+                            <SheetContent side="left" className="p-0 w-[300px] border-r-0">
                                 <div className="h-full" onClick={() => setOpen(false)}>
                                     <Sidebar />
                                 </div>
