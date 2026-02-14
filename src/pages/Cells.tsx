@@ -271,7 +271,7 @@ export default function Cells() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-destructive/40 hover:text-destructive hover:bg-destructive/10 transition-all rounded-full"
+                    className="text-destructive/60 hover:text-destructive hover:bg-destructive/10 transition-all rounded-full"
                     title="Excluir Célula"
                     onClick={(e) => {
                       e.stopPropagation();

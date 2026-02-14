@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Trash2, Edit, Phone, Mail, MapPin, Cake } from 'lucide-react';
+import { Search, Trash2, Edit, Phone, Mail, MapPin, Cake, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';

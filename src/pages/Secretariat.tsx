@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Secretariat() {
-    console.log('%c SECRETARIAT COMPONENT CALLED ', 'background: purple; color: white;');
     const [activeTab, setActiveTab] = useState('minutes');
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(false);
@@ -52,10 +51,8 @@ export default function Secretariat() {
 
     async function loadMembers() {
         try {
-            console.log('Secretariat: Carregando membros...');
             setLoading(true);
             const data = await membersService.getAll();
-            console.log('Secretariat: Dados recebidos:', data);
 
             const mappedMembers: Member[] = (data || []).map((m: any) => {
                 try {
@@ -73,7 +70,6 @@ export default function Secretariat() {
                         createdAt: m.created_at || new Date().toISOString(),
                     };
                 } catch (e) {
-                    console.error('Error mapping member:', m.id, e);
                     return null;
                 }
             }).filter((m: any) => m !== null) as Member[];
