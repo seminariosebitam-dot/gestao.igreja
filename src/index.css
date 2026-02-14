@@ -13,10 +13,10 @@
     /* Fonte maior para mobile */
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     html {
       font-size: 15px;
-      /* Fonte padrão para Tablet e PC */
+      /* Fonte padrão para PC Grande */
     }
   }
 
