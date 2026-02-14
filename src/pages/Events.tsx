@@ -46,6 +46,7 @@ interface ServicePerson {
     role: string;
     phone?: string;
     confirmed: boolean;
+    declined?: boolean;
 }
 
 export default function Events() {
@@ -104,7 +105,8 @@ export default function Events() {
                     name: s.member?.name || 'Não definido',
                     phone: s.member?.phone,
                     role: s.role,
-                    confirmed: s.confirmed
+                    confirmed: s.confirmed,
+                    declined: s.declined
                 }))
             }));
             setEvents(mappedEvents);
@@ -567,19 +569,19 @@ function ServiceScaleView({ events, onToggleConfirmation }: { events: Event[], o
                             {event.serviceScale?.map(person => (
                                 <div key={person.id} className="flex items-center justify-between p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-2 h-2 rounded-full ${person.confirmed ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                                        <div className={`w-2 h-2 rounded-full ${person.confirmed ? 'bg-green-500' : person.declined ? 'bg-red-500' : 'bg-yellow-500'}`} />
                                         <div>
-                                            <p className="font-semibold">{person.name}</p>
-                                            <p className="text-sm text-muted-foreground">{person.role}</p>
+                                            <p className={`font-semibold ${person.declined ? 'line-through text-muted-foreground' : ''}`}>{person.name}</p>
+                                            <p className="text-sm text-muted-foreground">{person.role} {person.declined && <Badge variant="destructive" className="ml-2 text-[8px] h-4">Recusou</Badge>}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Button
-                                            variant={person.confirmed ? 'default' : 'outline'}
+                                            variant={person.confirmed ? 'default' : person.declined ? 'destructive' : 'outline'}
                                             size="sm"
                                             onClick={() => onToggleConfirmation(person.id, person.confirmed, event.id)}
                                         >
-                                            {person.confirmed ? 'Confirmado' : 'Pendente'}
+                                            {person.confirmed ? 'Confirmado' : person.declined ? 'Recusou' : 'Pendente'}
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -1175,8 +1177,8 @@ function EventDetailsDialog({ event, onClose, getEventTypeColor, getStatusBadge 
                                         <p className="font-semibold text-sm">{person.name}</p>
                                         <p className="text-[10px] text-muted-foreground">{person.role}</p>
                                     </div>
-                                    <Badge variant={person.confirmed ? 'default' : 'outline'} className="text-[10px] h-5">
-                                        {person.confirmed ? 'Confirmado' : 'Pendente'}
+                                    <Badge variant={person.confirmed ? 'default' : person.declined ? 'destructive' : 'outline'} className="text-[10px] h-5">
+                                        {person.confirmed ? 'Confirmado' : person.declined ? 'Recusou' : 'Pendente'}
                                     </Badge>
                                 </div>
                             ))

@@ -234,11 +234,24 @@ export const eventsService = {
     },
 
     /**
+     * Get scale details via public RPC
+     */
+    async getScaleDetailsPublic(scaleId: string) {
+        const { data, error } = await supabase.rpc('get_scale_details_public' as any, {
+            scale_id: scaleId
+        });
+
+        if (error) throw error;
+        return data;
+    },
+
+    /**
      * Confirm participation via public RPC (bypasses RLS)
      */
-    async confirmParticipationPublic(scaleId: string) {
+    async confirmParticipationPublic(scaleId: string, confirmed: boolean = true) {
         const { data, error } = await supabase.rpc('confirm_participation' as any, {
-            scale_id: scaleId
+            scale_id: scaleId,
+            p_confirmed: confirmed
         });
 
         if (error) throw error;
