@@ -467,6 +467,7 @@ const DailyCash = () => {
           <CardTitle><span>Transações</span></CardTitle>
         </CardHeader>
         <CardContent className="print:p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader translate="no">
               <TableRow>
@@ -539,6 +540,7 @@ const DailyCash = () => {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

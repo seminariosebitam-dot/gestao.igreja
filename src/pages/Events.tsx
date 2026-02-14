@@ -359,29 +359,30 @@ export default function Events() {
                             <span>Checklists</span>
                         </TabsTrigger>
                     </TabsList>
+                </div>
 
-                    {/* Calendário Tab */}
-                    <TabsContent value="calendario" className="space-y-4">
-                        <CalendarView
-                            events={filteredEvents}
-                            getEventTypeColor={getEventTypeColor}
-                            onEdit={(event) => setEventToEdit(event)}
-                            onDelete={(id, title) => handleDeleteEvent(id, title)}
-                            isAdmin={user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role)}
-                        />
-                    </TabsContent>
+                {/* Calendário Tab */}
+                <TabsContent value="calendario" className="space-y-4">
+                    <CalendarView
+                        events={filteredEvents}
+                        getEventTypeColor={getEventTypeColor}
+                        onEdit={(event) => setEventToEdit(event)}
+                        onDelete={(id, title) => handleDeleteEvent(id, title)}
+                        isAdmin={user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role)}
+                    />
+                </TabsContent>
 
-                    {/* Eventos Tab */}
-                    <TabsContent value="eventos" className="space-y-4">
-                        {filteredEvents.length === 0 ? (
-                            <Card className="border-primary/10 shadow-lg">
-                                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                                    <Calendar className="h-16 w-16 text-primary/30 mb-4" />
-                                    <h3 className="text-xl font-bold text-foreground mb-2">Nenhum evento cadastrado</h3>
-                                    <p className="text-muted-foreground max-w-md">Crie seu primeiro evento clicando no botão "Criar Evento" acima.</p>
-                                </CardContent>
-                            </Card>
-                        ) : (
+                {/* Eventos Tab */}
+                <TabsContent value="eventos" className="space-y-4">
+                    {filteredEvents.length === 0 ? (
+                        <Card className="border-primary/10 shadow-lg">
+                            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                                <Calendar className="h-16 w-16 text-primary/30 mb-4" />
+                                <h3 className="text-xl font-bold text-foreground mb-2">Nenhum evento cadastrado</h3>
+                                <p className="text-muted-foreground max-w-md">Crie seu primeiro evento clicando no botão "Criar Evento" acima.</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                 {filteredEvents.map((event) => (
                                     <EventCard
@@ -397,17 +398,17 @@ export default function Events() {
                                 ))}
                             </div>
                         )}
-                    </TabsContent>
+                </TabsContent>
 
-                    {/* Escalas Tab */}
-                    <TabsContent value="escalas" className="space-y-4">
-                        <ServiceScaleView events={filteredEvents} onToggleConfirmation={handleToggleConfirmation} />
-                    </TabsContent>
+                {/* Escalas Tab */}
+                <TabsContent value="escalas" className="space-y-4">
+                    <ServiceScaleView events={filteredEvents} onToggleConfirmation={handleToggleConfirmation} />
+                </TabsContent>
 
-                    {/* Checklists Tab */}
-                    <TabsContent value="checklists" className="space-y-4">
-                        <ChecklistView events={filteredEvents} onToggleTask={handleToggleTask} />
-                    </TabsContent>
+                {/* Checklists Tab */}
+                <TabsContent value="checklists" className="space-y-4">
+                    <ChecklistView events={filteredEvents} onToggleTask={handleToggleTask} />
+                </TabsContent>
             </Tabs>
 
             <EventDetailsDialog

@@ -33,11 +33,11 @@ export function MainLayout({ children }: MainLayoutProps) {
                         <NotificationCenter />
                         <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-11 w-11 shadow-sm border border-border/50 bg-background/50">
+                                <Button variant="ghost" size="icon" className="h-11 w-11 min-h-[44px] min-w-[44px] shadow-sm border border-border/50 bg-background/50">
                                     <Menu className="h-6 w-6" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="p-0 w-[300px] border-r-0">
+                            <SheetContent side="left" className="p-0 w-[300px] max-w-[85vw] border-r-0">
                                 <div className="h-full" onClick={() => setOpen(false)}>
                                     <Sidebar />
                                 </div>
@@ -46,8 +46,8 @@ export function MainLayout({ children }: MainLayoutProps) {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto">
-                    <div className="container mx-auto p-4 md:p-8 max-w-7xl animate-in fade-in duration-500">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden">
+                    <div className="container mx-auto p-4 md:p-8 max-w-7xl animate-in fade-in duration-500 safe-area-padding">
                         {children}
                     </div>
                 </main>
