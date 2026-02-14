@@ -41,7 +41,7 @@ export default function ConfirmScale() {
     async function loadDetails() {
         try {
             setLoading(true);
-            const result = await eventsService.getScaleDetailsPublic(id!);
+            const result = await eventsService.getScaleDetailsPublic(id!) as any;
 
             if (!result) throw new Error('Convite não encontrado');
 
