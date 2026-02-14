@@ -17,17 +17,17 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-background" translate="no">
-            {/* Desktop Sidebar - Shown ONLY on large screens (PC > 1024px) */}
-            <div className="hidden lg:flex print:hidden border-r border-border bg-card">
+            {/* Desktop Sidebar - Shown ONLY on EXTRA large screens (PC > 1280px) */}
+            <div className="hidden xl:flex print:hidden border-r border-border bg-card">
                 <Sidebar />
             </div>
 
-            {/* Mobile & Tablet Layout - Header always visible below 1024px */}
+            {/* Mobile & Tablet Layout - Header always visible below 1280px */}
             <div className="flex-1 flex flex-col min-w-0">
-                <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden">
+                <header className="xl:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden">
                     <Logo size="sm" />
                     <div className="flex items-center gap-2">
-                        <ThemeSwitcher collapsed={true} />
+                        <ThemeSwitcher collapsed={true} direction="down" />
                         <NotificationCenter />
                         <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>

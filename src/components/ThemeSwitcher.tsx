@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme, themes } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 
-export function ThemeSwitcher({ collapsed }: { collapsed: boolean }) {
+export function ThemeSwitcher({ collapsed, direction = 'up' }: { collapsed: boolean; direction?: 'up' | 'down' }) {
     const [isOpen, setIsOpen] = useState(false);
     const { currentTheme, setTheme } = useTheme();
     const panelRef = useRef<HTMLDivElement>(null);
@@ -40,10 +40,10 @@ export function ThemeSwitcher({ collapsed }: { collapsed: boolean }) {
             {isOpen && (
                 <div
                     className={cn(
-                        "absolute z-50 bg-card border border-border rounded-2xl shadow-xl p-4 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-200",
-                        collapsed
-                            ? "left-16 bottom-0 w-56"
-                            : "left-0 bottom-12 w-full"
+                        "absolute z-50 bg-card border border-border rounded-2xl shadow-xl p-4 space-y-3 animate-in fade-in duration-200",
+                        direction === 'up'
+                            ? (collapsed ? "left-16 bottom-0 w-56 slide-in-from-bottom-2" : "left-0 bottom-12 w-full slide-in-from-bottom-2")
+                            : "top-full right-0 mt-2 w-64 slide-in-from-top-2"
                     )}
                 >
                     <div className="flex items-center gap-2 pb-2 border-b border-border">
