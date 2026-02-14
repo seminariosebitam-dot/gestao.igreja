@@ -153,6 +153,7 @@ export default function Cells() {
       setReportOpen(false);
       setSelectedCell(null);
       setAttendance([]);
+
       toast({ title: 'Relatório enviado!', description: 'O relatório foi registrado com sucesso.' });
     } catch (error: any) {
       toast({ title: 'Erro ao enviar', description: error.message, variant: 'destructive' });
@@ -199,9 +200,9 @@ export default function Cells() {
         {isAdmin && (
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Célula
+              <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all rounded-full h-12 w-12 p-0 sm:w-auto sm:px-4 sm:rounded-xl" title="Nova Célula">
+                <Plus className="h-6 w-6 sm:mr-2" />
+                <span className="hidden sm:inline">Nova Célula</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
@@ -270,7 +271,8 @@ export default function Cells() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
+                    className="text-destructive/40 hover:text-destructive hover:bg-destructive/10 transition-all rounded-full"
+                    title="Excluir Célula"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteCell(cell.id, cell.name);

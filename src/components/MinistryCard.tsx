@@ -38,7 +38,8 @@ export function MinistryCard({ ministry, onDelete, onAddMember }: MinistryCardPr
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
+                className="text-destructive/40 hover:text-destructive hover:bg-destructive/10 transition-all rounded-full"
+                title="Excluir Ministério"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm(`Deseja realmente excluir o ministério ${ministry.name}?`)) {

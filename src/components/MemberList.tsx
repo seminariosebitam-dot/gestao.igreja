@@ -60,14 +60,14 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                         src={member.photoUrl}
                         alt={member.name}
                         className={`h-14 w-14 rounded-full object-cover border-2 ${(member.birthDate && new Date(member.birthDate).getMonth() === new Date().getMonth() && new Date(member.birthDate).getDate() === new Date().getDate())
-                            ? 'border-primary ring-2 ring-primary/20 animate-pulse'
-                            : 'border-primary/20'
+                          ? 'border-primary ring-2 ring-primary/20 animate-pulse'
+                          : 'border-primary/20'
                           }`}
                       />
                     ) : (
                       <div className={`h-14 w-14 rounded-full flex items-center justify-center border-2 ${(member.birthDate && new Date(member.birthDate).getMonth() === new Date().getMonth() && new Date(member.birthDate).getDate() === new Date().getDate())
-                          ? 'bg-primary/20 border-primary ring-2 ring-primary/20'
-                          : 'bg-primary/10 border-primary/5'
+                        ? 'bg-primary/20 border-primary ring-2 ring-primary/20'
+                        : 'bg-primary/10 border-primary/5'
                         }`}>
                         <span className="text-primary font-bold text-xl">
                           {member.name.charAt(0).toUpperCase()}
@@ -87,14 +87,15 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                         <Mail className="h-4 w-4" />
                         {member.email}
                       </span>
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 group">
                         <Phone className="h-4 w-4" />
                         {member.phone}
                         {member.phone && (
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="h-7 w-7 text-green-600 hover:text-white hover:bg-green-600 rounded-full transition-all duration-300 ml-1"
+                            title="Conversar no WhatsApp"
                             onClick={(e) => {
                               e.stopPropagation();
                               const isBirthday = member.birthDate && new Date(member.birthDate).getMonth() === new Date().getMonth() && new Date(member.birthDate).getDate() === new Date().getDate();
@@ -104,7 +105,7 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                               window.open(`https://wa.me/55${member.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
                             }}
                           >
-                            <Phone className="h-3 w-3" />
+                            <MessageSquare className="h-3.5 w-3.5" />
                           </Button>
                         )}
                       </span>

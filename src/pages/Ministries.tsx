@@ -63,6 +63,7 @@ export default function Ministries() {
         const count = await ministriesService.getMemberCount(m.id);
         return {
           id: m.id,
+          churchId: m.church_id || '',
           name: m.name,
           description: m.description || '',
           leader: m.leader?.name || 'Sem líder',
@@ -147,9 +148,9 @@ export default function Ministries() {
         {canCreate && (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Ministério
+              <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all rounded-full h-12 w-12 p-0 sm:w-auto sm:px-4 sm:rounded-xl" title="Novo Ministério">
+                <Plus className="h-6 w-6 sm:mr-2" />
+                <span className="hidden sm:inline">Novo Ministério</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
