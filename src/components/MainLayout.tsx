@@ -24,10 +24,12 @@ export function MainLayout({ children }: MainLayoutProps) {
 
             {/* Mobile & Tablet Layout - Header always visible below 1280px */}
             <div className="flex-1 flex flex-col min-w-0">
-                <header className="xl:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden">
+                <header className="xl:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden shadow-sm relative z-50">
                     <Logo size="sm" />
-                    <div className="flex items-center gap-2">
-                        <ThemeSwitcher collapsed={true} direction="down" />
+                    <div className="flex items-center gap-2 relative z-50">
+                        <div className="relative z-50">
+                            <ThemeSwitcher collapsed={true} direction="down" />
+                        </div>
                         <NotificationCenter />
                         <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>
