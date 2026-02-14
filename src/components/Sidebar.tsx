@@ -35,19 +35,53 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const navItems: NavItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: Users, label: 'Membros e Congregados', href: '/membros', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: Church, label: 'Ministérios', href: '/ministerios', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: Heart, label: 'Discipulado', href: '/discipulado', roles: ['admin', 'pastor', 'secretario', 'lider_celula', 'superadmin'] },
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+const dashboardItem: NavItem = {
+  icon: LayoutDashboard,
+  label: 'Dashboard',
+  href: '/dashboard',
+  roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'],
+};
+
+const navGroups: NavGroup[] = [
+  {
+    title: 'Membros e congregados',
+    items: [
+      { icon: Users, label: 'Membros e Congregados', href: '/membros', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Settings, label: 'Configurações', href: '/institucional', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Ministério',
+    items: [
+      { icon: Church, label: 'Ministérios', href: '/ministerios', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Heart, label: 'Discipulado', href: '/discipulado', roles: ['admin', 'pastor', 'secretario', 'lider_celula', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Administrativo e financeiro',
+    items: [
+      { icon: FileText, label: 'Secretaria', href: '/secretaria', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
+      { icon: BarChart3, label: 'Relatórios', href: '/relatorios', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'lider_celula', 'lider_ministerio', 'superadmin'] },
+      { icon: Upload, label: 'Uploads e Atas', href: '/uploads', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Tesouraria',
+    items: [
+      { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
+    ],
+  },
+];
+
+const otherItems: NavItem[] = [
   { icon: Calendar, label: 'Eventos', href: '/eventos', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
-  { icon: BarChart3, label: 'Relatórios', href: '/relatorios', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'lider_celula', 'lider_ministerio', 'superadmin'] },
-  { icon: Upload, label: 'Uploads', href: '/uploads', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: FileText, label: 'Secretaria', href: '/secretaria', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
   { icon: ShieldCheck, label: 'Painel Root', href: '/superadmin', roles: ['superadmin'] },
-  { icon: Settings, label: 'Configurações', href: '/institucional', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
 ];
 
 export function Sidebar() {
@@ -59,9 +93,13 @@ export function Sidebar() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const filteredItems = navItems.filter(item =>
-    user && item.roles.includes(user.role)
-  );
+  const canSee = (item: NavItem) => user && item.roles.includes(user.role);
+  const filteredGroups = navGroups.map((grp) => ({
+    ...grp,
+    items: grp.items.filter(canSee),
+  })).filter((grp) => grp.items.length > 0);
+  const filteredOther = otherItems.filter(canSee);
+  const showDashboard = canSee(dashboardItem);
 
   const handleAvatarClick = () => {
     avatarInputRef.current?.click();
@@ -125,28 +163,84 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-3 space-y-2" translate="no">
-        {filteredItems.map((item) => {
-          const isActive = location.pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium',
-                isActive
-                  ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg'
-                  : 'text-foreground hover:bg-primary/5 hover:scale-102 hover:shadow-sm'
-              )}
-            >
-              <item.icon className={cn(
-                "h-5 w-5 flex-shrink-0",
-                !isActive && "text-primary"
-              )} />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 p-3 space-y-3 overflow-y-auto" translate="no">
+        {showDashboard && (
+          <Link
+            to={dashboardItem.href}
+            className={cn(
+              'flex items-center gap-4 px-4 min-h-[48px] py-3.5 rounded-xl transition-all duration-300 font-medium active:scale-[0.98]',
+              location.pathname === dashboardItem.href
+                ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg'
+                : 'text-foreground hover:bg-primary/5 hover:shadow-sm'
+            )}
+          >
+            <dashboardItem.icon className={cn(
+              'h-6 w-6 flex-shrink-0',
+              location.pathname !== dashboardItem.href && 'text-primary'
+            )} />
+            {!collapsed && <span className="text-[15px]">{dashboardItem.label}</span>}
+          </Link>
+        )}
+        {filteredGroups.map((group) => (
+          <div key={group.title} className="space-y-1">
+            {!collapsed && (
+              <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {group.title}
+              </p>
+            )}
+            {group.items.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center gap-4 px-4 min-h-[48px] py-3.5 rounded-xl transition-all duration-300 font-medium active:scale-[0.98]',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg'
+                      : 'text-foreground hover:bg-primary/5 hover:shadow-sm'
+                  )}
+                >
+                  <item.icon className={cn(
+                    'h-6 w-6 flex-shrink-0',
+                    !isActive && 'text-primary'
+                  )} />
+                  {!collapsed && <span className="text-[15px]">{item.label}</span>}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+        {filteredOther.length > 0 && (
+          <div className="space-y-1">
+            {!collapsed && (
+              <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Outros
+              </p>
+            )}
+            {filteredOther.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center gap-4 px-4 min-h-[48px] py-3.5 rounded-xl transition-all duration-300 font-medium active:scale-[0.98]',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg'
+                      : 'text-foreground hover:bg-primary/5 hover:shadow-sm'
+                  )}
+                >
+                  <item.icon className={cn(
+                    'h-6 w-6 flex-shrink-0',
+                    !isActive && 'text-primary'
+                  )} />
+                  {!collapsed && <span className="text-[15px]">{item.label}</span>}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       <div className="p-3 border-t border-border/50 space-y-2">
@@ -193,11 +287,11 @@ export function Sidebar() {
         )}
         <Button
           variant="ghost"
-          className={cn('w-full justify-start hover:bg-destructive/10 hover:text-destructive transition-all', collapsed && 'justify-center')}
+          className={cn('w-full justify-start min-h-[48px] hover:bg-destructive/10 hover:text-destructive transition-all active:scale-[0.98]', collapsed && 'justify-center')}
           onClick={logout}
         >
-          <LogOut className="h-5 w-5" />
-          {!collapsed && <span className="ml-3">Sair</span>}
+          <LogOut className="h-6 w-6 flex-shrink-0" />
+          {!collapsed && <span className="ml-3 text-[15px]">Sair</span>}
         </Button>
       </div>
     </aside>
