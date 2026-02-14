@@ -29,6 +29,7 @@ export default function Members() {
       // Map DB snake_case to Frontend camelCase
       const mappedMembers: Member[] = (data || []).map((m: any) => ({
         id: m.id,
+        churchId: m.church_id || '',
         name: m.name,
         email: m.email || '',
         phone: m.phone || '',
@@ -135,7 +136,7 @@ export default function Members() {
             Gerencie os membros da igreja
           </p>
         </div>
-        {!showForm && user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && user?.role !== 'tesoureiro' && (
+        {!showForm && (user?.role === 'superadmin' || (user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && user?.role !== 'tesoureiro')) && (
           <Button onClick={() => { setEditingMember(null); setShowForm(true); }} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Novo Membro

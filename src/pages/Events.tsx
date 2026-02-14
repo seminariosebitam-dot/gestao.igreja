@@ -593,7 +593,9 @@ function ServiceScaleView({ events, onToggleConfirmation }: { events: Event[], o
                                                         ? `Olá ${person.name}, Graça e Paz! Gostaria de te convidar para o evento *${event.title}* que teremos no dia ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.time}. Sua presença seria uma alegria para nós!\n\nConfirme sua presença clicando no link abaixo:\n${confirmationUrl}`
                                                         : `Olá ${person.name}, Graça e Paz! Você foi escalado para a função de *${person.role}* no evento *${event.title}* no dia ${new Date(event.date).toLocaleDateString('pt-BR')}. Poderia confirmar sua presença?\n\nConfirme clicando aqui:\n${confirmationUrl}`;
 
-                                                    window.open(`https://wa.me/55${phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+                                                    const cleanPhone = phone.replace(/\D/g, '');
+                                                    const finalPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
+                                                    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(text)}`, '_blank');
                                                 } else {
                                                     alert('Membro não possui telefone cadastrado.');
                                                 }

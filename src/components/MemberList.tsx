@@ -27,8 +27,8 @@ interface MemberListProps {
 export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
   const [search, setSearch] = useState('');
   const { user } = useAuth();
-  const canDelete = user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
-  const canEdit = user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
+  const canDelete = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
+  const canEdit = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
 
   const filteredMembers = members.filter(member =>
     member.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -102,7 +102,10 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                               const text = isBirthday
                                 ? `Olá ${member.name.split(' ')[0]}, Graça e Paz! Passando para te desejar um feliz aniversário! 🎉 Que o Senhor te abençoe ricamente neste novo ano de vida!`
                                 : `Olá ${member.name.split(' ')[0]}, Graça e Paz! Tudo bem?`;
-                              window.open(`https://wa.me/55${member.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+
+                              const cleanPhone = member.phone.replace(/\D/g, '');
+                              const finalPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
+                              window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(text)}`, '_blank');
                             }}
                           >
                             <MessageSquare className="h-3.5 w-3.5" />
