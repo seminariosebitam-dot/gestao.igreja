@@ -85,13 +85,13 @@ export default function Dashboard() {
       {/* Quick Actions */}
       {user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && (
         <Card className="bg-white border-primary/10 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Ações Rápidas</CardTitle>
+          <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+            <CardTitle className="text-lg sm:text-xl font-bold">Ações Rápidas</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <CardContent className="px-3 pb-6 sm:px-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {user?.role !== 'tesoureiro' && (
-                <QuickAction icon={Users} label="Novo Membro/Congregado" href="/membros" />
+                <QuickAction icon={Users} label="Novo Membro" href="/membros" />
               )}
               <QuickAction icon={Church} label="Ministérios" href="/ministerios" />
               {user?.role !== 'tesoureiro' && (
@@ -100,7 +100,7 @@ export default function Dashboard() {
               <QuickAction icon={TrendingUp} label="Financeiro" href="/relatorios" />
               <QuickAction
                 icon={MessageSquare}
-                label="WhatsApp Direto"
+                label="WhatsApp"
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();

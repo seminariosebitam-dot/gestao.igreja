@@ -216,23 +216,23 @@ export default function Events() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">
                         Eventos & Agenda
                     </h1>
-                    <p className="text-muted-foreground mt-1">
-                        Gerencie cultos, eventos especiais e escalas de serviço
+                    <p className="text-sm md:text-base text-muted-foreground mt-1">
+                        Gerencie cultos, eventos e escalas
                     </p>
                 </div>
                 {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && (
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="grid grid-cols-2 sm:flex gap-2">
                         <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
                             <DialogTrigger asChild>
-                                <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Criar Evento
+                                <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:shadow-lg transition-all text-xs sm:text-sm h-10 sm:h-11">
+                                    <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                                    <span>Evento</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                                 <DialogHeader>
                                     <DialogTitle>Criar Novo Evento</DialogTitle>
                                     <DialogDescription>
@@ -245,12 +245,12 @@ export default function Events() {
 
                         <Dialog open={isCreateWorshipOpen} onOpenChange={setIsCreateWorshipOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="border-primary/30 hover:bg-primary/5">
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    Planejar Culto
+                                <Button variant="outline" className="w-full sm:w-auto border-primary/30 hover:bg-primary/5 text-xs sm:text-sm h-10 sm:h-11">
+                                    <Calendar className="h-4 w-4 mr-1 sm:mr-2" />
+                                    <span>Culto</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                                 <DialogHeader>
                                     <DialogTitle>Planejar Culto</DialogTitle>
                                     <DialogDescription>
@@ -263,12 +263,12 @@ export default function Events() {
 
                         <Dialog open={isCreateChecklistOpen} onOpenChange={setIsCreateChecklistOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="border-primary/30 hover:bg-primary/5">
-                                    <ListChecks className="h-4 w-4 mr-2" />
-                                    Gerar Checklist
+                                <Button variant="outline" className="w-full sm:w-auto border-primary/30 hover:bg-primary/5 text-xs sm:text-sm h-10 sm:h-11">
+                                    <ListChecks className="h-4 w-4 mr-1 sm:mr-2" />
+                                    <span>Checklist</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                                 <DialogHeader>
                                     <DialogTitle>Gerar Checklist Operacional</DialogTitle>
                                     <DialogDescription>
@@ -285,12 +285,12 @@ export default function Events() {
 
                         <Dialog open={isCreateScaleOpen} onOpenChange={setIsCreateScaleOpen}>
                             <DialogTrigger asChild>
-                                <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all gap-2">
+                                <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:shadow-lg transition-all gap-2 text-xs sm:text-sm h-10 sm:h-11">
                                     <Users className="h-4 w-4" />
-                                    Escalar Equipe
+                                    <span>Escalar</span>
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                                 <DialogHeader>
                                     <DialogTitle>Escalar Equipe de Serviço</DialogTitle>
                                     <DialogDescription>
@@ -340,73 +340,74 @@ export default function Events() {
 
             {/* Main Content Tabs */}
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-                    <TabsTrigger value="calendario" className="gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span className="hidden sm:inline">Calendário</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="eventos" className="gap-2">
-                        <Tag className="h-4 w-4" />
-                        <span className="hidden sm:inline">Eventos</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="escalas" className="gap-2">
-                        <Users className="h-4 w-4" />
-                        <span className="hidden sm:inline">Escalas</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="checklists" className="gap-2">
-                        <ListChecks className="h-4 w-4" />
-                        <span className="hidden sm:inline">Checklists</span>
-                    </TabsTrigger>
-                </TabsList>
+                <div className="overflow-x-auto pb-1 -mx-2 px-2 scrollbar-hide">
+                    <TabsList className="flex w-max lg:w-auto lg:inline-flex min-w-full lg:min-w-0">
+                        <TabsTrigger value="calendario" className="gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span className="hidden sm:inline">Calendário</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="eventos" className="gap-2">
+                            <Tag className="h-4 w-4" />
+                            <span className="hidden sm:inline">Eventos</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="escalas" className="gap-2">
+                            <Users className="h-4 w-4" />
+                            <span className="hidden sm:inline">Escalas</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="checklists" className="gap-2">
+                            <ListChecks className="h-4 w-4" />
+                            <span className="hidden sm:inline">Checklists</span>
+                        </TabsTrigger>
+                    </TabsList>
 
-                {/* Calendário Tab */}
-                <TabsContent value="calendario" className="space-y-4">
-                    <CalendarView
-                        events={filteredEvents}
-                        getEventTypeColor={getEventTypeColor}
-                        onEdit={(event) => setEventToEdit(event)}
-                        onDelete={(id, title) => handleDeleteEvent(id, title)}
-                        isAdmin={user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role)}
-                    />
-                </TabsContent>
+                    {/* Calendário Tab */}
+                    <TabsContent value="calendario" className="space-y-4">
+                        <CalendarView
+                            events={filteredEvents}
+                            getEventTypeColor={getEventTypeColor}
+                            onEdit={(event) => setEventToEdit(event)}
+                            onDelete={(id, title) => handleDeleteEvent(id, title)}
+                            isAdmin={user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role)}
+                        />
+                    </TabsContent>
 
-                {/* Eventos Tab */}
-                <TabsContent value="eventos" className="space-y-4">
-                    {filteredEvents.length === 0 ? (
-                        <Card className="border-primary/10 shadow-lg">
-                            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                                <Calendar className="h-16 w-16 text-primary/30 mb-4" />
-                                <h3 className="text-xl font-bold text-foreground mb-2">Nenhum evento cadastrado</h3>
-                                <p className="text-muted-foreground max-w-md">Crie seu primeiro evento clicando no botão "Criar Evento" acima.</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {filteredEvents.map((event) => (
-                                <EventCard
-                                    key={event.id}
-                                    event={event}
-                                    getEventTypeColor={getEventTypeColor}
-                                    getStatusBadge={getStatusBadge}
-                                    onViewDetails={() => setSelectedEventDetails(event)}
-                                    onEdit={() => setEventToEdit(event)}
-                                    onDelete={() => handleDeleteEvent(event.id, event.title)}
-                                    isAdmin={user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role)}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
+                    {/* Eventos Tab */}
+                    <TabsContent value="eventos" className="space-y-4">
+                        {filteredEvents.length === 0 ? (
+                            <Card className="border-primary/10 shadow-lg">
+                                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                                    <Calendar className="h-16 w-16 text-primary/30 mb-4" />
+                                    <h3 className="text-xl font-bold text-foreground mb-2">Nenhum evento cadastrado</h3>
+                                    <p className="text-muted-foreground max-w-md">Crie seu primeiro evento clicando no botão "Criar Evento" acima.</p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                {filteredEvents.map((event) => (
+                                    <EventCard
+                                        key={event.id}
+                                        event={event}
+                                        getEventTypeColor={getEventTypeColor}
+                                        getStatusBadge={getStatusBadge}
+                                        onViewDetails={() => setSelectedEventDetails(event)}
+                                        onEdit={() => setEventToEdit(event)}
+                                        onDelete={() => handleDeleteEvent(event.id, event.title)}
+                                        isAdmin={user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role)}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </TabsContent>
 
-                {/* Escalas Tab */}
-                <TabsContent value="escalas" className="space-y-4">
-                    <ServiceScaleView events={filteredEvents} onToggleConfirmation={handleToggleConfirmation} />
-                </TabsContent>
+                    {/* Escalas Tab */}
+                    <TabsContent value="escalas" className="space-y-4">
+                        <ServiceScaleView events={filteredEvents} onToggleConfirmation={handleToggleConfirmation} />
+                    </TabsContent>
 
-                {/* Checklists Tab */}
-                <TabsContent value="checklists" className="space-y-4">
-                    <ChecklistView events={filteredEvents} onToggleTask={handleToggleTask} />
-                </TabsContent>
+                    {/* Checklists Tab */}
+                    <TabsContent value="checklists" className="space-y-4">
+                        <ChecklistView events={filteredEvents} onToggleTask={handleToggleTask} />
+                    </TabsContent>
             </Tabs>
 
             <EventDetailsDialog
@@ -417,7 +418,7 @@ export default function Events() {
             />
 
             <Dialog open={!!eventToEdit} onOpenChange={(open) => !open && setEventToEdit(null)}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                     <DialogHeader>
                         <DialogTitle>Editar Evento</DialogTitle>
                     </DialogHeader>
@@ -476,10 +477,10 @@ function EventCard({ event, getEventTypeColor, getStatusBadge, onViewDetails, on
                     )}
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">{event.description}</p>
+            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{event.description}</p>
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-primary" />
                         <span>{formatDate(event.date)}</span>

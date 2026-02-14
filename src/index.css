@@ -4,6 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    @apply antialiased overflow-x-hidden;
+    touch-action: manipulation;
+  }
+}
+
 /*
   🎨 Sistema de Temas Premium - Gestão Igreja
   5 Temas com Dark Mode automático

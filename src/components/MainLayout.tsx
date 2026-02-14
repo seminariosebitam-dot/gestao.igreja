@@ -23,17 +23,17 @@ export function MainLayout({ children }: MainLayoutProps) {
 
             {/* Mobile/Tablet Header & Sidebar */}
             <div className="flex-1 flex flex-col min-w-0">
-                <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden">
-                    <Logo size="sm" />
-                    <div className="flex items-center gap-2">
+                <header className="lg:hidden flex items-center justify-between p-3 sm:p-4 border-b border-border bg-card print:hidden">
+                    <Logo size="xs" />
+                    <div className="flex items-center gap-1 sm:gap-2">
                         <NotificationCenter />
                         <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <Menu className="h-6 w-6" />
+                                <Button variant="ghost" size="icon" className="h-9 w-9">
+                                    <Menu className="h-5 w-5" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="p-0 w-64 border-r-0">
+                            <SheetContent side="left" className="p-0 w-[280px] sm:w-64 border-r-0">
                                 <div className="h-full" onClick={() => setOpen(false)}>
                                     <Sidebar />
                                 </div>
@@ -42,7 +42,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                     </div>
                 </header>
 
-                <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+                <main className="flex-1 p-3 md:p-6 lg:p-8 overflow-x-hidden">
                     {children}
                 </main>
             </div>
