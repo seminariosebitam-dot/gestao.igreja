@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Logo } from './Logo';
+import { NotificationCenter } from './NotificationCenter';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -24,18 +25,21 @@ export function MainLayout({ children }: MainLayoutProps) {
             <div className="flex-1 flex flex-col min-w-0">
                 <header className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card print:hidden">
                     <Logo size="sm" />
-                    <Sheet open={open} onOpenChange={setOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <Menu className="h-6 w-6" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="p-0 w-64 border-r-0">
-                            <div className="h-full" onClick={() => setOpen(false)}>
-                                <Sidebar />
-                            </div>
-                        </SheetContent>
-                    </Sheet>
+                    <div className="flex items-center gap-2">
+                        <NotificationCenter />
+                        <Sheet open={open} onOpenChange={setOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <Menu className="h-6 w-6" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="p-0 w-64 border-r-0">
+                                <div className="h-full" onClick={() => setOpen(false)}>
+                                    <Sidebar />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                    </div>
                 </header>
 
                 <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">

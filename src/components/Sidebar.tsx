@@ -26,6 +26,7 @@ import { Logo } from '@/components/Logo';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types';
+import { NotificationCenter } from './NotificationCenter';
 
 interface NavItem {
   icon: React.ElementType;
@@ -111,14 +112,17 @@ export function Sidebar() {
     >
       <div className="p-4 border-b border-border/50 flex items-center justify-between">
         {!collapsed && <Logo size="sm" />}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto hover:bg-primary/10"
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        <div className="flex items-center gap-1 ml-auto">
+          {!collapsed && <NotificationCenter />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className="hover:bg-primary/10"
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
 
       <nav className="flex-1 p-3 space-y-2" translate="no">

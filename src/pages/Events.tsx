@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Calendar, Plus, ListChecks, Users, Clock, MapPin, Tag, Search, Filter, Loader2, CheckCircle2, AlertCircle, MessageSquare, ChevronRight } from 'lucide-react';
+import { Calendar, Plus, ListChecks, Users, Clock, MapPin, Tag, Search, Filter, Loader2, CheckCircle2, AlertCircle, MessageSquare, ChevronRight, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -926,8 +926,47 @@ function CreateChecklistForm({ onClose, events, onSuccess }: { onClose: () => vo
         }
     };
 
+    const handleApplyTemplate = (type: 'culto' | 'evento' | 'batismo') => {
+        const templates = {
+            culto: [
+                'Verificar Som e Projeção',
+                'Organizar cadeiras e púlpito',
+                'Preparar Elementos Ceia (se houver)',
+                'Testar Microfones',
+                'Recepcionar convidados',
+                'Limpeza do Templo'
+            ],
+            evento: [
+                'Montagem de Decoração',
+                'Preparar Coffee Break',
+                'Configurar Som/Som Externo',
+                'Briefing com a Equipe',
+                'Verificar Banheiros/Limpeza',
+                'Sinalização do Local'
+            ],
+            batismo: [
+                'Encher Batistério / Piscina',
+                'Preparar Toalhas e Roupas',
+                'Som e Música ambiente',
+                'Organizar Fichas de Batismo',
+                'Verificar Troca de Roupa'
+            ]
+        };
+
+        setTasks(templates[type].join('\n'));
+        toast({
+            title: 'Template aplicado',
+            description: 'A lista de tarefas foi preenchida.'
+        });
+    };
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('culto')} className="text-[10px] h-7 border-primary/20">Culto Regular</Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('evento')} className="text-[10px] h-7 border-primary/20">Evento Especial</Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('batismo')} className="text-[10px] h-7 border-primary/20">Batismo</Button>
+            </div>
             <div className="space-y-2">
                 <Label>Selecione o Evento</Label>
                 <Select value={selectedEventId} onValueChange={setSelectedEventId}>
@@ -968,8 +1007,7 @@ function ManageScaleForm({ onClose, events, onSuccess }: { onClose: () => void; 
     const [loading, setLoading] = useState(false);
     const [members, setMembers] = useState<any[]>([]);
     const [selectedEventId, setSelectedEventId] = useState<string>('');
-    const [selectedMemberId, setSelectedMemberId] = useState<string>('');
-    const [role, setRole] = useState<string>('');
+    const [scaleEntries, setScaleEntries] = useState<{ memberId: string, role: string }[]>([{ memberId: '', role: '' }]);
 
     useEffect(() => {
         loadMembers();
@@ -986,13 +1024,16 @@ function ManageScaleForm({ onClose, events, onSuccess }: { onClose: () => void; 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedEventId || !selectedMemberId || !role.trim()) return;
+        const validEntries = scaleEntries.filter(e => e.memberId && e.role.trim());
+        if (!selectedEventId || validEntries.length === 0) return;
 
         try {
             setLoading(true);
-            await eventsService.addToServiceScale(selectedEventId, selectedMemberId, role.trim());
+            await Promise.all(validEntries.map(entry =>
+                eventsService.addToServiceScale(selectedEventId, entry.memberId, entry.role.trim())
+            ));
 
-            toast({ title: 'Membro escalado!', description: 'A escala foi atualizada com sucesso.' });
+            toast({ title: 'Escala atualizada!', description: `${validEntries.length} membros foram escalados.` });
             onSuccess();
             onClose();
         } catch (error: any) {
@@ -1002,29 +1043,19 @@ function ManageScaleForm({ onClose, events, onSuccess }: { onClose: () => void; 
         }
     };
 
-    const handleApplyTemplate = async (templateType: 'culto' | 'jovens') => {
+    const handleApplyTemplate = (templateType: 'culto' | 'jovens') => {
         const templates = {
-            culto: [
-                { role: 'Som / Projeção' },
-                { role: 'Louvor (Violão)' },
-                { role: 'Louvor (Vocal)' },
-                { role: 'Recepção (Porta)' },
-                { role: 'Pregação' }
-            ],
-            jovens: [
-                { role: 'Som / Projeção' },
-                { role: 'Líder de Quebra-gelo' },
-                { role: 'Louvor' },
-                { role: 'Palavra' }
-            ]
+            culto: ['Som / Projeção', 'Louvor (Instrumento)', 'Louvor (Vocal)', 'Recepção', 'Pregação'],
+            jovens: ['Mestre de Cerimônia', 'Quebra-gelo', 'Louvor', 'Palavra', 'Social Media']
         };
 
         const roles = templates[templateType];
+        setScaleEntries(roles.map(r => ({ memberId: '', role: r })));
+
         toast({
-            title: 'Template Sugerido',
-            description: `Dica: Escale membros para as funções de: ${roles.map(r => r.role).join(', ')}.`,
+            title: 'Template aplicado',
+            description: 'Selecione os membros para cada função sugerida.'
         });
-        setRole(roles[0].role);
     };
 
     return (
@@ -1033,6 +1064,7 @@ function ManageScaleForm({ onClose, events, onSuccess }: { onClose: () => void; 
                 <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('culto')} className="text-[10px] h-7 border-primary/20">Template Culto</Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('jovens')} className="text-[10px] h-7 border-primary/20">Template Jovens</Button>
             </div>
+
             <div className="space-y-2">
                 <Label>Selecione o Evento</Label>
                 <Select value={selectedEventId} onValueChange={setSelectedEventId}>
@@ -1048,32 +1080,71 @@ function ManageScaleForm({ onClose, events, onSuccess }: { onClose: () => void; 
                     </SelectContent>
                 </Select>
             </div>
-            <div className="space-y-2">
-                <Label>Selecione o Membro</Label>
-                <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Selecione o membro..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {members.map(member => (
-                            <SelectItem key={member.id} value={member.id}>
-                                {member.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                {scaleEntries.map((entry, index) => (
+                    <div key={index} className="grid grid-cols-2 gap-2 p-3 border rounded-xl bg-muted/5 relative group">
+                        <div className="space-y-1">
+                            <Label className="text-[10px] uppercase text-muted-foreground">Função</Label>
+                            <Input
+                                value={entry.role}
+                                onChange={(e) => {
+                                    const newEntries = [...scaleEntries];
+                                    newEntries[index].role = e.target.value;
+                                    setScaleEntries(newEntries);
+                                }}
+                                placeholder="Ex: Som"
+                                className="h-8 text-sm"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label className="text-[10px] uppercase text-muted-foreground">Membro</Label>
+                            <Select value={entry.memberId} onValueChange={(val) => {
+                                const newEntries = [...scaleEntries];
+                                newEntries[index].memberId = val;
+                                setScaleEntries(newEntries);
+                            }}>
+                                <SelectTrigger className="h-8 text-sm">
+                                    <SelectValue placeholder="Selecione..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {members.map(member => (
+                                        <SelectItem key={member.id} value={member.id}>
+                                            {member.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        {scaleEntries.length > 1 && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full bg-destructive text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => setScaleEntries(scaleEntries.filter((_, i) => i !== index))}
+                            >
+                                <X className="h-3 w-3" />
+                            </Button>
+                        )}
+                    </div>
+                ))}
             </div>
-            <div className="space-y-2">
-                <Label>Função/Cargo</Label>
-                <Input
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    placeholder="Ex: Pregador, Recepcionista, Som, etc."
-                />
-            </div>
-            <div className="flex justify-end gap-2">
+
+            <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full border-dashed border-2 text-muted-foreground hover:text-primary"
+                onClick={() => setScaleEntries([...scaleEntries, { memberId: '', role: '' }])}
+            >
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar mais uma função
+            </Button>
+
+            <div className="flex justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-                <Button type="submit" disabled={loading || !selectedEventId || !selectedMemberId || !role.trim()}>
+                <Button type="submit" disabled={loading || !selectedEventId || scaleEntries.every(e => !e.memberId)}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Confirmar Escala
                 </Button>
