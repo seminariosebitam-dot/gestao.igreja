@@ -22,8 +22,8 @@ Projetos: gestigreja, sebitam, etc.
 ## Deploy automático
 
 Depois de configurar:
-1. `git add .` e `git commit -m "..."` 
-2. `git push origin main`
+1. `git add .` e `git commit -m "sua mensagem"` 
+2. `git push origin HEAD:main` — ou use `npm run push`
 
 O Netlify detecta o push e faz o deploy automaticamente.
 

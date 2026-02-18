@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "push": "git push origin HEAD:main",
     "setup:env": "node setup-env.js",
     "netlify:env": "node netlify-set-env.js",
     "build": "vite build",
