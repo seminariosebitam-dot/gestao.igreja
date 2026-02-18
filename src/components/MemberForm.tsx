@@ -175,7 +175,6 @@ export function MemberForm({ onSubmit, onCancel, initialData }: MemberFormProps)
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: maskPhone(e.target.value) })}
-                placeholder="(11) 99999-9999"
                 placeholder="(00) 00000-0000"
                 required
               />
