@@ -17,10 +17,10 @@ Projetos: gestigreja, sebitam, etc.
 Se o projeto **gestchurch** foi substituído por **sebitam** (ou sumiu), recrie assim:
 
 ### Opção A: Novo site (recomendado)
-1. Acesse **https://app.netlify.com**
+1. Acesse **https://app.netlify.com/teams/seminariosebitam/projects**
 2. **Add new site** → **Import an existing project**
 3. **Deploy with GitHub** → autorize se pedir
-4. Selecione **edukadoshmda-ops/gestaoigreja**
+4. Selecione **seminariosebitam-dot/gestao.igreja** (ou edukadoshmda-ops/gestaoigreja, se tiver acesso)
 5. **Branch to deploy:** `main`
 6. **Build command:** `npm run build` | **Publish directory:** `dist`
 7. Adicione as variáveis:
@@ -92,11 +92,12 @@ Para mudar o nome: **Site settings** → **Domain management** → **Change site
 ---
 
 ## Resumo
-| | Este app (Gestão Igreja) |
-|---|---|
-| **Repositório** | edukadoshmda-ops/gestaoigreja |
-| **Branch** | main |
-| **URL desejada** | gestchurch.netlify.app |
+| Uso | Repositório | Branch |
+|-----|-------------|--------|
+| **seminariosebitam** (gestigreja no Netlify) | seminariosebitam-dot/gestao.igreja | main |
+| edukadoshmda | edukadoshmda-ops/gestaoigreja | main |
+
+**URL desejada:** gestchurch.netlify.app ou gestigreja.netlify.app
 
 **Se gestchurch sumiu:** crie um novo site (Opção A) ou reconfigure o sebitam (Opção B) e troque o nome para gestchurch.
 
