@@ -1,7 +1,14 @@
 # Deploy no Netlify — edukadoshmda-ops/gestaoigreja
 
+## Acesso direto ao Netlify
+**https://app.netlify.com/teams/seminariosebitam/projects**
+
+Projetos: gestigreja, sebitam, etc.
+
+---
+
 ## URL em produção (esperada)
-**https://gestchurch.netlify.app**
+**https://gestchurch.netlify.app** (ou gestigreja.netlify.app)
 
 ---
 
@@ -92,6 +99,15 @@ Para mudar o nome: **Site settings** → **Domain management** → **Change site
 | **URL desejada** | gestchurch.netlify.app |
 
 **Se gestchurch sumiu:** crie um novo site (Opção A) ou reconfigure o sebitam (Opção B) e troque o nome para gestchurch.
+
+---
+
+## Erro "Error enqueueing build" (GitHub / API)
+
+Problema de permissão Netlify ↔ GitHub:
+1. **https://github.com/apps/netlify** → Configure → **Repository access**
+2. Garanta que o repositório (edukadoshmda-ops/gestaoigreja ou seminariosebitam-dot/gestao.igreja) está autorizado
+3. No Netlify: **Manage repository** → link novamente o repositório
 
 ---
 
