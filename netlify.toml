@@ -2,8 +2,12 @@
 # Não altera a Vercel; você pode usar os dois.
 
 [build]
+  base = "."
   command = "npm run build"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 # SPA: todas as rotas caem no index.html
 [[redirects]]
