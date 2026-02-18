@@ -32,12 +32,12 @@
 - Conecte **seminariosebitam-dot/gestao.igreja**
 - Build command: `npm run build`
 - Build output: `dist`
-- Sem `package-lock.json` no repo: Cloudflare usa `npm install` (evita erro de npm ci)
 
 ---
 
 ## Se o build falhar
 
-1. **npm ci / package-lock:** rode `npm install` local e faça push do `package-lock.json`
+1. **npm ci / package-lock (Cloudflare):** rode `npm install` local e faça push do `package-lock.json`
+   - Sempre que alterar `package.json`, rode `npm install` e commite o `package-lock.json`
 2. **Node version:** o projeto usa Node 18+. `.nvmrc` e `engines` já definem
 3. **Erro de checkout (Netlify):** autorize o repo em github.com/apps/netlify

@@ -33,3 +33,5 @@ npm run dev
 ```
 
 Build: `npm run build`
+
+**Se alterar `package.json`:** rode `npm run sync-lock` e commite o `package-lock.json` (evita falha no Cloudflare/Netlify).
