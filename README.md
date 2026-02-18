@@ -1,13 +1,13 @@
-# Gestão Igreja / gestao-church
+# [![Netlify Status](https://api.netlify.com/api/v1/badges/f2d62539-f91c-47a5-bee7-8d9657eb9bcd/deploy-status)](https://app.netlify.com/projects/gestigreja/deploys)Gestão Igreja / gestao-church
 
-App de gestão para igreja — deploy no GitHub, Vercel e Supabase.
+App de gestão para igreja — deploy no GitHub, Netlify e Supabase.
+
+> **Selo de status Netlify:** Configuração do projeto → Geral → Indicadores de status → copie o Markdown.
 
 ## Passos principais
 
 1. **Repositório no GitHub**
-   - Este projeto pode estar em mais de um remote, por exemplo:
-     - `origin` → seminariosebitam-dot/gest-o.igreja
-     - `gestao2026` → gestaoigreja2026-cyber/gestao-church
+   - `origin` → [seminariosebitam-dot/gestao.igreja](https://github.com/seminariosebitam-dot/gestao.igreja)
 
 2. **Variáveis de ambiente (local e Vercel/Netlify)**
    - Copie `.env.example` para `.env.local` e preencha:

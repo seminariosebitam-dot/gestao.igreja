@@ -35,6 +35,8 @@ O Netlify detecta o push e faz o deploy automaticamente.
 
 O `netlify.toml` já define Build e Publish — não precisa configurar manualmente.
 
+**Onde fica Trigger deploy:** Menu esquerdo → **Deploys** (ou **Implanta**) → botão **Trigger deploy** (ou **Iniciar deploy**) → **Deploy site**
+
 ### 1. Criar o site
 1. Acesse **https://app.netlify.com/teams/seminariosebitam/projects**
 2. **Add new site** → **Import an existing project**
@@ -100,3 +102,23 @@ Se não aparecer: o Netlify usa automaticamente o `netlify.toml` do repo. Basta 
 ## Mudar o nome do site
 
 **Site configuration** → **Domain management** → **Change site name** → digite **gestchurch** ou **gestigreja**
+
+---
+
+## Selo de status no README
+
+1. Netlify → projeto gestigreja → **Configuração do projeto** → **Geral**
+2. **Indicadores de status** (Status badges)
+3. Copie o trecho Markdown gerado
+4. Cole no `README.md` do repositório
+
+O selo mostra o status do deploy (passed/failed) e ao clicar abre a página de deploys.
+
+---
+
+## (3) Trigger deploy — caminho completo
+
+1. Abra o projeto (gestigreja) no Netlify
+2. Menu esquerdo → **Deploys** (ou **Implanta**)
+3. Clique em **Trigger deploy** (canto superior direito)
+4. Escolha **Deploy site** (ou **Clear cache and deploy site** para limpar cache)
