@@ -31,6 +31,10 @@ O Netlify detecta o push e faz o deploy automaticamente.
 
 ## Configurar site novo no Netlify
 
+**Checklist essencial:** (1) Linkar repositório (2) Adicionar variáveis de ambiente (3) Trigger deploy
+
+O `netlify.toml` já define Build e Publish — não precisa configurar manualmente.
+
 ### 1. Criar o site
 1. Acesse **https://app.netlify.com/teams/seminariosebitam/projects**
 2. **Add new site** → **Import an existing project**
@@ -70,10 +74,25 @@ Problema de permissão Netlify ↔ GitHub:
 
 ---
 
+## Onde achar Base directory, Build command, Publish directory
+
+O arquivo `netlify.toml` no repositório **já define** tudo. Você normalmente não precisa mexer na interface.
+
+Se quiser conferir ou mudar:
+1. Abra o projeto (ex: gestigreja)
+2. Menu esquerdo → **Configuração do projeto** (ícone de engrenagem)
+3. **Build & deploy** → **Continuous deployment**
+4. Role a página até **Build settings** — pode ter **Options** ou **Edit settings**
+5. Ou: **Build & deploy** → **Build** (alguns plans mostram como aba separada)
+
+Se não aparecer: o Netlify usa automaticamente o `netlify.toml` do repo. Basta garantir que o repositório está linkado.
+
+---
+
 ## Erro "Build script returned non-zero"
 
 1. **Variáveis de ambiente:** `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` obrigatórias
-2. **Build settings:** Base directory vazio, Build `npm run build`, Publish `dist`
+2. O `netlify.toml` já tem Build e Publish corretos — se o build falhar, confira as variáveis
 3. Ver logs do deploy que falhou para detalhes
 
 ---
