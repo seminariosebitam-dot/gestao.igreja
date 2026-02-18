@@ -32,7 +32,7 @@
 - Conecte **seminariosebitam-dot/gestao.igreja**
 - Build command: `npm run build`
 - Build output: `dist`
-- O `package-lock.json` deve estar em sync (já está)
+- Sem `package-lock.json` no repo: Cloudflare usa `npm install` (evita erro de npm ci)
 
 ---
 
