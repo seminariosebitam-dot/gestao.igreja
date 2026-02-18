@@ -609,3 +609,27 @@
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
 }
+
+/* Remove URLs do rodapé e cabeçalho durante impressão */
+@media print {
+  @page {
+    margin: 2cm;
+  }
+  /* Remove cabeçalhos e rodapés padrão do navegador que mostram URLs */
+  body::after,
+  body::before,
+  *::after[content*="localhost"],
+  *::after[content*="caixa-diario"],
+  *::before[content*="localhost"],
+  *::before[content*="caixa-diario"] {
+    content: none !important;
+    display: none !important;
+    visibility: hidden !important;
+  }
+  /* Remove URLs de links impressos */
+  a[href*="localhost"]::after,
+  a[href*="caixa-diario"]::after {
+    content: none !important;
+    display: none !important;
+  }
+}

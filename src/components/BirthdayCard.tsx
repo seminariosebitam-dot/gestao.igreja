@@ -3,15 +3,18 @@ import { Cake, PartyPopper, MessageSquare, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { membersService } from '@/services/members.service';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function BirthdayCard() {
   const [birthdays, setBirthdays] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { churchId, user } = useAuth();
+  const effectiveChurchId = churchId ?? user?.churchId;
 
   useEffect(() => {
     async function loadBirthdays() {
       try {
-        const data = await membersService.getAll();
+        const data = await membersService.getAll(effectiveChurchId);
         const today = new Date();
         const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -28,7 +31,7 @@ export function BirthdayCard() {
       }
     }
     loadBirthdays();
-  }, []);
+  }, [effectiveChurchId]);
 
   if (loading) {
     return (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2, Upload, Save, Globe, ShieldCheck, Info, Lock } from 'lucide-react';
+import { Building2, Upload, Save, ShieldCheck, Info, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,15 +8,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { supabase } from '@/lib/supabaseClient';
+import { authService } from '@/services/auth.service';
+import { DEFAULT_CHURCH_NAME } from '@/lib/constants';
 
 export default function Institutional() {
+  useDocumentTitle('Configurações');
   const { toast } = useToast();
   const { user } = useAuth();
   const canEdit = user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
 
   const [churchData, setChurchData] = useState({
-    name: 'Igreja Comunidade Cristã',
+    name: DEFAULT_CHURCH_NAME,
     address: 'Av. Principal, 1000 - Centro',
     phone: '(11) 3333-4444',
     email: 'contato@igreja.com.br',
@@ -30,6 +34,10 @@ export default function Institutional() {
     showInDirectory: false,
     acceptedLGPD: true
   });
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const handleSave = () => {
     toast({
@@ -128,6 +136,62 @@ export default function Institutional() {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Alterar senha */}
+        <Card className="border-none shadow-lg overflow-hidden">
+          <div className="h-2 bg-primary/20 w-full"></div>
+          <CardHeader className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Lock className="h-5 w-5 text-primary" />
+              Alterar senha
+            </CardTitle>
+            <CardDescription>
+              Defina uma nova senha. Mínimo de 6 caracteres.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nova senha</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                placeholder="••••••••"
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+            <Button
+              disabled={newPassword.length < 6 || newPassword !== confirmPassword || changingPassword}
+              onClick={async () => {
+                setChangingPassword(true);
+                try {
+                  await authService.updatePassword(newPassword);
+                  toast({ title: 'Senha alterada', description: 'Sua senha foi atualizada com sucesso.' });
+                  setNewPassword('');
+                  setConfirmPassword('');
+                } catch (err: unknown) {
+                  const msg = err instanceof Error ? err.message : 'Erro ao alterar senha.';
+                  toast({ title: 'Erro', description: msg, variant: 'destructive' });
+                } finally {
+                  setChangingPassword(false);
+                }
+              }}
+            >
+              {changingPassword ? 'Alterando…' : 'Alterar senha'}
+            </Button>
           </CardContent>
         </Card>
 
