@@ -16,6 +16,8 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/contexts/AuthContext';
 import { APP_NAME } from '@/lib/constants';
 
+const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/X104535775J';
+
 const features = [
   {
     icon: Users,
@@ -100,12 +102,12 @@ export default function Landing() {
             Membros, ministérios, financeiro, eventos e documentos oficiais em um só lugar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/login">
+            <a href={HOTMART_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2 text-lg px-8 h-14 shadow-lg shadow-primary/25">
-                Começar agora
+                Assinar agora
                 <ArrowRight className="h-5 w-5" />
               </Button>
-            </Link>
+            </a>
             <a href="#planos">
               <Button size="lg" variant="outline" className="text-lg px-8 h-14">
                 Ver planos
@@ -173,13 +175,13 @@ export default function Landing() {
                 </li>
               ))}
             </ul>
-            <Link to="/login" className="block">
+            <a href={HOTMART_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="block">
               <Button className="w-full h-12 text-base font-semibold" size="lg">
-                Entrar e começar
+                Assinar agora
               </Button>
-            </Link>
+            </a>
             <p className="text-xs text-muted-foreground text-center mt-4">
-              Ao assinar, você será redirecionado para criar sua conta e acessar o app.
+              Pagamento seguro via Hotmart. Após a confirmação, você terá acesso ao app.
             </p>
           </div>
         </div>

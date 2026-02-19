@@ -90,7 +90,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
-      <Route path="/checkout" element={<Navigate to="/login" replace />} />
+      <Route path="/checkout" element={<Navigate to="/" replace />} />
       <Route path="/hotmart-success" element={<HotmartSuccess />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <NewLogin />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
