@@ -40,8 +40,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      buffer: 'buffer',
     },
     // Evita "Cannot read properties of null (reading 'useState')" com react-leaflet
     dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['buffer'],
   },
 });

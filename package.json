@@ -20,6 +20,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "@hookform/resolvers": "^3.10.0",
     "leaflet": "^1.9.4",
     "@radix-ui/react-accordion": "^1.2.11",
