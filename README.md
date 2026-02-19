@@ -34,4 +34,4 @@ npm run dev
 
 Build: `npm run build`
 
-**Se alterar `package.json`:** rode `npm run sync-lock` (o lock não vai para o repo — Cloudflare usa npm install).
+**Se alterar `package.json`:** rode `npm install` e commite o `package-lock.json` — obrigatório para Netlify, Vercel e Cloudflare.

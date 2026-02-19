@@ -37,6 +37,6 @@
 
 ## Se o build falhar
 
-1. **Cloudflare (npm ci falha):** o projeto não usa `package-lock.json` no repo — Cloudflare usa `npm install` e o build passa.
+1. **package-lock.json:** sempre rode `npm install` e commite o lock após alterar `package.json` — evita falha em Netlify, Vercel e Cloudflare.
 2. **Node version:** o projeto usa Node 18+. `.nvmrc` e `engines` já definem
 3. **Erro de checkout (Netlify):** autorize o repo em github.com/apps/netlify
