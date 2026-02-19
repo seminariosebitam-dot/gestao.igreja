@@ -30,13 +30,14 @@
 ## Cloudflare Pages
 
 - Conecte **seminariosebitam-dot/gestao.igreja**
-- Build command: `npm run build`
+- Build command: `npm install && npm run build`
 - Build output: `dist`
+- Node version: 20 (Environment variables → add NODE_VERSION = 20)
 
 ---
 
 ## Se o build falhar
 
-1. **package-lock.json:** sempre rode `npm install` e commite o lock após alterar `package.json` — evita falha em Netlify, Vercel e Cloudflare.
+1. **Instalação:** o projeto não versiona `package-lock.json`; Netlify/Vercel/Cloudflare usam `npm install`.
 2. **Node version:** o projeto usa Node 18+. `.nvmrc` e `engines` já definem
 3. **Erro de checkout (Netlify):** autorize o repo em github.com/apps/netlify
