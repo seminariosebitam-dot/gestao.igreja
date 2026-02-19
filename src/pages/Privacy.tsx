@@ -1,11 +1,21 @@
 import { useState } from 'react';
-import { Shield, Info, FileCheck } from 'lucide-react';
+import { Shield, Info, FileCheck, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { authService } from '@/services/auth.service';
 
 export default function Privacy() {
   useDocumentTitle('Privacidade e LGPD');
+  const { toast } = useToast();
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const [privacySettings, setPrivacySettings] = useState({
     shareData: true,
@@ -95,6 +105,60 @@ export default function Privacy() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Alterar senha */}
+      <Card className="border-none shadow-lg overflow-hidden">
+        <div className="h-2 bg-primary/20 w-full" />
+        <CardHeader className="space-y-1">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Lock className="h-5 w-5 text-primary" />
+            Alterar senha
+          </CardTitle>
+          <CardDescription>Defina uma nova senha. Mínimo de 6 caracteres.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="newPassword">Nova senha</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              placeholder="••••••••"
+              minLength={6}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmar nova senha</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
+          <Button
+            disabled={newPassword.length < 6 || newPassword !== confirmPassword || changingPassword}
+            onClick={async () => {
+              setChangingPassword(true);
+              try {
+                await authService.updatePassword(newPassword);
+                toast({ title: 'Senha alterada', description: 'Sua senha foi atualizada com sucesso.' });
+                setNewPassword('');
+                setConfirmPassword('');
+              } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : 'Erro ao alterar senha.';
+                toast({ title: 'Erro', description: msg, variant: 'destructive' });
+              } finally {
+                setChangingPassword(false);
+              }
+            }}
+          >
+            {changingPassword ? 'Alterando…' : 'Alterar senha'}
+          </Button>
         </CardContent>
       </Card>
     </div>
