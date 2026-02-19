@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import NewLogin from "./pages/NewLogin";
 import Landing from "./pages/Landing";
 import Checkout from "./pages/Checkout";
@@ -134,6 +135,7 @@ function App() {
                 <Toaster />
                 <Sonner />
                 <AppRoutes />
+                <SpeedInsights />
               </AuthProvider>
             </TooltipProvider>
           </ThemeProvider>
