@@ -14,6 +14,7 @@ import ConfirmScale from "./pages/ConfirmScale";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { MainLayout } from "@/components/MainLayout";
+import { SubscriptionBlock } from "@/components/SubscriptionBlock";
 import { UserRole } from "@/types";
 import { Loader2 } from "lucide-react";
 
@@ -54,9 +55,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <MainLayout key={window.location.pathname}>
-      <Suspense fallback={<PageFallback />}>{children}</Suspense>
-    </MainLayout>
+    <SubscriptionBlock>
+      <MainLayout key={window.location.pathname}>
+        <Suspense fallback={<PageFallback />}>{children}</Suspense>
+      </MainLayout>
+    </SubscriptionBlock>
   );
 }
 
@@ -72,9 +75,11 @@ function RoleProtectedRoute({ children, roles }: { children: React.ReactNode; ro
   }
 
   return (
-    <MainLayout key={window.location.pathname}>
-      <Suspense fallback={<PageFallback />}>{children}</Suspense>
-    </MainLayout>
+    <SubscriptionBlock>
+      <MainLayout key={window.location.pathname}>
+        <Suspense fallback={<PageFallback />}>{children}</Suspense>
+      </MainLayout>
+    </SubscriptionBlock>
   );
 }
 

@@ -14,7 +14,11 @@ import {
     Loader2,
     BarChart3,
     DollarSign,
-    AlertCircle
+    AlertCircle,
+    Pause,
+    Play,
+    Banknote,
+    XCircle,
 } from 'lucide-react';
 import {
     Card,
@@ -42,6 +46,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -82,6 +87,8 @@ export default function SuperAdmin() {
 
     const [formData, setFormData] = useState({ name: '', slug: '', adminEmail: '' });
     const [submitting, setSubmitting] = useState(false);
+    const [actionChurchId, setActionChurchId] = useState<string | null>(null);
+    const [excludeConfirm, setExcludeConfirm] = useState<{ churchId: string; name: string } | null>(null);
 
     useEffect(() => {
         loadData();
@@ -130,6 +137,35 @@ export default function SuperAdmin() {
             toast({ title: 'Erro', description: 'Não foi possível carregar mensalidades.', variant: 'destructive' });
         } finally {
             setLoadingSubs(false);
+        }
+    }
+
+    async function handleSubscriptionAction(
+        churchId: string,
+        churchName: string,
+        action: 'suspend' | 'resume' | 'registerPayment' | 'exclude'
+    ) {
+        setActionChurchId(churchId);
+        try {
+            if (action === 'suspend') {
+                await churchesService.suspendChurchSubscription(churchId);
+                toast({ title: 'Serviço suspenso', description: `${churchName} — acesso interrompido.` });
+            } else if (action === 'resume') {
+                await churchesService.resumeChurchSubscription(churchId);
+                toast({ title: 'Serviço retomado', description: `${churchName} — acesso liberado.` });
+            } else if (action === 'registerPayment') {
+                await churchesService.registerPayment(churchId);
+                toast({ title: 'Pagamento registrado', description: `${churchName} — sistema ativo até o próximo vencimento.` });
+            } else if (action === 'exclude') {
+                await churchesService.cancelChurchSubscription(churchId);
+                toast({ title: 'Assinatura cancelada', description: `${churchName} — assinatura excluída.` });
+                setExcludeConfirm(null);
+            }
+            loadSubscriptions();
+        } catch (e: any) {
+            toast({ title: 'Erro', description: e?.message ?? 'Não foi possível executar a ação.', variant: 'destructive' });
+        } finally {
+            setActionChurchId(null);
         }
     }
 
@@ -407,7 +443,7 @@ export default function SuperAdmin() {
                     <Card className="border-none shadow-md">
                         <CardHeader>
                             <CardTitle>Acompanhamento de Mensalidades</CardTitle>
-                            <CardDescription>R$ 150/mês por igreja. Vencimento dia 10 de cada mês.</CardDescription>
+                            <CardDescription>R$ 150/mês por igreja. Vencimento dia 10 — suspensão automática dia 15 se inadimplente.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {loadingSubs ? (
@@ -432,13 +468,19 @@ export default function SuperAdmin() {
                                                 const churchId = sub.church_id ?? sub.churchId;
                                                 const status = sub.status ?? 'ativa';
                                                 const nextDue = sub.next_due_at ?? sub.nextDueAt;
+                                                const isActive = status === 'ativa' || status === 'trial';
+                                                const isSuspended = status === 'suspensa' || status === 'inadimplente';
+                                                const isCanceled = status === 'cancelada';
+                                                const loading = actionChurchId === churchId;
+                                                const statusLabel = status === 'ativa' ? 'Adimplente' : status === 'inadimplente' ? 'Inadimplente' : status === 'suspensa' ? 'Suspensa' : status === 'cancelada' ? 'Cancelada' : status;
                                                 return (
                                                     <TableRow key={churchId ?? sub.id ?? Math.random()}>
                                                         <TableCell className="font-medium">{churchName}</TableCell>
                                                         <TableCell>
-                                                            <Badge variant={status === 'inadimplente' ? 'destructive' : 'outline'}
-                                                                className={status === 'ativa' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ''}>
-                                                                {status === 'ativa' ? 'Adimplente' : status === 'inadimplente' ? 'Inadimplente' : status}
+                                                            <Badge
+                                                                variant={isSuspended || isCanceled ? 'destructive' : 'outline'}
+                                                                className={isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ''}>
+                                                                {statusLabel}
                                                             </Badge>
                                                         </TableCell>
                                                         <TableCell className="text-right font-semibold">R$ {(sub.plan_amount ?? 150).toFixed(2)}</TableCell>
@@ -447,9 +489,45 @@ export default function SuperAdmin() {
                                                         </TableCell>
                                                         <TableCell className="text-right">
                                                             {churchId && (
-                                                                <Button variant="ghost" size="sm" onClick={() => { switchChurch(churchId, churchName); navigate('/dashboard'); }}>
-                                                                    <ExternalLink className="h-4 w-4" />
-                                                                </Button>
+                                                                <div className="flex items-center justify-end gap-1">
+                                                                    <Button variant="ghost" size="sm" onClick={() => { switchChurch(churchId, churchName); navigate('/dashboard'); }} title="Acessar igreja">
+                                                                        <ExternalLink className="h-4 w-4" />
+                                                                    </Button>
+                                                                    {!isCanceled && (
+                                                                        <DropdownMenu>
+                                                                            <DropdownMenuTrigger asChild>
+                                                                                <Button variant="ghost" size="sm" disabled={loading}>
+                                                                                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreVertical className="h-4 w-4" />}
+                                                                                </Button>
+                                                                            </DropdownMenuTrigger>
+                                                                            <DropdownMenuContent align="end">
+                                                                                <DropdownMenuLabel>Ações manuais</DropdownMenuLabel>
+                                                                                <DropdownMenuSeparator />
+                                                                                <DropdownMenuItem onClick={() => handleSubscriptionAction(churchId, churchName, 'registerPayment')} disabled={loading}>
+                                                                                    <Banknote className="h-4 w-4 mr-2" />
+                                                                                    Registrar pagamento
+                                                                                </DropdownMenuItem>
+                                                                                {isActive && (
+                                                                                    <DropdownMenuItem onClick={() => handleSubscriptionAction(churchId, churchName, 'suspend')} disabled={loading}>
+                                                                                        <Pause className="h-4 w-4 mr-2" />
+                                                                                        Suspender
+                                                                                    </DropdownMenuItem>
+                                                                                )}
+                                                                                {isSuspended && (
+                                                                                    <DropdownMenuItem onClick={() => handleSubscriptionAction(churchId, churchName, 'resume')} disabled={loading}>
+                                                                                        <Play className="h-4 w-4 mr-2" />
+                                                                                        Retomar serviço
+                                                                                    </DropdownMenuItem>
+                                                                                )}
+                                                                                <DropdownMenuSeparator />
+                                                                                <DropdownMenuItem onClick={() => setExcludeConfirm({ churchId, name: churchName })} disabled={loading} className="text-destructive focus:text-destructive">
+                                                                                    <XCircle className="h-4 w-4 mr-2" />
+                                                                                    Excluir / Cancelar assinatura
+                                                                                </DropdownMenuItem>
+                                                                            </DropdownMenuContent>
+                                                                        </DropdownMenu>
+                                                                    )}
+                                                                </div>
                                                             )}
                                                         </TableCell>
                                                     </TableRow>
@@ -516,6 +594,16 @@ export default function SuperAdmin() {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={!!excludeConfirm}
+                onOpenChange={(o) => !o && setExcludeConfirm(null)}
+                title="Excluir / Cancelar assinatura"
+                description={excludeConfirm ? `Tem certeza que deseja cancelar a assinatura de "${excludeConfirm.name}"? O serviço será interrompido.` : ''}
+                onConfirm={() => excludeConfirm && handleSubscriptionAction(excludeConfirm.churchId, excludeConfirm.name, 'exclude')}
+                confirmLabel="Sim, cancelar"
+                variant="destructive"
+            />
         </div>
     );
 }

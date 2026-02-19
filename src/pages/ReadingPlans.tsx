@@ -10,6 +10,7 @@ import {
   Calendar,
   CheckCircle2,
   BarChart3,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ import {
   ReadingPlanProgress,
   ReadingPlanCompletion,
 } from '@/services/readingPlans.service';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -60,6 +62,8 @@ export default function ReadingPlans() {
   const [newDay, setNewDay] = useState({ day_number: 1, title: '', reference: '', content: '' });
   const [addingDay, setAddingDay] = useState(false);
   const [setupRequired, setSetupRequired] = useState(false);
+  const [memberProgressMap, setMemberProgressMap] = useState<Array<{ userId: string; name: string; completedCount: number; percent: number; lastReadAt: string | null }>>([]);
+  const [loadingMemberMap, setLoadingMemberMap] = useState(false);
 
   useEffect(() => {
     loadingPlans();
@@ -88,9 +92,55 @@ export default function ReadingPlans() {
     }
   }
 
+  async function loadMemberProgressMap(planId: string, totalDays: number) {
+    if (!canManage) return;
+    setLoadingMemberMap(true);
+    setMemberProgressMap([]);
+    try {
+      const [allProgress, allCompletions] = await Promise.all([
+        readingPlansService.getAllProgressForPlan(planId).catch(() => []),
+        readingPlansService.getAllCompletionsForPlan(planId).catch(() => []),
+      ]);
+      const userIds = [...new Set([...allProgress.map((p) => p.user_id)])];
+      if (userIds.length === 0) {
+        setLoadingMemberMap(false);
+        return;
+      }
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+      const nameByUserId = Object.fromEntries((profiles || []).map((p) => [p.id, p.full_name || 'Sem nome']));
+      const completionsByUser = allCompletions.reduce<Record<string, number>>((acc, c) => {
+        acc[c.user_id] = (acc[c.user_id] ?? 0) + 1;
+        return acc;
+      }, {});
+      const progressByUser = Object.fromEntries(allProgress.map((p) => [p.user_id, p]));
+      const map = userIds.map((userId) => {
+        const prog = progressByUser[userId];
+        const count = completionsByUser[userId] ?? (prog ? Math.max(0, prog.current_day - 1) : 0);
+        const percent = totalDays > 0 ? Math.round((count / totalDays) * 100) : 0;
+        return {
+          userId,
+          name: nameByUserId[userId] ?? userId.slice(0, 8),
+          completedCount: count,
+          percent,
+          lastReadAt: prog?.last_read_at ?? null,
+        };
+      });
+      map.sort((a, b) => b.completedCount - a.completedCount);
+      setMemberProgressMap(map);
+    } catch {
+      // Políticas RLS podem impedir; silencioso
+    } finally {
+      setLoadingMemberMap(false);
+    }
+  }
+
   async function openPlan(plan: ReadingPlan) {
     setSelectedPlan(plan);
     setLoadingPlan(true);
+    setMemberProgressMap([]);
     try {
       const [daysData, prog, compl] = await Promise.all([
         readingPlansService.getDays(plan.id),
@@ -101,6 +151,7 @@ export default function ReadingPlans() {
       setProgress(prog);
       setCompletions(compl);
       setCurrentDayNum(prog?.current_day ?? 1);
+      loadMemberProgressMap(plan.id, plan.total_days);
     } catch (e: any) {
       toast({ title: 'Erro ao carregar', description: e?.message, variant: 'destructive' });
     } finally {
@@ -132,6 +183,7 @@ export default function ReadingPlans() {
         { user_id: user.id, plan_id: selectedPlan.id, day_number: dayToMark, completed_at: new Date().toISOString() },
         ...prev.filter((c) => c.day_number !== dayToMark),
       ]);
+      if (canManage) loadMemberProgressMap(selectedPlan.id, selectedPlan.total_days);
     } catch (e: any) {
       toast({ title: 'Erro', description: e?.message, variant: 'destructive' });
     }
@@ -323,12 +375,67 @@ export default function ReadingPlans() {
                 </Card>
               )}
 
+              {canManage && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Mapa de conclusão e progresso por membro
+                    </CardTitle>
+                    <CardDescription>
+                      Registro de cada membro que participa do plano
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {loadingMemberMap ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : memberProgressMap.length === 0 ? (
+                      <p className="text-sm text-muted-foreground py-4 text-center">
+                        Nenhum membro iniciou este plano ainda.
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto rounded-md border">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-muted/50">
+                              <th className="text-left p-3 font-medium">Membro</th>
+                              <th className="text-right p-3 font-medium">Dias concluídos</th>
+                              <th className="text-right p-3 font-medium">Progresso</th>
+                              <th className="text-right p-3 font-medium">Última leitura</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {memberProgressMap.map((m) => (
+                              <tr key={m.userId} className="border-b last:border-0 hover:bg-muted/30">
+                                <td className="p-3">{m.name}</td>
+                                <td className="p-3 text-right">{m.completedCount} / {selectedPlan?.total_days ?? 0}</td>
+                                <td className="p-3 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <Progress value={m.percent} className="h-2 w-16 min-w-[4rem]" />
+                                    <span className="text-muted-foreground tabular-nums">{m.percent}%</span>
+                                  </div>
+                                </td>
+                                <td className="p-3 text-right text-muted-foreground">
+                                  {m.lastReadAt ? format(new Date(m.lastReadAt), "dd/MM/yyyy HH:mm", { locale: ptBR }) : '-'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
               {progress && (
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-2">
                       <BarChart3 className="h-4 w-4" />
-                      Registro de conclusão e progresso
+                      Meu registro de conclusão e progresso
                     </CardTitle>
                     <CardDescription>
                       {completedCount} de {selectedPlan?.total_days} dias concluídos

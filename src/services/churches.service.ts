@@ -183,6 +183,7 @@ export const churchesService = {
      */
     async getSubscriptions() {
         try {
+            await this.syncSubscriptionStatus();
             const { data: subs, error } = await (supabase as any)
                 .from('church_subscriptions')
                 .select('*, churches(name, slug)')
@@ -203,5 +204,45 @@ export const churchesService = {
             next_due_at: nextMonth.toISOString().slice(0, 10),
             churches: { name: c.name, slug: c.slug }
         }));
-    }
+    },
+
+    /** Sincroniza status (inadimplente dia 10, suspensa dia 15) */
+    async syncSubscriptionStatus() {
+        try {
+            await (supabase as any).rpc('sync_subscription_status');
+        } catch { /* RPC pode não existir */ }
+    },
+
+    /** Suspender serviço manualmente */
+    async suspendChurchSubscription(churchId: string) {
+        const { error } = await (supabase as any).rpc('suspend_church_subscription', { p_church_id: churchId });
+        if (error) throw error;
+    },
+
+    /** Retomar serviço */
+    async resumeChurchSubscription(churchId: string) {
+        const { error } = await (supabase as any).rpc('resume_church_subscription', { p_church_id: churchId });
+        if (error) throw error;
+    },
+
+    /** Registrar pagamento (volta ativa, próximo vencimento dia 10) */
+    async registerPayment(churchId: string) {
+        const { error } = await (supabase as any).rpc('register_payment_church', { p_church_id: churchId });
+        if (error) throw error;
+    },
+
+    /** Cancelar/excluir assinatura */
+    async cancelChurchSubscription(churchId: string) {
+        const { error } = await (supabase as any).rpc('cancel_church_subscription', { p_church_id: churchId });
+        if (error) throw error;
+    },
+
+    /** Status da assinatura da igreja do usuário (para bloqueio) */
+    async getMyChurchSubscriptionStatus(): Promise<{ status: string; blocked: boolean }> {
+        try {
+            const { data, error } = await (supabase as any).rpc('get_my_church_subscription_status');
+            if (!error && data?.[0]) return data[0];
+        } catch { }
+        return { status: 'ativa', blocked: false };
+    },
 };

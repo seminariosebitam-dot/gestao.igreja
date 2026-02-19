@@ -109,6 +109,26 @@ export const eventsService = {
     },
 
     /**
+     * Notifica todos os usuários da igreja sobre um evento
+     */
+    async notifyChurchAboutEvent(churchId: string, event: { title: string; date: string; time: string; type?: string }, link?: string) {
+        try {
+            const message = `${event.title} — ${event.date} às ${event.time}`;
+            const { data, error } = await (supabase as any).rpc('notify_church_about_event', {
+                p_church_id: churchId,
+                p_title: '📅 Novo evento na agenda',
+                p_message: message,
+                p_link: link || null,
+            });
+            if (error) throw error;
+            return data as number;
+        } catch (e) {
+            console.warn('notify_church_about_event:', e);
+            return 0;
+        }
+    },
+
+    /**
      * Delete an event
      */
     async delete(id: string) {

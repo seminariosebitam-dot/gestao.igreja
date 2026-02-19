@@ -162,6 +162,28 @@ export const readingPlansService = {
     return (data || []) as ReadingPlanCompletion[];
   },
 
+  /** Progresso de todos os membros no plano (para admins) */
+  async getAllProgressForPlan(planId: string): Promise<ReadingPlanProgress[]> {
+    const { data, error } = await supabase
+      .from('reading_plan_progress')
+      .select('*')
+      .eq('plan_id', planId);
+
+    if (error) throw error;
+    return (data || []) as ReadingPlanProgress[];
+  },
+
+  /** Conclusões de todos os membros no plano (para admins) */
+  async getAllCompletionsForPlan(planId: string): Promise<ReadingPlanCompletion[]> {
+    const { data, error } = await supabase
+      .from('reading_plan_completions')
+      .select('*')
+      .eq('plan_id', planId);
+
+    if (error) throw error;
+    return (data || []) as ReadingPlanCompletion[];
+  },
+
   async createPlan(
     churchId: string | null,
     plan: { name: string; description?: string; total_days: number }

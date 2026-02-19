@@ -36,6 +36,10 @@
 
 ---
 
+## Planos de leitura — mapa por membro
+
+Para admins verem o progresso de todos os membros, execute `supabase/reading_plan_admin_view.sql` no SQL Editor do Supabase.
+
 ## Se o build falhar
 
 1. **Instalação:** o projeto não versiona `package-lock.json`; Netlify/Vercel/Cloudflare usam `npm install`.

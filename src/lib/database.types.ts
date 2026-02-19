@@ -15,6 +15,11 @@ export interface Database {
                     name: string
                     slug: string
                     logo_url: string | null
+                    president_name?: string | null
+                    address?: string | null
+                    phone?: string | null
+                    email?: string | null
+                    about?: string | null
                     created_at: string
                     facebook_url?: string | null
                     instagram_url?: string | null
@@ -34,6 +39,11 @@ export interface Database {
                     name: string
                     slug: string
                     logo_url?: string | null
+                    president_name?: string | null
+                    address?: string | null
+                    phone?: string | null
+                    email?: string | null
+                    about?: string | null
                     created_at?: string
                     facebook_url?: string | null
                     instagram_url?: string | null
@@ -53,6 +63,11 @@ export interface Database {
                     name?: string
                     slug?: string
                     logo_url?: string | null
+                    president_name?: string | null
+                    address?: string | null
+                    phone?: string | null
+                    email?: string | null
+                    about?: string | null
                     created_at?: string
                     facebook_url?: string | null
                     instagram_url?: string | null
@@ -212,7 +227,7 @@ export interface Database {
                     church_id: string | null
                     title: string
                     description: string | null
-                    type: 'culto' | 'evento' | 'reuniao' | 'especial'
+                    type: 'culto' | 'evento' | 'reuniao' | 'especial' | 'ensaio'
                     date: string
                     time: string
                     location: string | null
@@ -229,7 +244,7 @@ export interface Database {
                     church_id?: string | null
                     title: string
                     description?: string | null
-                    type: 'culto' | 'evento' | 'reuniao' | 'especial'
+                    type: 'culto' | 'evento' | 'reuniao' | 'especial' | 'ensaio'
                     date: string
                     time: string
                     location?: string | null

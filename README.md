@@ -16,8 +16,9 @@ App de gestão para igreja — deploy no GitHub, Netlify e Supabase.
    - No Vercel/Netlify, configure as mesmas variáveis.
 
 3. **Deploy**
-   - **Vercel:** conectar o repositório no painel; o `vercel.json` já define build e redirects para SPA.
-   - **Netlify:** ver `docs/DEPLOY-NETLIFY.md` e usar o `netlify.toml` na raiz.
+   - **Deploy automático:** todo `git push` na `main` dispara o deploy. Ver `docs/DEPLOY-AUTOMATICO.md`.
+   - **Vercel:** conectar o repositório no painel ou configurar os secrets no GitHub Actions.
+   - **Netlify:** ver `docs/NETLIFY-EDUKADOSH.md` e `netlify.toml`.
 
 4. **Supabase**
    - Criar projeto no Supabase, aplicar o schema: `supabase/schema.sql`.

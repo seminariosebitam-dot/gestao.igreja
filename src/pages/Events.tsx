@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Calendar, Plus, ListChecks, Users, Clock, MapPin, Tag, Search, Filter, Loader2, CheckCircle2, AlertCircle, MessageSquare, ChevronRight, X, Edit2, Trash2 } from 'lucide-react';
+import { Calendar, Plus, ListChecks, Users, Clock, MapPin, Tag, Search, Filter, Loader2, CheckCircle2, AlertCircle, MessageSquare, ChevronRight, X, Edit2, Trash2, Share2, Bell, Music2, UsersRound } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,8 +16,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { eventsService } from '@/services/events.service';
 import { membersService } from '@/services/members.service';
+import { broadcastsService } from '@/services/broadcasts.service';
 import { useToast } from '@/hooks/use-toast';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ShareEventButtons } from '@/components/ShareEventButtons';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { supabase } from '@/lib/supabaseClient';
@@ -25,7 +28,7 @@ import { supabase } from '@/lib/supabaseClient';
 interface Event {
     id: string;
     title: string;
-    type: 'culto' | 'evento' | 'reuniao' | 'especial';
+    type: 'culto' | 'evento' | 'reuniao' | 'especial' | 'ensaio';
     date: string;
     time: string;
     location: string;
@@ -71,6 +74,7 @@ const getEventTypeColor = (type: string) => {
         evento: 'bg-blue-500',
         reuniao: 'bg-purple-500',
         especial: 'bg-amber-500',
+        ensaio: 'bg-teal-500',
     };
     return colors[type] || 'bg-gray-500';
 };
@@ -96,6 +100,8 @@ export default function Events() {
     const [isCreateWorshipOpen, setIsCreateWorshipOpen] = useState(false);
     const [isCreateChecklistOpen, setIsCreateChecklistOpen] = useState(false);
     const [isCreateScaleOpen, setIsCreateScaleOpen] = useState(false);
+    const [isCreateEnsaioOpen, setIsCreateEnsaioOpen] = useState(false);
+    const [isCreateReuniaoOpen, setIsCreateReuniaoOpen] = useState(false);
     const [selectedEventDetails, setSelectedEventDetails] = useState<Event | null>(null);
     const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string; event: Event } | null>(null);
@@ -265,7 +271,7 @@ export default function Events() {
                         Eventos & Agenda
                     </h1>
                     <p className="text-sm md:text-base text-muted-foreground mt-1">
-                        Gerencie cultos, eventos e escalas
+                        Calendário com notificações • Cultos, ensaios e reuniões • Compartilhamento nas redes
                     </p>
                 </div>
                 {user?.role && !['aluno', 'membro', 'congregado', 'tesoureiro'].includes(user.role) && (
@@ -303,6 +309,42 @@ export default function Events() {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <PlanWorshipForm onClose={() => setIsCreateWorshipOpen(false)} onSuccess={loadEvents} />
+                            </DialogContent>
+                        </Dialog>
+
+                        <Dialog open={isCreateEnsaioOpen} onOpenChange={setIsCreateEnsaioOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="w-full sm:w-auto border-2 border-primary/20 hover:bg-primary/5 text-sm sm:text-base h-14 sm:h-11 font-bold">
+                                    <Music2 className="h-5 w-5 mr-1 sm:mr-2" />
+                                    <span>Ensaio</span>
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
+                                <DialogHeader>
+                                    <DialogTitle className="text-xl">Agendar Ensaio</DialogTitle>
+                                    <DialogDescription>
+                                        Culto de louvor, ministério de música, ensaio do coral
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <PlanQuickEventForm type="ensaio" onClose={() => setIsCreateEnsaioOpen(false)} onSuccess={loadEvents} />
+                            </DialogContent>
+                        </Dialog>
+
+                        <Dialog open={isCreateReuniaoOpen} onOpenChange={setIsCreateReuniaoOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="w-full sm:w-auto border-2 border-primary/20 hover:bg-primary/5 text-sm sm:text-base h-14 sm:h-11 font-bold">
+                                    <UsersRound className="h-5 w-5 mr-1 sm:mr-2" />
+                                    <span>Reunião</span>
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
+                                <DialogHeader>
+                                    <DialogTitle className="text-xl">Agendar Reunião</DialogTitle>
+                                    <DialogDescription>
+                                        Reunião de ministério, célula, liderança
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <PlanQuickEventForm type="reuniao" onClose={() => setIsCreateReuniaoOpen(false)} onSuccess={loadEvents} />
                             </DialogContent>
                         </Dialog>
 
@@ -374,6 +416,7 @@ export default function Events() {
                             <SelectContent>
                                 <SelectItem value="todos">Todos os Tipos</SelectItem>
                                 <SelectItem value="culto">Cultos</SelectItem>
+                                <SelectItem value="ensaio">Ensaios</SelectItem>
                                 <SelectItem value="evento">Eventos</SelectItem>
                                 <SelectItem value="reuniao">Reuniões</SelectItem>
                                 <SelectItem value="especial">Especiais</SelectItem>
@@ -547,7 +590,7 @@ function EventCard({ event, getEventTypeColor, getStatusBadge, onViewDetails, on
 
                 <Separator />
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">
                             Responsável: <span className="font-semibold text-foreground">{event.responsible}</span>
@@ -568,10 +611,13 @@ function EventCard({ event, getEventTypeColor, getStatusBadge, onViewDetails, on
                             </Button>
                         )}
                     </div>
-                    <Button variant="outline" size="sm" className="hover:bg-primary/5 group/btn" onClick={onViewDetails}>
-                        Ver Detalhes
-                        <ChevronRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <ShareEventButtons title={event.title} date={event.date} time={event.time} location={event.location} size="sm" />
+                        <Button variant="outline" size="sm" className="hover:bg-primary/5 group/btn" onClick={onViewDetails}>
+                            Ver Detalhes
+                            <ChevronRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                        </Button>
+                    </div>
                 </div>
             </CardContent>
         </Card>
@@ -657,9 +703,12 @@ function CalendarView({ events, getEventTypeColor, onEdit, onDelete, isAdmin }: 
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-2">
-                                                    <Badge className={`${getEventTypeColor(event.type)} text-white text-[10px]`}>
-                                                        {event.type}
-                                                    </Badge>
+                                                    <div className="flex items-center gap-1">
+                                                        <ShareEventButtons title={event.title} date={event.date} time={event.time} location={event.location} variant="ghost" iconOnly className="h-7 w-7" />
+                                                        <Badge className={`${getEventTypeColor(event.type)} text-white text-[10px]`}>
+                                                            {event.type}
+                                                        </Badge>
+                                                    </div>
                                                     {isAdmin && (
                                                         <div className="flex gap-1">
                                                             <Button
@@ -839,6 +888,7 @@ function CreateEventForm({ onClose, onSuccess, initialData }: { onClose: () => v
     const [selectedGuests, setSelectedGuests] = useState<string[]>([]);
     const [memberSearch, setMemberSearch] = useState('');
     const [whatsappInviteConfirm, setWhatsappInviteConfirm] = useState<{ scaleResults: any[]; newEvent: any } | null>(null);
+    const [sendNotify, setSendNotify] = useState(true);
 
     useEffect(() => {
         loadMembers();
@@ -888,6 +938,16 @@ function CreateEventForm({ onClose, onSuccess, initialData }: { onClose: () => v
             } else {
                 eventPayload.status = 'planejado';
                 const newEvent = await eventsService.create(eventPayload, user.churchId);
+
+                if (sendNotify) {
+                    const n = await eventsService.notifyChurchAboutEvent(user.churchId, {
+                        title: eventPayload.title,
+                        date: eventPayload.date,
+                        time: eventPayload.time,
+                        type: eventPayload.type,
+                    });
+                    if (n > 0) toast({ title: 'Notificação enviada!', description: `${n} pessoas foram notificadas.` });
+                }
 
                 // Add selected guests to service scale as 'Convidado'
                 if (selectedGuests.length > 0) {
@@ -949,11 +1009,12 @@ function CreateEventForm({ onClose, onSuccess, initialData }: { onClose: () => v
                             <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="culto">Culto</SelectItem>
-                            <SelectItem value="evento">Evento</SelectItem>
-                            <SelectItem value="reuniao">Reunião</SelectItem>
-                            <SelectItem value="especial">Especial</SelectItem>
-                        </SelectContent>
+                                <SelectItem value="culto">Culto</SelectItem>
+                                <SelectItem value="ensaio">Ensaio</SelectItem>
+                                <SelectItem value="evento">Evento</SelectItem>
+                                <SelectItem value="reuniao">Reunião</SelectItem>
+                                <SelectItem value="especial">Especial</SelectItem>
+                            </SelectContent>
                     </Select>
                 </div>
                 <div className="space-y-2">
@@ -1029,6 +1090,13 @@ function CreateEventForm({ onClose, onSuccess, initialData }: { onClose: () => v
                                 * Os selecionados serão adicionados à escala do evento e você poderá enviar o convite individualmente após salvar.
                             </p>
                         </div>
+                        <div className="col-span-2 flex items-center gap-2 pt-2 border-t pt-4">
+                            <Checkbox id="sendNotify" checked={sendNotify} onCheckedChange={(v) => setSendNotify(!!v)} />
+                            <Label htmlFor="sendNotify" className="text-sm cursor-pointer flex items-center gap-2">
+                                <Bell className="h-4 w-4 text-primary" />
+                                Enviar notificação ao criar
+                            </Label>
+                        </div>
                     </>
                 )}
             </div>
@@ -1048,27 +1116,34 @@ function PlanWorshipForm({ onClose, onSuccess }: { onClose: () => void; onSucces
     const { user, churchId } = useAuth();
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
+    const [sendNotify, setSendNotify] = useState(true);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
+        const title = (formData.get('title') as string) || 'Culto de Adoração';
+        const date = formData.get('date') as string;
+        const time = (formData.get('time') as string) || '19:00';
 
         try {
             setLoading(true);
             if (!user?.churchId) throw new Error('Igreja não identificada.');
 
-            // Planejamento rápido de culto
             await eventsService.create({
-                title: formData.get('title') as string || 'Culto de Adoração',
+                title,
                 type: 'culto',
-                date: formData.get('date') as string,
-                time: formData.get('time') as string || '19:00',
+                date,
+                time,
                 location: 'Templo Principal',
                 description: 'Culto regular de adoração e palavra.',
                 status: 'planejado',
             }, user.churchId);
 
-            toast({ title: 'Culto planejado!', description: 'O evento foi adicionado à agenda.' });
+            if (sendNotify) {
+                const n = await eventsService.notifyChurchAboutEvent(user.churchId, { title, date, time, type: 'culto' });
+                if (n > 0) toast({ title: 'Culto planejado!', description: `${n} pessoas notificadas.` });
+            }
+            if (!sendNotify) toast({ title: 'Culto planejado!', description: 'O evento foi adicionado à agenda.' });
             onSuccess();
             onClose();
         } catch (error: any) {
@@ -1094,11 +1169,105 @@ function PlanWorshipForm({ onClose, onSuccess }: { onClose: () => void; onSucces
                     <Input id="w-time" name="time" type="time" defaultValue="19:00" />
                 </div>
             </div>
+            <div className="flex items-center gap-2 pt-2">
+                <Checkbox id="w-sendNotify" checked={sendNotify} onCheckedChange={(v) => setSendNotify(!!v)} />
+                <Label htmlFor="w-sendNotify" className="text-sm cursor-pointer flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    Enviar notificação ao criar
+                </Label>
+            </div>
             <div className="flex justify-end gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
                 <Button type="submit" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Planejar Culto
+                </Button>
+            </div>
+        </form>
+    );
+}
+
+function PlanQuickEventForm({ type, onClose, onSuccess }: { type: 'ensaio' | 'reuniao'; onClose: () => void; onSuccess: () => void }) {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const [loading, setLoading] = useState(false);
+    const [sendNotify, setSendNotify] = useState(true);
+
+    const titles = { ensaio: 'Ensaio de Louvor', reuniao: 'Reunião de Ministério' };
+    const descriptions = {
+        ensaio: 'Ensaio do ministério de música, coral ou louvor.',
+        reuniao: 'Reunião de liderança, célula ou ministério.',
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const title = (formData.get('title') as string) || titles[type];
+        const date = formData.get('date') as string;
+        const time = (formData.get('time') as string) || (type === 'ensaio' ? '19:00' : '14:00');
+        const location = (formData.get('location') as string) || 'Sede';
+
+        try {
+            setLoading(true);
+            if (!user?.churchId) throw new Error('Igreja não identificada.');
+
+            await eventsService.create({
+                title,
+                type,
+                date,
+                time,
+                location,
+                description: descriptions[type],
+                status: 'planejado',
+            }, user.churchId);
+
+            if (sendNotify) {
+                const n = await eventsService.notifyChurchAboutEvent(user.churchId, { title, date, time, type });
+                if (n > 0) toast({ title: `${titles[type]} agendado!`, description: `${n} pessoas notificadas.` });
+            } else {
+                toast({ title: `${titles[type]} agendado!`, description: 'O evento foi adicionado à agenda.' });
+            }
+            onSuccess();
+            onClose();
+        } catch (error: any) {
+            toast({ title: `Erro ao agendar ${type}`, description: error.message, variant: 'destructive' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="q-title">Título</Label>
+                <Input id="q-title" name="title" placeholder={`Ex: ${titles[type]}`} defaultValue={titles[type]} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="q-date">Data</Label>
+                    <Input id="q-date" name="date" type="date" required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="q-time">Horário</Label>
+                    <Input id="q-time" name="time" type="time" defaultValue={type === 'ensaio' ? '19:00' : '14:00'} />
+                </div>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="q-location">Local</Label>
+                <Input id="q-location" name="location" placeholder="Ex: Sede, Sala de música" defaultValue="Sede" />
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+                <Checkbox id="q-sendNotify" checked={sendNotify} onCheckedChange={(v) => setSendNotify(!!v)} />
+                <Label htmlFor="q-sendNotify" className="text-sm cursor-pointer flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    Enviar notificação ao criar
+                </Label>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+                <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+                <Button type="submit" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Agendar
                 </Button>
             </div>
         </form>
@@ -1468,7 +1637,8 @@ function EventDetailsDialog({ event, onClose, getEventTypeColor, getStatusBadge 
                     </div>
                 </div>
 
-                <div className="flex justify-end pt-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+                    <ShareEventButtons title={event.title} date={event.date} time={event.time} location={event.location} description={event.description} variant="outline" size="default" />
                     <Button onClick={onClose}>Fechar</Button>
                 </div>
             </DialogContent>
