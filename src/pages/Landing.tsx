@@ -100,7 +100,7 @@ export default function Landing() {
             Membros, ministérios, financeiro, eventos e documentos oficiais em um só lugar.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/checkout">
+            <Link to="/login">
               <Button size="lg" className="gap-2 text-lg px-8 h-14 shadow-lg shadow-primary/25">
                 Começar agora
                 <ArrowRight className="h-5 w-5" />
@@ -173,9 +173,9 @@ export default function Landing() {
                 </li>
               ))}
             </ul>
-            <Link to="/checkout" className="block">
+            <Link to="/login" className="block">
               <Button className="w-full h-12 text-base font-semibold" size="lg">
-                Assinar agora e começar
+                Entrar e começar
               </Button>
             </Link>
             <p className="text-xs text-muted-foreground text-center mt-4">
