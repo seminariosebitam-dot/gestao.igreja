@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Upload, FileText, Image, Video, File, Trash2, Loader2, Youtube, Plus } from 'lucide-react';
+import { Upload, FileText, Image, File, Trash2, Loader2, Youtube, Plus, Link } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -35,7 +35,7 @@ const typeIcons: Record<string, React.ElementType> = {
   financial: FileText,
   minutes: File,
   media: Image,
-  videos: Youtube,
+  videos: Link,
 };
 
 export default function Uploads() {
@@ -244,7 +244,7 @@ export default function Uploads() {
             Fotos
           </TabsTrigger>
           <TabsTrigger value="videos" className="py-3 gap-2 text-[2rem] md:text-sm">
-            <Video className="h-8 w-8 md:h-4 md:w-4" />
+            <Link className="h-8 w-8 md:h-4 md:w-4" />
             Vídeos
           </TabsTrigger>
         </TabsList>
