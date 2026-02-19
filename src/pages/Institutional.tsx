@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Building2, Upload, Save, ShieldCheck, Info, Lock, Download, Landmark, User, Phone, Mail, MapPin } from 'lucide-react';
+import { Building2, Upload, Save, Lock, Download, Landmark, User, Phone, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -35,13 +34,6 @@ export default function Institutional() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  const [privacySettings, setPrivacySettings] = useState({
-    shareData: true,
-    receiveCommunications: true,
-    showInDirectory: false,
-    acceptedLGPD: true
-  });
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -329,46 +321,6 @@ export default function Institutional() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Privacidade e LGPD */}
-      <Card className="border-none shadow-lg overflow-hidden">
-        <div className="h-2 bg-primary/20 w-full" />
-        <CardHeader className="space-y-1">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-            Privacidade e LGPD
-          </CardTitle>
-          <CardDescription>Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 flex gap-3">
-            <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <div className="text-sm space-y-2">
-              <p className="font-semibold text-primary">Sobre seus Dados Pessoais</p>
-              <p className="text-muted-foreground leading-relaxed">
-                Em conformidade com a <strong>LGPD</strong>, informamos que seus dados são coletados exclusivamente para fins de gestão eclesiástica, comunicação de eventos e suporte espiritual. Seus dados estão protegidos em ambiente seguro e <strong>nunca serão vendidos ou compartilhados com terceiros</strong> fora do contexto da igreja sem seu consentimento expresso.
-              </p>
-            </div>
-          </div>
-          <div className="space-y-4 pt-2">
-            <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Suas Preferências</p>
-            <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-              <Checkbox id="shareData" checked={privacySettings.shareData} onCheckedChange={(c) => setPrivacySettings({ ...privacySettings, shareData: c === true })} />
-              <div>
-                <label htmlFor="shareData" className="text-sm font-medium cursor-pointer">Compartilhamento de Dados para Gestão</label>
-                <p className="text-xs text-muted-foreground">Autorizo o uso dos meus dados para fins de organização interna.</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-              <Checkbox id="receiveCommunications" checked={privacySettings.receiveCommunications} onCheckedChange={(c) => setPrivacySettings({ ...privacySettings, receiveCommunications: c === true })} />
-              <div>
-                <label htmlFor="receiveCommunications" className="text-sm font-medium cursor-pointer">Comunicações e Notificações</label>
-                <p className="text-xs text-muted-foreground">Desejo receber avisos sobre cultos, eventos e mensagens da liderança.</p>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
