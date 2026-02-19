@@ -28,6 +28,7 @@ const DailyCash = lazy(() => import("./pages/DailyCash"));
 const Uploads = lazy(() => import("./pages/Uploads"));
 const Registration = lazy(() => import("./pages/Registration"));
 const Institutional = lazy(() => import("./pages/Institutional"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 const Secretariat = lazy(() => import("./pages/Secretariat"));
 const Broadcasts = lazy(() => import("./pages/Broadcasts"));
 const ReadingPlans = lazy(() => import("./pages/ReadingPlans"));
@@ -109,6 +110,7 @@ function AppRoutes() {
       <Route path="/redes-sociais" element={<ProtectedRoute><SocialLinks /></ProtectedRoute>} />
       <Route path="/pix-donacoes" element={<ProtectedRoute><PixDonations /></ProtectedRoute>} />
       <Route path="/institucional" element={<ProtectedRoute><Institutional /></ProtectedRoute>} />
+      <Route path="/privacidade" element={<ProtectedRoute><Privacy /></ProtectedRoute>} />
       <Route path="/superadmin" element={<RoleProtectedRoute roles={['superadmin']}><SuperAdmin /></RoleProtectedRoute>} />
       <Route path="/confirmar/:id" element={<ConfirmScale />} />
       <Route path="/reset-password" element={<ResetPassword />} />
