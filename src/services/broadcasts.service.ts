@@ -10,6 +10,8 @@ export interface SendBroadcastParams {
   link?: string | null;
   /** Canal exclusivo: envia apenas para líderes (admin, pastor, secretario, lider_celula, lider_ministerio) */
   leadersOnly?: boolean;
+  /** Categoria: aviso, boletim, devocional */
+  category?: BroadcastType;
 }
 
 export const broadcastsService = {
@@ -22,6 +24,7 @@ export const broadcastsService = {
       p_type: params.type ?? 'info',
       p_link: params.link ?? null,
       p_leaders_only: params.leadersOnly ?? false,
+      p_category: params.category ?? 'aviso',
     });
 
     if (error) throw error;

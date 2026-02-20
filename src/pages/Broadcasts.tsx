@@ -83,6 +83,7 @@ export default function Broadcasts() {
         message: message.trim(),
         type: notificationType,
         leadersOnly,
+        category: broadcastType,
       });
 
       if (result.success) {

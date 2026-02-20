@@ -1,13 +1,18 @@
 -- RPC para envio em massa de boletins, avisos e devocionais
 -- Insere notificações para todos os perfis da igreja
 
+-- Garantir colunas church_id e category em notifications
+ALTER TABLE notifications ADD COLUMN IF NOT EXISTS church_id UUID REFERENCES churches(id);
+ALTER TABLE notifications ADD COLUMN IF NOT EXISTS category TEXT;
+
 CREATE OR REPLACE FUNCTION send_broadcast(
   p_church_id UUID,
   p_title TEXT,
   p_message TEXT,
   p_type TEXT DEFAULT 'info',
   p_link TEXT DEFAULT NULL,
-  p_leaders_only BOOLEAN DEFAULT FALSE
+  p_leaders_only BOOLEAN DEFAULT FALSE,
+  p_category TEXT DEFAULT 'aviso'
 )
 RETURNS JSON AS $$
 DECLARE
@@ -41,14 +46,19 @@ BEGIN
     p_type := 'info';
   END IF;
 
+  -- Categoria válida (aviso, boletim, devocional)
+  IF p_category IS NULL OR p_category NOT IN ('aviso', 'boletim', 'devocional') THEN
+    p_category := 'aviso';
+  END IF;
+
   -- Inserir notificação para cada perfil da igreja (todos ou apenas líderes)
   FOR v_rec IN (
     SELECT id FROM profiles
     WHERE church_id = p_church_id
       AND (NOT p_leaders_only OR role IN ('admin', 'pastor', 'secretario', 'lider_celula', 'lider_ministerio'))
   ) LOOP
-    INSERT INTO notifications (user_id, title, message, type, read, link)
-    VALUES (v_rec.id, p_title, p_message, p_type, false, p_link);
+    INSERT INTO notifications (user_id, church_id, title, message, type, read, link, category)
+    VALUES (v_rec.id, p_church_id, p_title, p_message, p_type, false, p_link, p_category);
     v_count := v_count + 1;
   END LOOP;
 
@@ -56,4 +66,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-GRANT EXECUTE ON FUNCTION send_broadcast(UUID, TEXT, TEXT, TEXT, TEXT, BOOLEAN) TO authenticated;
+GRANT EXECUTE ON FUNCTION send_broadcast(UUID, TEXT, TEXT, TEXT, TEXT, BOOLEAN, TEXT) TO authenticated;
