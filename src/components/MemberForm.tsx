@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserPlus, Camera, Upload, Loader2, UserCircle, Users } from 'lucide-react';
+import { UserPlus, Camera, Loader2, UserCircle, Church, User } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { maskPhone, unmask } from '@/lib/masks';
@@ -19,6 +19,10 @@ interface MemberFormProps {
   onSubmit: (data: MemberFormData) => void;
   onCancel: () => void;
   initialData?: MemberFormData;
+  /** Nome da igreja (exibido no cadastro) */
+  churchName?: string;
+  /** Nome do pastor da igreja (exibido no cadastro) */
+  pastorName?: string;
 }
 
 export interface MemberFormData {
@@ -32,7 +36,7 @@ export interface MemberFormData {
   photoUrl?: string;
 }
 
-export function MemberForm({ onSubmit, onCancel, initialData }: MemberFormProps) {
+export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastorName }: MemberFormProps) {
   const [formData, setFormData] = useState<MemberFormData>(initialData || {
     name: '',
     birthDate: '',
@@ -98,6 +102,28 @@ export function MemberForm({ onSubmit, onCancel, initialData }: MemberFormProps)
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {(churchName || pastorName) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-muted/50 border border-border">
+              {churchName && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-muted-foreground font-medium">
+                    <Church className="h-4 w-4" />
+                    Nome da Igreja
+                  </Label>
+                  <p className="text-sm font-semibold">{churchName}</p>
+                </div>
+              )}
+              {pastorName && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-muted-foreground font-medium">
+                    <User className="h-4 w-4" />
+                    Nome do Pastor da Igreja
+                  </Label>
+                  <p className="text-sm font-semibold">{pastorName}</p>
+                </div>
+              )}
+            </div>
+          )}
           {/* Photo Upload Section */}
           <div className="flex flex-col items-center gap-4 mb-6">
             <div className="relative group">

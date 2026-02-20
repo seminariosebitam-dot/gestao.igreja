@@ -6,12 +6,13 @@ import { useTheme } from '@/contexts/ThemeContext';
 const LOGO_SRC = '/logo-app.png?v=2';
 
 interface LogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   showText?: boolean;
 }
 
-// Tamanhos da logo (reduzidos 20% + 10% + 10%)
+// Tamanhos da logo (xs para header mobile; reduzidos 20% + 10% + 10%)
 const sizeStyles: Record<string, { width: string; height: string }> = {
+  xs: { width: '2rem', height: '2rem' },
   sm: { width: '7.01rem', height: '7.01rem' },
   md: { width: '12.27rem', height: '12.27rem' },
   lg: { width: '21.02rem', height: '21.02rem' },
@@ -25,6 +26,7 @@ export function Logo({ size = 'md', showText = true }: LogoProps) {
   const logoColor = currentTheme?.primaryHex || '#F97316';
 
   const textSizeClasses = {
+    xs: 'text-base',
     sm: 'text-[1.38rem] md:text-[1.24rem]',
     md: 'text-[1.65rem]',
     lg: 'text-[2.48rem]',

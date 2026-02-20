@@ -489,16 +489,16 @@ export default function Cells() {
       {/* Relatório de Reunião Dialog */}
       {selectedCell && reportOpen && (
         <Dialog open={reportOpen} onOpenChange={setReportOpen}>
-          <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-none sm:rounded-lg">
+          <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] overflow-y-auto px-4 py-5 pt-[max(1.5rem,env(safe-area-inset-top))] sm:p-6 rounded-none sm:rounded-lg">
             <form onSubmit={handleSubmitReport}>
-              <DialogHeader>
-                <DialogTitle>Relatório de Reunião - {selectedCell.name}</DialogTitle>
+              <DialogHeader className="pb-2">
+                <DialogTitle className="break-words pr-8">Relatório de Reunião - {selectedCell.name}</DialogTitle>
                 <DialogDescription>Digite os números reais da última reunião</DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+              <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-1 sm:pr-2">
                 <div className="space-y-2">
                   <Label>Data da Reunião</Label>
-                  <Input name="date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} />
+                  <Input name="date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full min-w-0" />
                 </div>
 
                 <Separator />
@@ -533,24 +533,24 @@ export default function Cells() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Membros Presentes</Label>
-                    <Input name="members" type="number" min="0" value={attendance.length} readOnly className="bg-muted" />
-                    <p className="text-[10px] text-muted-foreground">Calculado automaticamente pela chamada</p>
+                    <Input name="members" type="number" min="0" value={attendance.length} readOnly className="bg-muted w-full min-w-0" />
+                    <p className="text-xs text-muted-foreground">Calculado pela chamada</p>
                   </div>
                   <div className="space-y-2">
                     <Label>Visitantes</Label>
-                    <Input name="visitors" type="number" min="0" required placeholder="0" />
+                    <Input name="visitors" type="number" min="0" required placeholder="0" className="w-full min-w-0" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Tema Estudado</Label>
-                  <Input name="study" placeholder="Ex: Santidade ao Senhor" required />
+                  <Input name="study" placeholder="Ex: Santidade ao Senhor" required className="w-full min-w-0" />
                 </div>
                 <div className="space-y-2">
                   <Label>Observações / Pedidos de Oração</Label>
-                  <Textarea name="notes" placeholder="Algum evento especial ou testemunho?" />
+                  <Textarea name="notes" placeholder="Algum evento especial ou testemunho?" className="w-full min-w-0" />
                 </div>
               </div>
               <DialogFooter>

@@ -59,9 +59,9 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
           />
         ) : filteredMembers.map((member) => (
           <Card key={member.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
+            <CardContent className="p-4 overflow-visible">
+              <div className="flex items-start justify-between gap-3 min-w-0">
+                <div className="flex items-start gap-3 min-w-0 flex-1 overflow-hidden">
                   <div className="flex-shrink-0 relative">
                     {member.photoUrl ? (
                       <img
@@ -88,12 +88,12 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                       </div>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-lg">{member.name}</h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Mail className="h-4 w-4" />
-                        {member.email}
+                  <div className="space-y-2 min-w-0 flex-1 overflow-hidden">
+                    <h3 className="font-semibold text-lg truncate">{member.name}</h3>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1 min-w-0 max-w-full">
+                        <Mail className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{member.email}</span>
                       </span>
                       <span className="flex items-center gap-1 group">
                         <Phone className="h-4 w-4" />
@@ -126,14 +126,14 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                       <Badge variant="outline" className="capitalize">
                         {member.maritalStatus}
                       </Badge>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {member.address}
+                      <span className="flex items-center gap-1 min-w-0 max-w-full">
+                        <MapPin className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{member.address}</span>
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1 shrink-0 pl-2">
                   {canEdit && (
                     <Button variant="ghost" size="icon" onClick={() => onEdit(member)}>
                       <Edit className="h-4 w-4" />

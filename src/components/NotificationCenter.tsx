@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell, BellRing, X, CheckCircle2, AlertCircle, Info, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -136,11 +137,17 @@ export function NotificationCenter() {
                 )}
             </Button>
 
-            {open && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-primary/10 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="p-4 border-b border-border bg-primary/5 flex items-center justify-between">
-                        <h3 className="font-bold text-sm">Notificações</h3>
-                        <div className="flex gap-2">
+            {open && createPortal(
+                <>
+                    <div
+                        className="fixed inset-0 z-40 md:hidden"
+                        aria-hidden
+                        onClick={() => setOpen(false)}
+                    />
+                    <div className="fixed right-4 top-[calc(3.5rem+env(safe-area-inset-top,0px))] w-[min(20rem,calc(100vw-2rem))] max-w-[20rem] bg-background border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                        <div className="p-4 border-b border-border bg-primary/5 flex items-center justify-between gap-2 min-w-0">
+                            <h3 className="font-bold text-sm truncate min-w-0">Notificações</h3>
+                            <div className="flex gap-2 shrink-0">
                             {unreadCount > 0 && (
                                 <Button variant="ghost" size="sm" className="text-[10px] h-6 px-2" onClick={clearAll}>
                                     Limpar tudo
@@ -183,12 +190,12 @@ export function NotificationCenter() {
                         )}
                     </ScrollArea>
 
-                    <div className="p-3 border-t border-border bg-muted/5 space-y-2">
+                    <div className="p-3 border-t border-border bg-muted/5 space-y-2 min-w-0">
                         {pushSupported && (
-                            <div className="flex flex-col gap-2">
-                                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                                    <Smartphone className="h-3.5 w-3.5" />
-                                    Notificações push
+                            <div className="flex flex-col gap-2 min-w-0">
+                                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1 min-w-0 truncate">
+                                    <Smartphone className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">Notificações push</span>
                                 </p>
                                 <div className="flex gap-2">
                                     <Button
@@ -236,6 +243,8 @@ export function NotificationCenter() {
                         </Button>
                     </div>
                 </div>
+                </>,
+                document.body
             )}
         </div>
     );

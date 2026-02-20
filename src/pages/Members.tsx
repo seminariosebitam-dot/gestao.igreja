@@ -9,6 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Member } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services/members.service';
+import { churchesService } from '@/services/churches.service';
+import { pastorsService } from '@/services/pastors.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
@@ -19,6 +21,8 @@ export default function Members() {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [churchName, setChurchName] = useState<string>('');
+  const [pastorName, setPastorName] = useState<string>('');
   const { toast } = useToast();
   const { user, churchId, viewingChurch } = useAuth();
   // Prioriza o churchId do contexto (atualizado quando superadmin visualiza uma igreja)
@@ -28,6 +32,23 @@ export default function Members() {
   useEffect(() => {
     loadMembers();
   }, [effectiveChurchId, viewingChurch?.id]);
+
+  useEffect(() => {
+    if (!effectiveChurchId) return;
+    (async () => {
+      try {
+        const [church, pastors] = await Promise.all([
+          churchesService.getById(effectiveChurchId),
+          pastorsService.listByChurch(effectiveChurchId),
+        ]);
+        setChurchName(church?.name || '');
+        setPastorName(pastors?.[0]?.name || '');
+      } catch {
+        setChurchName(viewingChurch?.name || '');
+        setPastorName('');
+      }
+    })();
+  }, [effectiveChurchId, viewingChurch?.name]);
 
   async function loadMembers() {
     try {
@@ -162,6 +183,8 @@ export default function Members() {
           onSubmit={handleAddMember}
           onCancel={() => { setShowForm(false); setEditingMember(null); }}
           initialData={editingMember || undefined}
+          churchName={churchName}
+          pastorName={pastorName}
         />
       ) : error && members.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
