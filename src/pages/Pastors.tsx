@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Church, Upload, Save, Plus, Pencil, Trash2, User } from 'lucide-react';
+import { UserRound, Upload, Save, Plus, Pencil, Trash2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -144,7 +144,7 @@ export default function Pastors() {
   if (!effectiveChurchId) {
     return (
       <div className="max-w-2xl mx-auto py-12 text-center">
-        <Church className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+        <UserRound className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
         <h2 className="text-xl font-semibold mb-2">Selecione uma igreja</h2>
         <p className="text-muted-foreground">É necessário ter uma igreja vinculada para ver os pastores.</p>
       </div>
@@ -164,7 +164,7 @@ export default function Pastors() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Church className="h-8 w-8 text-primary" />
+            <UserRound className="h-8 w-8 text-primary" />
             Pastores
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -279,7 +279,7 @@ export default function Pastors() {
         {pastors.length === 0 && !showForm && (
           <Card className="md:col-span-2 border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <Church className="h-12 w-12 text-muted-foreground/50 mb-3" />
+              <UserRound className="h-12 w-12 text-muted-foreground/50 mb-3" />
               <p className="text-muted-foreground text-center mb-4">
                 Nenhum pastor cadastrado. Adicione pastores para exibir na apresentação.
               </p>

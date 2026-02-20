@@ -21,8 +21,8 @@ export default defineConfig({
         scope: '/',
         orientation: 'any',
         icons: [
-          { src: '/placeholder.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
-          { src: '/placeholder.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: '/logo-app.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+          { src: '/logo-app.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
       workbox: {
