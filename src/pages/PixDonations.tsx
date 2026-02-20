@@ -55,7 +55,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function PixDonations() {
-  useDocumentTitle('PIX e QR Code');
+  useDocumentTitle('Contas da igreja e chaves PIX');
   const { churchId, viewingChurch, user } = useAuth();
   const { toast } = useToast();
   const effectiveChurchId = viewingChurch?.id ?? churchId ?? user?.churchId;
@@ -230,10 +230,10 @@ export default function PixDonations() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <QrCode className="h-8 w-8 text-primary" />
-          PIX e QR Code
+          Contas da igreja e chaves PIX
         </h1>
         <p className="text-muted-foreground mt-1">
-          Configure a chave PIX da igreja e gere QR Codes para dízimos, ofertas e eventos.
+          Configure as chaves PIX da igreja e gere QR Codes para dízimos, ofertas e eventos.
         </p>
       </div>
 
@@ -242,10 +242,10 @@ export default function PixDonations() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
-            Dados PIX da igreja
+            Contas e chaves PIX da igreja
           </CardTitle>
           <CardDescription>
-            Chave e beneficiário usados para gerar os QR Codes. Esses dados ficam salvos na igreja.
+            Chave PIX e beneficiário usados para gerar os QR Codes. Esses dados ficam salvos na igreja.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
