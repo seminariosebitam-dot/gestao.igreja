@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, Loader2, Trash2 } from 'lucide-react';
+import { Plus, Loader2, Trash2, Save, Users, Calendar, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -77,6 +78,8 @@ export default function Ministries() {
           leader: m.leader?.name || 'Sem líder',
           icon: m.icon || 'Church',
           memberCount: count,
+          meetingsCount: m.meetings_count ?? 0,
+          monthlyActivityReport: m.monthly_activity_report ?? '',
         };
       }));
 
@@ -280,16 +283,22 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
   const [loading, setLoading] = useState(false);
   const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [addingMember, setAddingMember] = useState(false);
+  const [savingReport, setSavingReport] = useState(false);
   const [removeMemberConfirm, setRemoveMemberConfirm] = useState<{ open: boolean; memberId: string }>({ open: false, memberId: '' });
+  const [meetingsCount, setMeetingsCount] = useState<number>(0);
+  const [monthlyReport, setMonthlyReport] = useState('');
   const { toast } = useToast();
   const { churchId, user } = useAuth();
   const effectiveChurchId = churchId ?? user?.churchId;
+  const canEdit = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'secretario' || user?.role === 'pastor' || user?.role === 'lider_ministerio';
 
   useEffect(() => {
     if (open) {
+      setMeetingsCount(ministry.meetingsCount ?? 0);
+      setMonthlyReport(ministry.monthlyActivityReport ?? '');
       loadDetails();
     }
-  }, [open, ministry.id]);
+  }, [open, ministry.id, ministry.meetingsCount, ministry.monthlyActivityReport]);
 
   async function loadDetails() {
     try {
@@ -335,6 +344,22 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
     }
   };
 
+  const handleSaveReport = async () => {
+    try {
+      setSavingReport(true);
+      await ministriesService.update(ministry.id, {
+        meetings_count: meetingsCount,
+        monthly_activity_report: monthlyReport || null,
+      });
+      toast({ title: 'Salvo!', description: 'Relatório e dados de atividade atualizados.' });
+      onSuccess();
+    } catch (error: any) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    } finally {
+      setSavingReport(false);
+    }
+  };
+
   return (
     <>
     <ConfirmDialog open={removeMemberConfirm.open} onOpenChange={(o) => setRemoveMemberConfirm(prev => ({ ...prev, open: o }))} title="Remover membro" description="Deseja remover este membro do ministério?" onConfirm={executeRemoveMember} confirmLabel="Remover" variant="destructive" />
@@ -348,8 +373,73 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-6 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3">
+              <Users className="h-8 w-8 text-primary" />
+              <div>
+                <p className="text-sm text-muted-foreground">Participantes</p>
+                <p className="text-2xl font-bold text-primary">{members.length}</p>
+              </div>
+            </div>
+            <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3">
+              <Calendar className="h-8 w-8 text-primary" />
+              <div>
+                <p className="text-sm text-muted-foreground">Reuniões (mês)</p>
+                <p className="text-2xl font-bold text-primary">{meetingsCount}</p>
+              </div>
+            </div>
+          </div>
+
+          {(canEdit || monthlyReport) && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                <Label className="text-lg font-bold flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Relatório da Atividade Mensal
+                </Label>
+                {canEdit ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="meetings-count">Número de reuniões</Label>
+                      <Input
+                        id="meetings-count"
+                        type="number"
+                        min={0}
+                        value={meetingsCount}
+                        onChange={(e) => setMeetingsCount(Math.max(0, parseInt(e.target.value) || 0))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="monthly-report">Relatório (atividades realizadas)</Label>
+                      <Textarea
+                        id="monthly-report"
+                        value={monthlyReport}
+                        onChange={(e) => setMonthlyReport(e.target.value)}
+                        placeholder="Descreva as atividades realizadas no mês..."
+                        rows={4}
+                        className="resize-none"
+                      />
+                    </div>
+                    <Button onClick={handleSaveReport} disabled={savingReport} className="gap-2">
+                      {savingReport ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      Salvar relatório
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="rounded-xl bg-muted/50 p-4 space-y-2">
+                    <p className="text-sm text-muted-foreground">Reuniões no mês: <strong className="text-foreground">{meetingsCount}</strong></p>
+                    {monthlyReport && <p className="text-sm whitespace-pre-wrap">{monthlyReport}</p>}
+                  </div>
+                )}
+              </div>
+              <Separator />
+            </>
+          )}
+
           <div className="space-y-4">
-            <Label className="text-lg font-bold">Equipe ({members.length})</Label>
+            <Label className="text-lg font-bold">Participantes ({members.length})</Label>
             <div className="grid gap-2">
               {members.length === 0 ? (
                 <p className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">

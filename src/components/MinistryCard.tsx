@@ -87,14 +87,8 @@ export function MinistryCard({ ministry, onDelete, onAddMember }: MinistryCardPr
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <span>Engajamento</span>
-              <span>85%</span>
-            </div>
-            <div className="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
-              <div className="h-full bg-primary w-[85%] rounded-full" />
-            </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>Reuniões: <strong className="text-primary">{ministry.meetingsCount ?? 0}</strong></span>
           </div>
 
           <Button

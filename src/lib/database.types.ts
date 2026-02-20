@@ -193,6 +193,8 @@ export interface Database {
                     color: string | null
                     icon: string | null
                     active: boolean
+                    meetings_count: number | null
+                    monthly_activity_report: string | null
                     created_at: string
                     updated_at: string
                 }
@@ -205,6 +207,8 @@ export interface Database {
                     color?: string | null
                     icon?: string | null
                     active?: boolean
+                    meetings_count?: number | null
+                    monthly_activity_report?: string | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -217,6 +221,8 @@ export interface Database {
                     color?: string | null
                     icon?: string | null
                     active?: boolean
+                    meetings_count?: number | null
+                    monthly_activity_report?: string | null
                     created_at?: string
                     updated_at?: string
                 }

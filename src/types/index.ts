@@ -49,6 +49,8 @@ export interface Ministry {
   leader: string;
   icon: string;
   memberCount: number;
+  meetingsCount?: number;
+  monthlyActivityReport?: string;
 }
 
 export interface CellReport {
