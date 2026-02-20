@@ -58,9 +58,9 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
             description={members.length === 0 ? "Cadastre o primeiro membro da igreja." : "Nenhum resultado para sua busca."}
           />
         ) : filteredMembers.map((member) => (
-          <Card key={member.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4 overflow-visible">
-              <div className="flex items-start justify-between gap-3 min-w-0">
+          <Card key={member.id} className="hover:shadow-md transition-shadow overflow-visible">
+            <CardContent className="p-4 pr-5 overflow-visible">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 min-w-0">
                 <div className="flex items-start gap-3 min-w-0 flex-1 overflow-hidden">
                   <div className="flex-shrink-0 relative">
                     {member.photoUrl ? (
@@ -133,7 +133,7 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-1 shrink-0 pl-2">
+                <div className="flex gap-2 shrink-0 sm:pl-2 pt-3 sm:pt-0 border-t sm:border-t-0 mt-3 sm:mt-0 sm:self-start">
                   {canEdit && (
                     <Button variant="ghost" size="icon" onClick={() => onEdit(member)}>
                       <Edit className="h-4 w-4" />
