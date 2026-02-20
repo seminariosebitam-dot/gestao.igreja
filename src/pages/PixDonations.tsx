@@ -30,7 +30,7 @@ export default function PixDonations() {
   const { toast } = useToast();
   const effectiveChurchId = viewingChurch?.id ?? churchId ?? user?.churchId;
 
-  const canEdit = ['admin', 'pastor', 'secretario', 'tesoureiro', 'superadmin'].includes(
+  const canEdit = ['admin', 'pastor', 'secretario', 'superadmin'].includes(
     user?.role || ''
   );
 

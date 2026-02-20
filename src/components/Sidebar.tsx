@@ -20,6 +20,8 @@ import {
   DollarSign,
   CreditCard,
   Landmark,
+  FileText,
+  MapPin,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -44,21 +46,24 @@ const dashboardItem: NavItem = {
   icon: LayoutDashboard,
   label: 'Dashboard',
   href: '/dashboard',
-  roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'],
+  roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'tesoureiro', 'superadmin'],
 };
 
 const navGroups: NavGroup[] = [
   {
     title: 'Membros e congregados',
     items: [
-      { icon: Users, label: 'Membros e Congregados', href: '/membros', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Send, label: 'Boletins e Avisos', href: '/boletins', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
-      { icon: BookOpen, label: 'Planos de Leitura', href: '/planos-leitura', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Share2, label: 'Redes Sociais', href: '/redes-sociais', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: CreditCard, label: 'Contas e PIX Igreja', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Landmark, label: 'Página Institucional', href: '/institucional', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: UserRound, label: 'Pastores', href: '/pastores', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Shield, label: 'Privacidade e LGPD', href: '/privacidade', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
+      { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Users, label: 'Membros e Congregados', href: '/membros', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: FileText, label: 'Secretaria', href: '/secretaria', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
+      { icon: Send, label: 'Boletins e Avisos', href: '/boletins', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: BookOpen, label: 'Planos de Leitura', href: '/planos-leitura', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Share2, label: 'Redes Sociais', href: '/redes-sociais', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: CreditCard, label: 'Contas e PIX Igreja', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Landmark, label: 'Página Institucional', href: '/institucional', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: UserRound, label: 'Pastores', href: '/pastores', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Shield, label: 'Privacidade e LGPD', href: '/privacidade', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
     ],
   },
 ];

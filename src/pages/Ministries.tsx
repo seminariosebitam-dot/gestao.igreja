@@ -457,6 +457,7 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
                         <p className="text-xs text-muted-foreground">{m.role || 'Membro'}</p>
                       </div>
                     </div>
+                    {canEdit && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -465,12 +466,15 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    )}
                   </div>
                 ))
               )}
             </div>
           </div>
 
+          {canEdit && (
+          <>
           <Separator />
 
           <div className="space-y-4">
@@ -491,6 +495,8 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
               </Select>
             </div>
           </div>
+          </>
+          )}
         </div>
 
         <DialogFooter>

@@ -1,42 +1,57 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MemberForm, MemberFormData } from '@/components/MemberForm';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { membersService } from '@/services/members.service';
+import { churchesService } from '@/services/churches.service';
+import { pastorsService } from '@/services/pastors.service';
+import { setProfileCompleted } from '@/lib/profileCompletion';
 
 export default function Registration() {
     useDocumentTitle('Cadastro');
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { user } = useAuth();
+    const { user, churchId } = useAuth();
+    const effectiveChurchId = churchId || user?.churchId;
+    const [churchName, setChurchName] = useState('');
+    const [pastorName, setPastorName] = useState('');
+
+    useEffect(() => {
+        if (!effectiveChurchId) return;
+        Promise.all([
+            churchesService.getById(effectiveChurchId).catch(() => null),
+            pastorsService.listByChurch(effectiveChurchId).catch(() => []),
+        ]).then(([church, pastors]) => {
+            setChurchName(church?.name || '');
+            setPastorName(pastors?.[0]?.name || '');
+        });
+    }, [effectiveChurchId]);
 
     const handleRegistrationSubmit = async (data: MemberFormData) => {
         try {
-            // Save member to Supabase with null for empty strings
+            const cid = effectiveChurchId;
+            if (!cid) throw new Error('Nenhuma igreja vinculada. Entre em contato com o administrador.');
+
             const newMember = await membersService.create({
                 name: data.name,
                 email: data.email || null,
                 phone: data.phone || null,
                 birth_date: data.birthDate || null,
+                marital_status: data.maritalStatus || null,
                 address: data.address || null,
                 photo_url: data.photoUrl || null,
-                status: 'ativo',
-            });
+                status: data.category === 'congregado' ? 'visitante' : 'ativo',
+            }, cid);
 
-            // Vincular ministérios selecionados
-            if (newMember && data.ministries.length > 0) {
-                for (const mId of data.ministries) {
-                    await membersService.addToMinistry(newMember.id, mId);
-                }
-            }
+            if (user?.id) setProfileCompleted(user.id);
 
             toast({
                 title: 'Cadastro Realizado!',
                 description: `Seja bem-vindo, ${data.name}! Seu perfil foi criado e salvo com sucesso.`,
             });
 
-            // After registration, go to the dashboard (painel)
             navigate('/dashboard');
         } catch (error) {
             console.error('Erro ao realizar cadastro:', error);
@@ -57,7 +72,9 @@ export default function Registration() {
 
             <MemberForm
                 onSubmit={handleRegistrationSubmit}
-                onCancel={() => navigate('/login')}
+                onCancel={() => navigate('/dashboard')}
+                churchName={churchName}
+                pastorName={pastorName}
             />
         </div>
     );

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -48,11 +49,32 @@ function PageFallback() {
 
 const queryClient = new QueryClient();
 
+import { hasProfileCompleted } from '@/lib/profileCompletion';
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  // Membro ou congregado: redirecionar para cadastro na primeira vez (somente uma vez)
+  const needsProfile = user && (user.role === 'membro' || user.role === 'congregado') && !hasProfileCompleted(user.id);
+  if (needsProfile && location.pathname !== '/cadastro') {
+    return <Navigate to="/cadastro" replace />;
+  }
+
+  // Tesoureiro: acesso somente a Dashboard e Caixa Diário
+  const tesoureiroOnlyPaths = ['/dashboard', '/caixa-diario'];
+  if (user?.role === 'tesoureiro' && !tesoureiroOnlyPaths.includes(location.pathname)) {
+    return <Navigate to="/caixa-diario" replace />;
+  }
+
+  // Líder de célula: acesso somente a Dashboard e Células
+  const liderCelulaOnlyPaths = ['/dashboard', '/celulas'];
+  if (user?.role === 'lider_celula' && !liderCelulaOnlyPaths.includes(location.pathname)) {
+    return <Navigate to="/celulas" replace />;
   }
 
   return (
@@ -104,7 +126,7 @@ function AppRoutes() {
       <Route path="/relatorios" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/uploads" element={<ProtectedRoute><Uploads /></ProtectedRoute>} />
       <Route path="/secretaria" element={<RoleProtectedRoute roles={['admin', 'pastor', 'secretario', 'superadmin']}><Secretariat /></RoleProtectedRoute>} />
-      <Route path="/boletins" element={<RoleProtectedRoute roles={['admin', 'pastor', 'secretario', 'superadmin']}><Broadcasts /></RoleProtectedRoute>} />
+      <Route path="/boletins" element={<ProtectedRoute><Broadcasts /></ProtectedRoute>} />
       <Route path="/planos-leitura" element={<ProtectedRoute><ReadingPlans /></ProtectedRoute>} />
       <Route path="/solicitacoes-oracao" element={<ProtectedRoute><PrayerRequests /></ProtectedRoute>} />
       <Route path="/redes-sociais" element={<ProtectedRoute><SocialLinks /></ProtectedRoute>} />
