@@ -9,9 +9,9 @@ import {
   BarChart3,
   Upload,
   DollarSign,
+  CreditCard,
   Calendar,
   HandHeart,
-  QrCode,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DailyVerse } from '@/components/DailyVerse';
@@ -36,7 +36,7 @@ const quickActionsList: QuickActionDef[] = [
   { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
   { icon: Calendar, label: 'Eventos', href: '/eventos', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
   { icon: HandHeart, label: 'Solicitações de Oração', href: '/solicitacoes-oracao', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: QrCode, label: 'Contas da igreja e chaves PIX', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+  { icon: CreditCard, label: 'Contas e PIX Igreja', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
 ];
 
 export default function Dashboard() {

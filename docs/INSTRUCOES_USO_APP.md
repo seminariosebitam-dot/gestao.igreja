@@ -51,8 +51,8 @@ Após o login, você verá o menu lateral com as opções disponíveis conforme 
 ### Redes Sociais
 - Cadastre os links das redes sociais da igreja.
 
-### Contas da igreja e chaves PIX
-- Configure as chaves PIX da igreja e gere QR Codes para doações e ofertas.
+### Contas e PIX Igreja
+- Configure a chave PIX da igreja para recebimento de dízimos e ofertas.
 
 ### Página Institucional
 - Personalize logo, nome da igreja e presidente.

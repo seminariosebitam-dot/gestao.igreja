@@ -16,7 +16,7 @@
 5. Cadastre membros e congregados em **Membros e Congregados** (com foto e categorias).
 6. Organize ministérios e células e cadastre líderes e participantes.
 7. Envie boletins e avisos para a igreja.
-8. Configure contas e chaves PIX em **Contas da igreja e chaves PIX**.
+8. Configure a chave PIX da igreja em **Contas e PIX Igreja**.
 9. Personalize logo e dados da igreja em **Página Institucional**.
 10. Cadastre pastores com foto em **Pastores**.
 11. Controle entradas e saídas em **Caixa Diário** (administradores e tesoureiros).

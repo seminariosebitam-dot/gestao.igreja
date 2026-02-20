@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { QrCode, Save, Loader2, Copy, Check, DollarSign, Calendar } from 'lucide-react';
-import { QrCodePix } from 'qrcode-pix';
+import { Save, Loader2, DollarSign, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +15,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { churchesService } from '@/services/churches.service';
-import { eventsService } from '@/services/events.service';
 
 const PIX_KEY_TYPES = [
   { value: 'cpf', label: 'CPF' },
@@ -26,36 +24,8 @@ const PIX_KEY_TYPES = [
   { value: 'random', label: 'Chave aleatória' },
 ] as const;
 
-/** Remove acentos para conformidade com o padrão PIX Bacen */
-function removeAccents(str: string): string {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9\s]/g, '');
-}
-
-/** Gera transactionId alfanumérico (A-Z0-9) max 25 chars - requerido pelo PIX */
-function makePixTransactionId(prefix: string): string {
-  const cleanPrefix = prefix.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  const suffix = Date.now().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, '');
-  return (cleanPrefix + suffix).slice(0, 25);
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-}
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return '';
-  const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('pt-BR');
-}
-
 export default function PixDonations() {
-  useDocumentTitle('Contas da igreja e chaves PIX');
+  useDocumentTitle('Contas e PIX Igreja');
   const { churchId, viewingChurch, user } = useAuth();
   const { toast } = useToast();
   const effectiveChurchId = viewingChurch?.id ?? churchId ?? user?.churchId;
@@ -70,19 +40,8 @@ export default function PixDonations() {
     pix_beneficiary_name?: string | null;
     pix_city?: string | null;
   } | null>(null);
-  const [events, setEvents] = useState<Array<{
-    id: string;
-    title: string;
-    date: string;
-    registration_fee: number | null;
-  }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [donationValue, setDonationValue] = useState('');
-  const [qrBase64, setQrBase64] = useState<string | null>(null);
-  const [qrPayload, setQrPayload] = useState<string | null>(null);
-  const [qrContext, setQrContext] = useState<{ label: string; value?: number } | null>(null);
-  const [copiedPayload, setCopiedPayload] = useState(false);
 
   useEffect(() => {
     if (effectiveChurchId) loadData();
@@ -92,18 +51,8 @@ export default function PixDonations() {
     if (!effectiveChurchId) return;
     setLoading(true);
     try {
-      const [churchData, eventsData] = await Promise.all([
-        churchesService.getById(effectiveChurchId),
-        eventsService.getUpcoming(),
-      ]);
+      const churchData = await churchesService.getById(effectiveChurchId);
       setChurch(churchData as any);
-      const withFee = (eventsData as any[]).filter(
-        (e: any) =>
-          (!effectiveChurchId || e.church_id === effectiveChurchId) &&
-          e.registration_fee != null &&
-          Number(e.registration_fee) > 0
-      );
-      setEvents(withFee);
     } catch (e: any) {
       toast({ title: 'Erro ao carregar', description: e?.message, variant: 'destructive' });
     } finally {
@@ -129,96 +78,10 @@ export default function PixDonations() {
     }
   }
 
-  async function generateQr(
-    value: number | undefined,
-    message: string,
-    transactionId: string
-  ): Promise<boolean> {
-    if (
-      !church?.pix_key ||
-      !church?.pix_beneficiary_name ||
-      !church?.pix_city
-    ) {
-      toast({
-        title: 'Configure os dados PIX',
-        description: 'Chave, nome do beneficiário e cidade são obrigatórios.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    try {
-      // PIX Bacen: nome e cidade sem acentos; cidade max 15 chars; transactionId só A-Z0-9
-      const name = removeAccents(church.pix_beneficiary_name.trim()).slice(0, 25);
-      const city = removeAccents(church.pix_city.trim().toUpperCase()).slice(0, 15);
-      const txId = transactionId.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 25) || makePixTransactionId('TX');
-      const pixKey = church.pix_key.trim();
-
-      const qr = QrCodePix({
-        version: '01',
-        key: pixKey,
-        name: name || 'RECEBEDOR',
-        city: city || 'BRASIL',
-        transactionId: txId,
-        message: message.slice(0, 72),
-        value: value != null && value > 0 ? Number(value.toFixed(2)) : undefined,
-      });
-      const payload = qr.payload();
-      const base64 = await qr.base64();
-      setQrPayload(payload);
-      setQrBase64(base64);
-      setQrContext({ label: message, value });
-      return true;
-    } catch (e: any) {
-      toast({
-        title: 'Erro ao gerar QR Code',
-        description: e?.message || 'Verifique os dados PIX.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-  }
-
-  function parseDonationValue(raw: string): number {
-    const cleaned = raw.replace(/[^\d,.]/g, '').replace(',', '.');
-    if (!cleaned) return 0;
-    const parts = cleaned.split('.');
-    if (parts.length > 1) {
-      return parseFloat(parts[0] + '.' + parts.slice(1).join(''));
-    }
-    return parseFloat(cleaned) || 0;
-  }
-
-  function handleDonationQr() {
-    const num = parseDonationValue(donationValue);
-    const hasValue = num > 0;
-    const id = makePixTransactionId('DZ');
-    generateQr(hasValue ? num : undefined, hasValue ? 'Dizimo/Oferta' : 'Doacao livre', id);
-  }
-
-  function handleEventQr(event: (typeof events)[0]) {
-    const fee = Number(event.registration_fee) || 0;
-    const cleanId = event.id.replace(/-/g, '').slice(0, 8);
-    const id = makePixTransactionId('EV' + cleanId.toUpperCase());
-    generateQr(fee, `Evento: ${event.title.slice(0, 65)}`, id);
-  }
-
-  async function copyPayload() {
-    if (!qrPayload) return;
-    try {
-      await navigator.clipboard.writeText(qrPayload);
-      setCopiedPayload(true);
-      toast({ title: 'Copiado!', description: 'Código PIX copiado para a área de transferência.' });
-      setTimeout(() => setCopiedPayload(false), 2000);
-    } catch {
-      toast({ title: 'Erro ao copiar', variant: 'destructive' });
-    }
-  }
-
   if (!effectiveChurchId) {
     return (
       <div className="max-w-2xl mx-auto py-12 text-center">
-        <QrCode className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+        <CreditCard className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
         <h2 className="text-xl font-semibold mb-2">Selecione uma igreja</h2>
         <p className="text-muted-foreground">É necessário ter uma igreja vinculada.</p>
       </div>
@@ -229,23 +92,22 @@ export default function PixDonations() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <QrCode className="h-8 w-8 text-primary" />
-          Contas da igreja e chaves PIX
+          <CreditCard className="h-8 w-8 text-primary" />
+          Contas e PIX Igreja
         </h1>
         <p className="text-muted-foreground mt-1">
-          Configure as chaves PIX da igreja e gere QR Codes para dízimos, ofertas e eventos.
+          Configure as chaves PIX e dados bancários da igreja para recebimento de dízimos e ofertas.
         </p>
       </div>
 
-      {/* Config PIX da igreja */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
-            Contas e chaves PIX da igreja
+            Chave PIX da igreja
           </CardTitle>
           <CardDescription>
-            Chave PIX e beneficiário usados para gerar os QR Codes. Esses dados ficam salvos na igreja.
+            Cadastre a chave PIX para que os membros possam fazer transferências e doações.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -289,10 +151,10 @@ export default function PixDonations() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pix_name">Nome do beneficiário — máx. 25 caracteres, sem acentos</Label>
+                <Label htmlFor="pix_name">Nome do beneficiário</Label>
                 <Input
                   id="pix_name"
-                  placeholder="Igreja Exemplo ou Associação XYZ"
+                  placeholder="Nome da igreja ou associação"
                   maxLength={25}
                   value={church?.pix_beneficiary_name || ''}
                   onChange={(e) =>
@@ -302,15 +164,12 @@ export default function PixDonations() {
                   }
                   disabled={!canEdit}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Acentos serão removidos na geração do QR (ex: São → Sao) conforme padrão PIX.
-                </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pix_city">Cidade (UF) — máx. 15 caracteres, sem acentos</Label>
+                <Label htmlFor="pix_city">Cidade (UF)</Label>
                 <Input
                   id="pix_city"
-                  placeholder="SAO PAULO ou SAO PAULO SP"
+                  placeholder="Ex: SAO PAULO SP"
                   maxLength={15}
                   value={church?.pix_city || ''}
                   onChange={(e) =>
@@ -318,9 +177,6 @@ export default function PixDonations() {
                   }
                   disabled={!canEdit}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Use letras maiúsculas sem acento (ex: SAO PAULO). Será corrigido na geração do QR.
-                </p>
               </div>
               {canEdit && (
                 <Button onClick={handleSavePixConfig} disabled={saving}>
@@ -336,101 +192,6 @@ export default function PixDonations() {
           )}
         </CardContent>
       </Card>
-
-      {/* Dízimos e ofertas */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Dízimos e Ofertas</CardTitle>
-          <CardDescription>
-            Informe o valor (opcional) e gere o QR Code para doação. Deixe em branco para valor livre.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-3">
-            <div className="flex-1 min-w-[160px]">
-              <Input
-                placeholder="Valor (R$)"
-                value={donationValue}
-                onChange={(e) => setDonationValue(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleDonationQr()}
-              />
-            </div>
-            <Button onClick={handleDonationQr}>
-              <QrCode className="h-4 w-4 mr-2" />
-              Gerar QR Code
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Eventos com taxa */}
-      {events.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Eventos com taxa de inscrição
-            </CardTitle>
-            <CardDescription>
-              Eventos com valor definido. Clique para gerar o QR Code de pagamento.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {events.map((ev) => (
-                <div
-                  key={ev.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium">{ev.title}</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(ev.date)}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-primary">
-                      {formatCurrency(Number(ev.registration_fee) || 0)}
-                    </span>
-                    <Button size="sm" variant="outline" onClick={() => handleEventQr(ev)}>
-                      <QrCode className="h-4 w-4 mr-1" />
-                      QR
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Modal/área do QR gerado */}
-      {qrBase64 && qrContext && (
-        <Card className="border-primary/30 shadow-lg">
-          <CardHeader>
-            <CardTitle>{qrContext.label}</CardTitle>
-            <CardDescription>
-              {qrContext.value != null && qrContext.value > 0
-                ? `Valor: ${formatCurrency(qrContext.value)}`
-                : 'Valor livre - o doador informa no app do banco'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
-            <div className="p-4 bg-white rounded-xl">
-              <img src={qrBase64} alt="QR Code PIX" className="w-48 h-48" />
-            </div>
-            <Button variant="outline" onClick={copyPayload} className="w-full max-w-xs">
-              {copiedPayload ? (
-                <Check className="h-4 w-4 mr-2 text-green-600" />
-              ) : (
-                <Copy className="h-4 w-4 mr-2" />
-              )}
-              {copiedPayload ? 'Copiado!' : 'Copiar código PIX'}
-            </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Ou escaneie o QR Code com o app do seu banco.
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
