@@ -26,6 +26,21 @@ const PIX_KEY_TYPES = [
   { value: 'random', label: 'Chave aleatória' },
 ] as const;
 
+/** Remove acentos para conformidade com o padrão PIX Bacen */
+function removeAccents(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9\s]/g, '');
+}
+
+/** Gera transactionId alfanumérico (A-Z0-9) max 25 chars - requerido pelo PIX */
+function makePixTransactionId(prefix: string): string {
+  const cleanPrefix = prefix.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const suffix = Date.now().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return (cleanPrefix + suffix).slice(0, 25);
+}
+
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -133,12 +148,18 @@ export default function PixDonations() {
     }
 
     try {
+      // PIX Bacen: nome e cidade sem acentos; cidade max 15 chars; transactionId só A-Z0-9
+      const name = removeAccents(church.pix_beneficiary_name.trim()).slice(0, 25);
+      const city = removeAccents(church.pix_city.trim().toUpperCase()).slice(0, 15);
+      const txId = transactionId.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 25) || makePixTransactionId('TX');
+      const pixKey = church.pix_key.trim();
+
       const qr = QrCodePix({
         version: '01',
-        key: church.pix_key.trim(),
-        name: church.pix_beneficiary_name.trim().slice(0, 25),
-        city: church.pix_city.trim().toUpperCase().slice(0, 25),
-        transactionId: transactionId.slice(0, 25),
+        key: pixKey,
+        name: name || 'RECEBEDOR',
+        city: city || 'BRASIL',
+        transactionId: txId,
         message: message.slice(0, 72),
         value: value != null && value > 0 ? Number(value.toFixed(2)) : undefined,
       });
@@ -171,14 +192,15 @@ export default function PixDonations() {
   function handleDonationQr() {
     const num = parseDonationValue(donationValue);
     const hasValue = num > 0;
-    const id = `DZ${Date.now().toString(36).toUpperCase().slice(-12)}`;
-    generateQr(hasValue ? num : undefined, hasValue ? 'Dízimo/Oferta' : 'Doação livre', id);
+    const id = makePixTransactionId('DZ');
+    generateQr(hasValue ? num : undefined, hasValue ? 'Dizimo/Oferta' : 'Doacao livre', id);
   }
 
   function handleEventQr(event: (typeof events)[0]) {
     const fee = Number(event.registration_fee) || 0;
-    const id = `EV${event.id.slice(0, 8)}${Date.now().toString(36).toUpperCase().slice(-6)}`;
-    generateQr(fee, `Evento: ${event.title}`, id);
+    const cleanId = event.id.replace(/-/g, '').slice(0, 8);
+    const id = makePixTransactionId('EV' + cleanId.toUpperCase());
+    generateQr(fee, `Evento: ${event.title.slice(0, 65)}`, id);
   }
 
   async function copyPayload() {
@@ -267,10 +289,11 @@ export default function PixDonations() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pix_name">Nome do beneficiário</Label>
+                <Label htmlFor="pix_name">Nome do beneficiário — máx. 25 caracteres, sem acentos</Label>
                 <Input
                   id="pix_name"
-                  placeholder="Nome da igreja ou pessoa jurídica"
+                  placeholder="Igreja Exemplo ou Associação XYZ"
+                  maxLength={25}
                   value={church?.pix_beneficiary_name || ''}
                   onChange={(e) =>
                     setChurch((p) =>
@@ -279,18 +302,25 @@ export default function PixDonations() {
                   }
                   disabled={!canEdit}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Acentos serão removidos na geração do QR (ex: São → Sao) conforme padrão PIX.
+                </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pix_city">Cidade (UF)</Label>
+                <Label htmlFor="pix_city">Cidade (UF) — máx. 15 caracteres, sem acentos</Label>
                 <Input
                   id="pix_city"
-                  placeholder="SAO PAULO"
+                  placeholder="SAO PAULO ou SAO PAULO SP"
+                  maxLength={15}
                   value={church?.pix_city || ''}
                   onChange={(e) =>
                     setChurch((p) => (p ? { ...p, pix_city: e.target.value || null } : null))
                   }
                   disabled={!canEdit}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Use letras maiúsculas sem acento (ex: SAO PAULO). Será corrigido na geração do QR.
+                </p>
               </div>
               {canEdit && (
                 <Button onClick={handleSavePixConfig} disabled={saving}>
