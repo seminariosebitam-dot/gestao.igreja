@@ -174,25 +174,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err: any) {
       console.error('Erro no login/provisionamento:', err);
 
+      const errMsg = (typeof err === 'string' ? err : err?.message || err?.error_description || err?.msg || '') + '';
+
       // Falha de rede / Supabase não configurado
-      if (err?.message === 'Failed to fetch' || err?.message?.includes('fetch')) {
+      if (errMsg === 'Failed to fetch' || errMsg.includes('fetch')) {
         throw new Error(
           'Não foi possível conectar ao servidor. Verifique se o arquivo .env.local existe na raiz do projeto com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (copie do .env.example e preencha no painel Supabase > Settings > API).'
         );
       }
 
       // Erro específico de email não confirmado
-      if (err.message?.includes('Email not confirmed') || err.message?.includes('email_confirmed_at')) {
+      if (errMsg.includes('Email not confirmed') || errMsg.includes('email_confirmed_at')) {
         throw new Error('Email não confirmado. Configure o Supabase para desabilitar confirmação de email ou confirme seu email.');
       }
 
       // Erro de credenciais inválidas
-      if (err.message?.includes('Invalid login credentials')) {
+      if (errMsg.includes('Invalid login credentials')) {
         throw new Error('E-mail ou PIN incorretos.');
       }
 
       // Erro ao criar novo usuário no banco (trigger handle_new_user)
-      if (err.message?.toLowerCase().includes('database error') && err.message?.toLowerCase().includes('saving')) {
+      const errLower = errMsg.toLowerCase();
+      if (errLower.includes('database error') || (errLower.includes('saving') && errLower.includes('new user'))) {
         throw new Error('Erro ao criar sua conta. Execute o script supabase/fix-handle-new-user.sql no Supabase (SQL Editor) e tente novamente.');
       }
 
