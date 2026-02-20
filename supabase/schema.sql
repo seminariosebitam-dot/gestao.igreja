@@ -268,6 +268,8 @@ from financial_transactions
 group by to_char(date, 'YYYY-MM');
 
 -- Function to handle new user signup
+-- NOTA: Se sua tabela profiles usa full_name e church_id (schema multi-tenant),
+-- execute o script supabase/fix-handle-new-user.sql no Supabase SQL Editor.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql

@@ -191,6 +191,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('E-mail ou PIN incorretos.');
       }
 
+      // Erro ao criar novo usuário no banco (trigger handle_new_user)
+      if (err.message?.toLowerCase().includes('database error') && err.message?.toLowerCase().includes('saving')) {
+        throw new Error('Erro ao criar sua conta. Execute o script supabase/fix-handle-new-user.sql no Supabase (SQL Editor) e tente novamente.');
+      }
+
       throw err;
     }
   };
