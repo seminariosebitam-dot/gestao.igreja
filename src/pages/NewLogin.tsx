@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Shield, User, Users, Briefcase, ArrowRight, MapPin, Church } from 'lucide-react';
+import { Shield, User, Users, Briefcase, ArrowRight, MapPin, Church, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -211,9 +211,28 @@ export default function NewLogin() {
                                 </div>
 
                                 {error && (
-                                    <p className="text-sm text-destructive text-center font-medium bg-destructive/10 py-2 rounded-md border border-destructive/20">
-                                        {error}
-                                    </p>
+                                    error.toLowerCase().includes('confirmação') || error.toLowerCase().includes('email não confirmado') ? (
+                                        <div className="rounded-xl border-2 border-amber-500/50 bg-amber-50 dark:bg-amber-950/30 p-5 shadow-lg shadow-amber-500/10">
+                                            <div className="flex gap-4">
+                                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                                    <Mail className="h-6 w-6 text-amber-600 dark:text-amber-500" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-bold text-amber-800 dark:text-amber-200 text-base mb-1">Confirme seu e-mail</h3>
+                                                    <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+                                                        Enviamos um link de confirmação para <strong>{formData.email}</strong>. Abra seu e-mail e clique no link para ativar sua conta.
+                                                    </p>
+                                                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                                                        Não recebeu? Verifique a pasta de spam.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-destructive text-center font-medium bg-destructive/10 py-2 rounded-md border border-destructive/20">
+                                            {error}
+                                        </p>
+                                    )
                                 )}
 
                                 <Button type="submit" className="w-full h-12 text-sm font-bold" size="lg">
@@ -349,9 +368,30 @@ export default function NewLogin() {
                                 </div>
 
                                 {error && (
-                                    <p className="text-sm text-destructive text-center font-medium bg-destructive/10 py-2 rounded-md border border-destructive/20">
-                                        {error}
-                                    </p>
+                                    error.toLowerCase().includes('confirmação') || error.toLowerCase().includes('email não confirmado') ? (
+                                        <div className="rounded-xl border-2 border-amber-500/50 bg-amber-50 dark:bg-amber-950/30 p-5 shadow-lg shadow-amber-500/10">
+                                            <div className="flex gap-4">
+                                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                                    <Mail className="h-6 w-6 text-amber-600 dark:text-amber-500" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-bold text-amber-800 dark:text-amber-200 text-base mb-1">
+                                                        Confirme seu e-mail
+                                                    </h3>
+                                                    <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+                                                        Enviamos um link de confirmação para <strong>{formData.email}</strong>. Abra seu e-mail e clique no link para ativar sua conta.
+                                                    </p>
+                                                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                                                        Não recebeu? Verifique a pasta de spam ou solicite um novo link em &quot;Esqueci minha senha&quot;.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-destructive text-center font-medium bg-destructive/10 py-2 rounded-md border border-destructive/20">
+                                            {error}
+                                        </p>
+                                    )
                                 )}
 
                                 <div className="flex flex-col gap-3">

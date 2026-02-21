@@ -23,6 +23,8 @@ export interface User {
   role: UserRole;
   churchId?: string; // ID da igreja à qual o usuário pertence
   avatar?: string;
+  /** Se membro/congregado já completou o cadastro (primeira vez) */
+  registrationCompleted?: boolean;
 }
 
 export interface Member {

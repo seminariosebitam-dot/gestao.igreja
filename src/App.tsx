@@ -51,6 +51,15 @@ const queryClient = new QueryClient();
 
 import { hasProfileCompleted } from '@/lib/profileCompletion';
 
+/** Membro/congregado deve ir para cadastro na primeira vez */
+function getPostLoginPath(user: { role?: string; registrationCompleted?: boolean; id?: string } | null): string {
+  if (!user) return '/dashboard';
+  const isMemberOrCongregado = user.role === 'membro' || user.role === 'congregado';
+  const hasCompleted = user.registrationCompleted === true || (user.id ? hasProfileCompleted(user.id) : false);
+  if (isMemberOrCongregado && !hasCompleted) return '/cadastro';
+  return '/dashboard';
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
@@ -60,7 +69,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   // Membro ou congregado: redirecionar para cadastro na primeira vez (somente uma vez)
-  const needsProfile = user && (user.role === 'membro' || user.role === 'congregado') && !hasProfileCompleted(user.id);
+  const hasCompleted = user?.registrationCompleted === true || (user?.id ? hasProfileCompleted(user.id) : false);
+  const needsProfile = user && (user.role === 'membro' || user.role === 'congregado') && !hasCompleted;
   if (needsProfile && location.pathname !== '/cadastro') {
     return <Navigate to="/cadastro" replace />;
   }
@@ -107,14 +117,15 @@ function RoleProtectedRoute({ children, roles }: { children: React.ReactNode; ro
 }
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const postLoginPath = getPostLoginPath(user);
 
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
+      <Route path="/" element={isAuthenticated ? <Navigate to={postLoginPath} replace /> : <Landing />} />
       <Route path="/checkout" element={<Navigate to="/" replace />} />
       <Route path="/hotmart-success" element={<HotmartSuccess />} />
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <NewLogin />} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to={postLoginPath} replace /> : <NewLogin />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/membros" element={<ProtectedRoute><Members /></ProtectedRoute>} />
       <Route path="/ministerios" element={<ProtectedRoute><Ministries /></ProtectedRoute>} />

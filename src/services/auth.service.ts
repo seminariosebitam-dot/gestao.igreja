@@ -108,6 +108,19 @@ export const authService = {
     },
 
     /**
+     * Marca que o membro/congregado completou o cadastro (primeira vez)
+     */
+    async setRegistrationCompleted() {
+        const user = await this.getUser();
+        if (!user) throw new Error('No user logged in');
+        const { error } = await supabase
+            .from('profiles')
+            .update({ registration_completed: true, updated_at: new Date().toISOString() })
+            .eq('id', user.id);
+        if (error) throw error;
+    },
+
+    /**
      * Update the current user's profile
      */
     async updateProfile(updates: Partial<Profile>) {

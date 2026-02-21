@@ -51,7 +51,7 @@ const dashboardItem: NavItem = {
 
 const navGroups: NavGroup[] = [
   {
-    title: 'Membros e congregados',
+    title: '',
     items: [
       { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
       { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
@@ -193,9 +193,9 @@ export function Sidebar() {
             {!collapsed && <span className="text-[15px]">{dashboardItem.label}</span>}
           </Link>
         )}
-        {filteredGroups.map((group) => (
-          <div key={group.title} className="space-y-1">
-            {!collapsed && (
+        {filteredGroups.map((group, idx) => (
+          <div key={group.title || `nav-group-${idx}`} className="space-y-1">
+            {!collapsed && group.title && (
               <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {group.title}
               </p>

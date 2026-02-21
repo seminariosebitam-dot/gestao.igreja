@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: UserRole, name?: string) => Promise<boolean>;
   logout: () => void;
   updateAvatar: (url: string) => void;
+  setRegistrationCompleted: () => Promise<void>;
   switchChurch: (churchId: string | null, churchName?: string) => void;
   exitChurchView: () => void;
   isAuthenticated: boolean;
@@ -98,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }).select().single();
           targetChurchId = newChurch.id;
         } else {
-          targetChurchId = churches[0].id;
+          targetChurchId = (churches as { id: string }[])[0]?.id;
         }
 
         // Criar ou atualizar perfil
@@ -148,7 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: authUser.email || '',
         role: (profile.role === 'superadmin' ? 'superadmin' : profile.role) as UserRole,
         churchId: profile.church_id || undefined,
-        avatar: authUser.user_metadata?.avatar_url
+        avatar: authUser.user_metadata?.avatar_url,
+        registrationCompleted: !!(profile as any).registration_completed,
       };
 
       setUser(newUser);
@@ -183,9 +185,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
       }
 
-      // Erro específico de email não confirmado
-      if (errMsg.includes('Email not confirmed') || errMsg.includes('email_confirmed_at')) {
-        throw new Error('Email não confirmado. Configure o Supabase para desabilitar confirmação de email ou confirme seu email.');
+      // Erro de sessão ausente ou email não confirmado (precisa confirmar o e-mail)
+      const errLower = errMsg.toLowerCase();
+      if (
+        errMsg.includes('Email not confirmed') ||
+        errMsg.includes('email_confirmed_at') ||
+        errLower.includes('auth session missing') ||
+        errLower.includes('session missing')
+      ) {
+        throw new Error(
+          'Confirme seu e-mail para entrar. Verifique sua caixa de entrada e a pasta de spam — você recebeu um link de confirmação ao se cadastrar. Clique no link e tente fazer login novamente.'
+        );
       }
 
       // Erro de credenciais inválidas
@@ -193,8 +203,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('E-mail ou PIN incorretos.');
       }
 
+      // Limite de envio de e-mail excedido (Supabase)
+      if (errMsg.toLowerCase().includes('rate limit') || errMsg.toLowerCase().includes('email rate limit')) {
+        throw new Error('Muitas tentativas. Aguarde alguns minutos e tente novamente. Se o problema continuar, acesse Supabase > Authentication > Rate Limits para ajustar.');
+      }
+
       // Erro ao criar novo usuário no banco (trigger handle_new_user)
-      const errLower = errMsg.toLowerCase();
       if (errLower.includes('database error') || (errLower.includes('saving') && errLower.includes('new user'))) {
         throw new Error('Erro ao criar sua conta. Execute o script supabase/fix-handle-new-user.sql no Supabase (SQL Editor) e tente novamente.');
       }
@@ -245,6 +259,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setRegistrationCompleted = async () => {
+    await authService.setRegistrationCompleted();
+    if (user) {
+      const updatedUser = { ...user, registrationCompleted: true };
+      setUser(updatedUser);
+      localStorage.setItem('church_user', JSON.stringify(updatedUser));
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || session === null) {
@@ -266,6 +289,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       updateAvatar,
+      setRegistrationCompleted,
       switchChurch,
       exitChurchView,
       isAuthenticated: !!user,

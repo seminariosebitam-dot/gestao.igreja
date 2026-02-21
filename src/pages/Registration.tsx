@@ -13,7 +13,7 @@ export default function Registration() {
     useDocumentTitle('Cadastro');
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { user, churchId } = useAuth();
+    const { user, churchId, setRegistrationCompleted } = useAuth();
     const effectiveChurchId = churchId || user?.churchId;
     const [churchName, setChurchName] = useState('');
     const [pastorName, setPastorName] = useState('');
@@ -45,7 +45,10 @@ export default function Registration() {
                 status: data.category === 'congregado' ? 'visitante' : 'ativo',
             }, cid);
 
-            if (user?.id) setProfileCompleted(user.id);
+            if (user?.id) {
+                setProfileCompleted(user.id);
+                try { await setRegistrationCompleted(); } catch { /* coluna pode não existir ainda */ }
+            }
 
             toast({
                 title: 'Cadastro Realizado!',

@@ -6,12 +6,35 @@
 -- com "Database error saving new user".
 --
 -- Execute no Supabase: SQL Editor > New query > Cole e Run
---
--- Se sua tabela profiles tem "name" em vez de "full_name", execute antes:
---   ALTER TABLE profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
---   UPDATE profiles SET full_name = COALESCE(full_name, name) WHERE full_name IS NULL;
+-- ===================================================
 
--- Atualiza a função para usar as colunas corretas
+-- 1. Garante colunas e flexibilidade para todos os perfis (incl. superadmin)
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS church_id UUID;
+DO $$ BEGIN
+  ALTER TABLE profiles ALTER COLUMN email DROP NOT NULL;
+EXCEPTION WHEN undefined_column THEN NULL; END $$;
+DO $$ BEGIN
+  ALTER TABLE profiles ALTER COLUMN name DROP NOT NULL;
+EXCEPTION WHEN undefined_column THEN NULL; END $$;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='profiles' AND column_name='name') THEN
+    UPDATE profiles SET full_name = COALESCE(full_name, name) WHERE full_name IS NULL;
+  ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='profiles' AND column_name='email') THEN
+    UPDATE profiles SET full_name = COALESCE(full_name, email) WHERE full_name IS NULL;
+  END IF;
+END $$;
+
+-- 2. Garante que constraint de role aceita superadmin e pastor
+ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+DO $$ BEGIN
+  ALTER TABLE profiles ADD CONSTRAINT profiles_role_check 
+    CHECK (role IN ('admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- 3. Atualiza a função (tenta schema novo, fallback para antigo)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -24,23 +47,22 @@ BEGIN
   v_full_name := COALESCE(NEW.raw_user_meta_data->>'name', NEW.email, 'Usuário');
   v_role := COALESCE(NEW.raw_user_meta_data->>'role', 'membro');
   
-  -- Garante role válido para o check constraint
   IF v_role NOT IN ('admin', 'pastor', 'secretario', 'tesoureiro', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin') THEN
     v_role := 'membro';
   END IF;
 
-  INSERT INTO public.profiles (id, full_name, role, church_id)
-  VALUES (
-    NEW.id,
-    v_full_name,
-    v_role,
-    NULL  -- Igreja será vinculada pelo AuthContext no primeiro login
-  );
+  BEGIN
+    INSERT INTO public.profiles (id, full_name, role, church_id)
+    VALUES (NEW.id, v_full_name, v_role, NULL);
+  EXCEPTION WHEN undefined_column OR not_null_violation THEN
+    INSERT INTO public.profiles (id, email, name, role)
+    VALUES (NEW.id, COALESCE(NEW.email, ''), v_full_name, v_role);
+  END;
   RETURN NEW;
 END;
 $$;
 
--- Recria o trigger
+-- 4. Recria o trigger
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
