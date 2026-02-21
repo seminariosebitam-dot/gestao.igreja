@@ -45,6 +45,15 @@ export const prayerRequestsService = {
     return data as PrayerRequest;
   },
 
+  async delete(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('prayer_requests')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
   async incrementPrayed(id: string): Promise<void> {
     const { data } = await supabase
       .from('prayer_requests')

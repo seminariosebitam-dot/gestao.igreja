@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { HandHeart, Send, Loader2, Heart } from 'lucide-react';
+import { HandHeart, Send, Loader2, Heart, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +16,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EmptyState } from '@/components/EmptyState';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export default function PrayerRequests() {
   useDocumentTitle('Solicitações de Oração');
@@ -29,6 +30,7 @@ export default function PrayerRequests() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [sending, setSending] = useState(false);
   const [setupRequired, setSetupRequired] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<PrayerRequest | null>(null);
 
   const loadRequests = useCallback(async () => {
     if (!effectiveChurchId) return;
@@ -98,6 +100,18 @@ export default function PrayerRequests() {
   async function handlePrayed(id: string) {
     try {
       await prayerRequestsService.incrementPrayed(id);
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e?.message, variant: 'destructive' });
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteConfirm) return;
+    try {
+      await prayerRequestsService.delete(deleteConfirm.id);
+      setRequests((prev) => prev.filter((r) => r.id !== deleteConfirm.id));
+      setDeleteConfirm(null);
+      toast({ title: 'Removido', description: 'Pedido de oração excluído.' });
     } catch (e: any) {
       toast({ title: 'Erro', description: e?.message, variant: 'destructive' });
     }
@@ -212,15 +226,26 @@ export default function PrayerRequests() {
                             {req.is_anonymous ? 'Anônimo' : req.requester_name || 'Usuário'} •{' '}
                             {formatDistanceToNow(new Date(req.created_at), { addSuffix: true, locale: ptBR })}
                           </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-primary hover:text-primary h-8 gap-1"
-                            onClick={() => handlePrayed(req.id)}
-                          >
-                            <Heart className="h-4 w-4" />
-                            <span>{req.prayed_count > 0 ? req.prayed_count : 'Orei'}</span>
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-primary hover:text-primary h-8 gap-1"
+                              onClick={() => handlePrayed(req.id)}
+                            >
+                              <Heart className="h-4 w-4" />
+                              <span>{req.prayed_count > 0 ? req.prayed_count : 'Orei'}</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
+                              onClick={() => setDeleteConfirm(req)}
+                              title="Excluir pedido"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -229,6 +254,16 @@ export default function PrayerRequests() {
               )}
             </CardContent>
           </Card>
+
+          <ConfirmDialog
+            open={!!deleteConfirm}
+            onOpenChange={(o) => !o && setDeleteConfirm(null)}
+            title="Excluir pedido de oração"
+            description={deleteConfirm ? 'Tem certeza que deseja excluir este pedido de oração?' : ''}
+            onConfirm={handleDelete}
+            confirmLabel="Sim, excluir"
+            variant="destructive"
+          />
         </>
       )}
     </div>

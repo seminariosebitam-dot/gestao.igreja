@@ -89,6 +89,7 @@ export default function SuperAdmin() {
     const [submitting, setSubmitting] = useState(false);
     const [actionChurchId, setActionChurchId] = useState<string | null>(null);
     const [excludeConfirm, setExcludeConfirm] = useState<{ churchId: string; name: string } | null>(null);
+    const [removeChurchConfirm, setRemoveChurchConfirm] = useState<{ id: string; name: string } | null>(null);
 
     useEffect(() => {
         loadData();
@@ -178,6 +179,18 @@ export default function SuperAdmin() {
             setFormData({ name: '', slug: '', adminEmail: '' });
         }
         setIsDialogOpen(true);
+    };
+
+    const handleRemoveChurch = async () => {
+        if (!removeChurchConfirm) return;
+        try {
+            await churchesService.delete(removeChurchConfirm.id);
+            toast({ title: 'Igreja removida', description: `"${removeChurchConfirm.name}" foi excluída da plataforma.` });
+            setRemoveChurchConfirm(null);
+            loadData();
+        } catch (e: any) {
+            toast({ title: 'Erro', description: e?.message ?? 'Não foi possível remover a igreja.', variant: 'destructive' });
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -370,8 +383,11 @@ export default function SuperAdmin() {
                                                                     <ExternalLink className="mr-2 h-4 w-4" /> Acessar Painel
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuSeparator />
-                                                                <DropdownMenuItem className="text-destructive">
-                                                                    <Trash2 className="mr-2 h-4 w-4" /> Suspender
+                                                                <DropdownMenuItem
+                                                                    className="text-destructive focus:text-destructive"
+                                                                    onClick={() => setRemoveChurchConfirm({ id: church.id, name: church.name })}
+                                                                >
+                                                                    <Trash2 className="mr-2 h-4 w-4" /> Remover Igreja
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -602,6 +618,16 @@ export default function SuperAdmin() {
                 description={excludeConfirm ? `Tem certeza que deseja cancelar a assinatura de "${excludeConfirm.name}"? O serviço será interrompido.` : ''}
                 onConfirm={() => excludeConfirm && handleSubscriptionAction(excludeConfirm.churchId, excludeConfirm.name, 'exclude')}
                 confirmLabel="Sim, cancelar"
+                variant="destructive"
+            />
+
+            <ConfirmDialog
+                open={!!removeChurchConfirm}
+                onOpenChange={(o) => !o && setRemoveChurchConfirm(null)}
+                title="Remover Igreja"
+                description={removeChurchConfirm ? `Tem certeza que deseja remover "${removeChurchConfirm.name}" da plataforma? Esta ação é irreversível e excluirá a igreja e seus dados vinculados.` : ''}
+                onConfirm={handleRemoveChurch}
+                confirmLabel="Sim, remover"
                 variant="destructive"
             />
         </div>
