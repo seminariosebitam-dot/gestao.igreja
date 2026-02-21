@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, role: UserRole, name?: string) => Promise<boolean>;
   logout: () => void;
-  updateAvatar: (url: string) => void;
+  updateAvatar: (url: string) => Promise<void>;
   setRegistrationCompleted: () => Promise<void>;
   switchChurch: (churchId: string | null, churchName?: string) => void;
   exitChurchView: () => void;
@@ -149,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: authUser.email || '',
         role: (profile.role === 'superadmin' ? 'superadmin' : profile.role) as UserRole,
         churchId: profile.church_id || undefined,
-        avatar: authUser.user_metadata?.avatar_url,
+        avatar: authUser.user_metadata?.avatar_url ?? (profile as any)?.avatar_url,
         registrationCompleted: !!(profile as any).registration_completed,
       };
 
@@ -176,7 +176,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err: any) {
       console.error('Erro no login/provisionamento:', err);
 
-      const errMsg = (typeof err === 'string' ? err : err?.message || err?.error_description || err?.msg || '') + '';
+      const errMsg = (typeof err === 'string' ? err : err?.message || err?.error_description || err?.msg || err?.cause?.message || '') + '';
+      const errLower = errMsg.toLowerCase();
+
+      // LockManager timed out (múltiplas abas ou browser travou)
+      if (
+        errMsg.includes('LockManager') ||
+        (errLower.includes('lock') && errLower.includes('timed out')) ||
+        errMsg.includes('10000ms')
+      ) {
+        throw new Error('Aguarde um momento e tente novamente. Se o problema continuar, feche outras abas do app e recarregue a página.');
+      }
 
       // Falha de rede / Supabase não configurado
       if (errMsg === 'Failed to fetch' || errMsg.includes('fetch')) {
@@ -186,7 +196,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Erro de sessão ausente ou email não confirmado (precisa confirmar o e-mail)
-      const errLower = errMsg.toLowerCase();
       if (
         errMsg.includes('Email not confirmed') ||
         errMsg.includes('email_confirmed_at') ||
@@ -251,8 +260,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (updatedUser) localStorage.setItem('church_user', JSON.stringify(updatedUser));
   };
 
-  const updateAvatar = (url: string) => {
-    if (user) {
+  const updateAvatar = async (url: string) => {
+    if (!user) return;
+    try {
+      await authService.saveAvatarUrl(url);
+      const updatedUser = { ...user, avatar: url };
+      setUser(updatedUser);
+      localStorage.setItem('church_user', JSON.stringify(updatedUser));
+    } catch (err) {
+      // Atualiza localmente mesmo se o banco falhar (ex: coluna inexistente)
       const updatedUser = { ...user, avatar: url };
       setUser(updatedUser);
       localStorage.setItem('church_user', JSON.stringify(updatedUser));

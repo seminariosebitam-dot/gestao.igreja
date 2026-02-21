@@ -121,6 +121,19 @@ export const authService = {
     },
 
     /**
+     * Salva a URL do avatar no perfil (persiste no banco)
+     */
+    async saveAvatarUrl(url: string) {
+        const user = await this.getUser();
+        if (!user) throw new Error('No user logged in');
+        const { error } = await supabase
+            .from('profiles')
+            .update({ avatar_url: url, updated_at: new Date().toISOString() })
+            .eq('id', user.id);
+        if (error) throw error;
+    },
+
+    /**
      * Update the current user's profile
      */
     async updateProfile(updates: Partial<Profile>) {

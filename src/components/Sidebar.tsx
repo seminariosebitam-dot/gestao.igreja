@@ -11,15 +11,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  Shield,
   Church,
-  UserRound,
   Send,
   BookOpen,
   Share2,
   DollarSign,
   CreditCard,
-  Landmark,
   FileText,
   MapPin,
 } from 'lucide-react';
@@ -61,9 +58,6 @@ const navGroups: NavGroup[] = [
       { icon: BookOpen, label: 'Planos de Leitura', href: '/planos-leitura', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
       { icon: Share2, label: 'Redes Sociais', href: '/redes-sociais', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
       { icon: CreditCard, label: 'Contas e PIX Igreja', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Landmark, label: 'Página Institucional', href: '/institucional', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: UserRound, label: 'Pastores', href: '/pastores', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Shield, label: 'Privacidade e LGPD', href: '/privacidade', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
     ],
   },
 ];
@@ -129,7 +123,7 @@ export function Sidebar() {
         .from('church-documents')
         .getPublicUrl(filePath);
 
-      updateAvatar(publicUrl);
+      await updateAvatar(publicUrl);
       toast({
         title: 'Foto de perfil atualizada!',
         description: 'Sua nova foto foi salva com sucesso.',

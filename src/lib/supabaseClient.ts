@@ -16,11 +16,18 @@ export const SUPABASE_CONFIG_HINT = 'Chave do Supabase inválida ou não configu
 const effectiveUrl = supabaseUrl || 'https://placeholder.supabase.co';
 const effectiveKey = supabaseAnonKey || 'placeholder-key';
 
+/** Workaround para erro "LockManager lock auth-token timed out" no Supabase.
+ * Evita deadlock quando múltiplas abas ou o browser mantém locks travados.
+ * @see https://github.com/supabase/supabase-js/issues/1594
+ */
+const noOpLock = async (_name: string, _acquireTimeout: number, fn: () => Promise<unknown>) => fn();
+
 export const supabase = createClient<Database>(effectiveUrl, effectiveKey, {
     auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
+        lock: noOpLock,
     },
 });
 

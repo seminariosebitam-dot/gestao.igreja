@@ -38,6 +38,7 @@ const SocialLinks = lazy(() => import("./pages/SocialLinks"));
 const PixDonations = lazy(() => import("./pages/PixDonations"));
 const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
 const Discipleship = lazy(() => import("./pages/Discipleship"));
+const ComoAcessar = lazy(() => import("./pages/ComoAcessar"));
 
 function PageFallback() {
   return (
@@ -75,14 +76,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/cadastro" replace />;
   }
 
-  // Tesoureiro: acesso somente a Dashboard e Caixa Diário
-  const tesoureiroOnlyPaths = ['/dashboard', '/caixa-diario'];
+  // Tesoureiro: acesso somente a Dashboard, Caixa Diário e Como Acessar (via Dashboard)
+  const tesoureiroOnlyPaths = ['/dashboard', '/caixa-diario', '/como-acessar'];
   if (user?.role === 'tesoureiro' && !tesoureiroOnlyPaths.includes(location.pathname)) {
     return <Navigate to="/caixa-diario" replace />;
   }
 
-  // Líder de célula: acesso somente a Dashboard e Células
-  const liderCelulaOnlyPaths = ['/dashboard', '/celulas'];
+  // Líder de célula: acesso somente a Dashboard, Células e páginas acessíveis via Dashboard
+  const liderCelulaOnlyPaths = ['/dashboard', '/celulas', '/institucional', '/pastores', '/privacidade', '/como-acessar'];
   if (user?.role === 'lider_celula' && !liderCelulaOnlyPaths.includes(location.pathname)) {
     return <Navigate to="/celulas" replace />;
   }
@@ -144,6 +145,7 @@ function AppRoutes() {
       <Route path="/pix-donacoes" element={<ProtectedRoute><PixDonations /></ProtectedRoute>} />
       <Route path="/institucional" element={<ProtectedRoute><Institutional /></ProtectedRoute>} />
       <Route path="/privacidade" element={<ProtectedRoute><Privacy /></ProtectedRoute>} />
+      <Route path="/como-acessar" element={<ProtectedRoute><ComoAcessar /></ProtectedRoute>} />
       <Route path="/pastores" element={<ProtectedRoute><Pastors /></ProtectedRoute>} />
       <Route path="/superadmin" element={<RoleProtectedRoute roles={['superadmin']}><SuperAdmin /></RoleProtectedRoute>} />
       <Route path="/confirmar/:id" element={<ConfirmScale />} />
