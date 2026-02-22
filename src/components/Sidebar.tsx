@@ -265,7 +265,9 @@ export function Sidebar() {
 
       <div className="p-3 border-t border-border/50 space-y-2">
         {/* Seletor de Temas */}
-        <ThemeSwitcher collapsed={collapsed} />
+        <div data-onboarding-themes>
+          <ThemeSwitcher collapsed={collapsed} />
+        </div>
 
         <input
           type="file"

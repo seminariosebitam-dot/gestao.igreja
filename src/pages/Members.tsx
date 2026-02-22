@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Loader2, Cake, Users as UsersIcon, MessageSquare } from 'lucide-react';
+import { Plus, Loader2, Cake, Users as UsersIcon, FileDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Sidebar } from '@/components/Sidebar';
@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Member } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { membersService } from '@/services/members.service';
+import { exportToCsv, membersExportFilename } from '@/lib/exportCsv';
 import { churchesService } from '@/services/churches.service';
 import { pastorsService } from '@/services/pastors.service';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,8 +42,11 @@ export default function Members() {
           churchesService.getById(effectiveChurchId),
           pastorsService.listByChurch(effectiveChurchId),
         ]);
-        setChurchName(church?.name || '');
-        setPastorName(pastors?.[0]?.name || '');
+        const churchObj = church as { name?: string } | null;
+        const pastorsArr = Array.isArray(pastors) ? pastors : [];
+        const firstPastor = pastorsArr[0] as { name?: string } | undefined;
+        setChurchName(churchObj?.name ?? '');
+        setPastorName(firstPastor?.name ?? '');
       } catch {
         setChurchName(viewingChurch?.name || '');
         setPastorName('');
@@ -170,11 +174,32 @@ export default function Members() {
             Gerencie os membros da igreja
           </p>
         </div>
-        {!showForm && (user?.role === 'superadmin' || (user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && user?.role !== 'tesoureiro')) && (
-          <Button onClick={() => { setEditingMember(null); setShowForm(true); }} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Membro
-          </Button>
+        {!showForm && (
+          <div className="flex flex-wrap gap-2">
+            {members.length > 0 && (user?.role === 'superadmin' || !['aluno', 'membro', 'congregado'].includes(user?.role ?? '')) && (
+              <Button variant="outline" onClick={() => {
+                exportToCsv(members.map(m => ({
+                  Nome: m.name,
+                  Email: m.email,
+                  Telefone: m.phone,
+                  'Data Nascimento': m.birthDate,
+                  'Estado Civil': m.maritalStatus,
+                  Endereço: m.address,
+                  Categoria: m.category,
+                })), { filename: membersExportFilename() });
+                toast({ title: 'Exportado', description: `${members.length} membros exportados em CSV.` });
+              }} className="gap-2" aria-label="Exportar membros em CSV">
+                <FileDown className="h-4 w-4" />
+                Exportar CSV
+              </Button>
+            )}
+            {(user?.role === 'superadmin' || (user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && user?.role !== 'tesoureiro')) && (
+              <Button onClick={() => { setEditingMember(null); setShowForm(true); }} className="w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Membro
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

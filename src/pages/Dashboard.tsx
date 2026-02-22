@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { ElementType } from 'react';
 import type { UserRole } from '@/types';
 import { useNavigate } from 'react-router-dom';
@@ -20,8 +21,15 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { DailyVerse } from '@/components/DailyVerse';
 import { BirthdayCard } from '@/components/BirthdayCard';
+import { DashboardCustomizer } from '@/components/DashboardCustomizer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import {
+  getDashboardConfig,
+  saveDashboardConfig,
+  type DashboardConfig,
+  type DashboardWidgetId,
+} from '@/lib/dashboardConfig';
 
 interface QuickActionDef {
   icon: ElementType;
@@ -50,39 +58,69 @@ const quickActionsList: QuickActionDef[] = [
 export default function Dashboard() {
   useDocumentTitle('Dashboard');
   const { user } = useAuth();
+  const [config, setConfig] = useState<DashboardConfig>(() =>
+    getDashboardConfig(user?.id, user?.role)
+  );
+
+  useEffect(() => {
+    setConfig(getDashboardConfig(user?.id, user?.role));
+  }, [user?.id, user?.role]);
+
   const visibleActions = quickActionsList.filter((a) => user && a.roles.includes(user.role));
 
+  const orderedWidgets = config.widgetOrder.filter((id) => config.visibleWidgets.includes(id));
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-dashboard-root>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Olá, {user?.name ? user.name.split(' ')[0] : 'Bem-vindo'}!</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Olá, {user?.name ? user.name.split(' ')[0] : 'Bem-vindo'}!
+          </h1>
           <p className="text-muted-foreground">Bem-vindo ao painel de gestão</p>
         </div>
+        <DashboardCustomizer
+          userId={user?.id}
+          config={config}
+          onConfigChange={(c) => {
+            setConfig(c);
+            if (user?.id) saveDashboardConfig(user.id, c);
+          }}
+        />
       </div>
 
-      {/* Verse and Birthdays */}
+      {/* Widgets configuráveis */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <DailyVerse />
-        <BirthdayCard />
+        {orderedWidgets.includes('verse') && (
+          <div data-widget-verse>
+            <DailyVerse />
+          </div>
+        )}
+        {orderedWidgets.includes('birthdays') && (
+          <div data-widget-birthdays>
+            <BirthdayCard />
+          </div>
+        )}
       </div>
 
-      <Card className="bg-white border-primary/10 shadow-lg mt-4 sm:mt-6">
-        <CardContent className="px-4 py-6 pb-8 sm:px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6">
-            {visibleActions.map((action) => (
-              <QuickAction key={action.href} icon={action.icon} label={action.label} href={action.href} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {orderedWidgets.includes('quick_actions') && (
+        <Card className="bg-white dark:bg-card border-primary/10 shadow-lg mt-4 sm:mt-6" data-widget-actions>
+          <CardContent className="px-4 py-6 pb-8 sm:px-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6">
+              {visibleActions.map((action) => (
+                <QuickAction key={action.href} icon={action.icon} label={action.label} href={action.href} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
 
 function QuickAction({ icon: Icon, label, href }: { icon: ElementType; label: string; href: string }) {
   const navigate = useNavigate();
-  
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     navigate(href);
@@ -91,12 +129,14 @@ function QuickAction({ icon: Icon, label, href }: { icon: ElementType; label: st
   return (
     <button
       onClick={handleClick}
-      className="flex flex-col items-center gap-4 p-8 sm:p-6 rounded-2xl bg-white hover:bg-primary/5 border-2 border-primary/10 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-xl group shadow-md cursor-pointer"
+      className="flex flex-col items-center gap-4 p-8 sm:p-6 rounded-2xl bg-white dark:bg-card hover:bg-primary/5 border-2 border-primary/10 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-xl group shadow-md cursor-pointer"
     >
       <div className="p-4 rounded-xl bg-primary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
         <Icon className="h-8 w-8 sm:h-6 sm:w-6 text-primary-foreground" />
       </div>
-      <span className="text-base sm:text-sm font-black text-center text-foreground group-hover:text-primary transition-colors">{label}</span>
+      <span className="text-base sm:text-sm font-black text-center text-foreground group-hover:text-primary transition-colors">
+        {label}
+      </span>
     </button>
   );
 }

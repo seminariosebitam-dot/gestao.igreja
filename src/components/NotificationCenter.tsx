@@ -122,6 +122,7 @@ export function NotificationCenter() {
             <Button
                 variant="ghost"
                 size="icon"
+                aria-label={unreadCount > 0 ? `Notificações (${unreadCount} não lidas)` : 'Ver notificações'}
                 className="relative hover:bg-primary/10 h-12 w-12 min-h-[48px] min-w-[48px] md:h-10 md:w-10"
                 onClick={() => setOpen(!open)}
             >
@@ -153,7 +154,7 @@ export function NotificationCenter() {
                                     Limpar tudo
                                 </Button>
                             )}
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setOpen(false)}>
+                            <Button variant="ghost" size="icon" aria-label="Fechar notificações" className="h-6 w-6" onClick={() => setOpen(false)}>
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>

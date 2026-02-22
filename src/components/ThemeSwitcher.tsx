@@ -26,6 +26,7 @@ export function ThemeSwitcher({ collapsed, direction = 'up' }: { collapsed: bool
         <div className="relative" ref={panelRef}>
             <Button
                 variant="ghost"
+                aria-label="Escolher tema visual"
                 className={cn(
                     'w-full justify-start gap-3 px-4 py-3 hover:bg-primary/5 transition-all duration-300',
                     collapsed && 'justify-center px-0 h-12 w-12 min-h-[48px] min-w-[48px] md:h-11 md:w-11 rounded-xl bg-primary/10 border border-primary/20 shadow-sm'

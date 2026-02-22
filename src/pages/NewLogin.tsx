@@ -9,6 +9,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types';
 import { authService } from '@/services/auth.service';
+import { SHOW_SUPERADMIN_LOGIN } from '@/lib/constants';
 import { z } from 'zod';
 import {
     Dialog,
@@ -175,7 +176,7 @@ export default function NewLogin() {
                                     <Logo size="md" showText={false} />
                                 </div>
                                 <h1 className="text-4xl font-black tracking-tight mb-1">
-                                    Gestão Church
+                                    Gestão Igreja
                                 </h1>
                                 <div className="h-1 w-20 bg-primary mx-auto rounded-full mb-3"
                                     style={{ backgroundColor: 'hsl(var(--primary))' }}></div>
@@ -352,12 +353,14 @@ export default function NewLogin() {
                                             active={formData.role === 'membro'}
                                             onClick={() => setFormData({ ...formData, role: 'membro' })}
                                         />
+                                        {SHOW_SUPERADMIN_LOGIN && (
                                         <RoleCard
                                             icon={<Shield className="h-5 w-5" />}
                                             label="SuperAdmin"
                                             active={formData.role === 'superadmin'}
                                             onClick={() => setFormData({ ...formData, role: 'superadmin' })}
                                         />
+                                        )}
                                         <RoleCard
                                             icon={<User className="h-5 w-5" />}
                                             label="Congregado"

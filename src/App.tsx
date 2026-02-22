@@ -62,9 +62,16 @@ function getPostLoginPath(user: { role?: string; registrationCompleted?: boolean
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, authLoading } = useAuth();
   const location = useLocation();
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
@@ -98,8 +105,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function RoleProtectedRoute({ children, roles }: { children: React.ReactNode; roles: UserRole[] }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, authLoading } = useAuth();
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
@@ -118,8 +132,16 @@ function RoleProtectedRoute({ children, roles }: { children: React.ReactNode; ro
 }
 
 function AppRoutes() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, authLoading } = useAuth();
   const postLoginPath = getPostLoginPath(user);
+
+  if (authLoading && (window.location.pathname === '/' || window.location.pathname === '/login')) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <Routes>

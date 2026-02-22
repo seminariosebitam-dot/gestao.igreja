@@ -13,6 +13,7 @@ interface AuthContextType {
   switchChurch: (churchId: string | null, churchName?: string) => void;
   exitChurchView: () => void;
   isAuthenticated: boolean;
+  authLoading: boolean;
   churchId?: string;
   /** Quando superadmin está visualizando uma igreja como se fosse dela */
   viewingChurch?: { id: string; name: string } | null;
@@ -21,40 +22,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const savedUser = localStorage.getItem('church_user');
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (e) {
-      console.error('AuthContext: Erro ao carregar usuário do localStorage', e);
-      localStorage.removeItem('church_user');
-      return null;
-    }
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const [churchId, setChurchId] = useState<string | undefined>(() => {
-    const saved = user?.churchId ?? undefined;
-    if (user?.role === 'superadmin') {
-      try {
-        const viewing = sessionStorage.getItem('superadmin_viewing_church');
-        if (viewing) {
-          const parsed = JSON.parse(viewing) as { id: string; name: string };
-          return parsed.id;
-        }
-      } catch {}
-    }
-    return saved;
-  });
-
-  const [viewingChurch, setViewingChurch] = useState<{ id: string; name: string } | null>(() => {
-    if (user?.role !== 'superadmin') return null;
-    try {
-      const v = sessionStorage.getItem('superadmin_viewing_church');
-      return v ? JSON.parse(v) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [churchId, setChurchId] = useState<string | undefined>(undefined);
+  const [viewingChurch, setViewingChurch] = useState<{ id: string; name: string } | null>(null);
 
   const login = async (email: string, password: string, role: UserRole, name?: string) => {
     try {
@@ -161,17 +133,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (viewing) {
           try {
             const parsed = JSON.parse(viewing) as { id: string; name: string };
-            const restoredUser = { ...newUser, churchId: parsed.id };
             setViewingChurch(parsed);
             setChurchId(parsed.id);
-            setUser(restoredUser);
-            localStorage.setItem('church_user', JSON.stringify(restoredUser));
+            setUser({ ...newUser, churchId: parsed.id });
             return true;
           } catch {}
         }
         setViewingChurch(null);
       }
-      localStorage.setItem('church_user', JSON.stringify(newUser));
       return true;
     } catch (err: any) {
       console.error('Erro no login/provisionamento:', err);
@@ -231,7 +200,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setChurchId(undefined);
     setViewingChurch(null);
-    localStorage.removeItem('church_user');
     sessionStorage.removeItem('superadmin_viewing_church');
   };
 
@@ -245,9 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem('superadmin_viewing_church', JSON.stringify(viewing));
     setViewingChurch(viewing);
     setChurchId(targetChurchId);
-    const updatedUser = user ? { ...user, churchId: targetChurchId } : null;
-    setUser(updatedUser);
-    if (updatedUser) localStorage.setItem('church_user', JSON.stringify(updatedUser));
+    if (user) setUser({ ...user, churchId: targetChurchId });
   };
 
   const exitChurchView = () => {
@@ -255,44 +221,81 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem('superadmin_viewing_church');
     setViewingChurch(null);
     setChurchId(undefined);
-    const updatedUser = user ? { ...user, churchId: undefined } : null;
-    setUser(updatedUser);
-    if (updatedUser) localStorage.setItem('church_user', JSON.stringify(updatedUser));
+    if (user) setUser({ ...user, churchId: undefined });
   };
 
   const updateAvatar = async (url: string) => {
     if (!user) return;
     try {
       await authService.saveAvatarUrl(url);
-      const updatedUser = { ...user, avatar: url };
-      setUser(updatedUser);
-      localStorage.setItem('church_user', JSON.stringify(updatedUser));
+      setUser({ ...user, avatar: url });
     } catch (err) {
-      // Atualiza localmente mesmo se o banco falhar (ex: coluna inexistente)
-      const updatedUser = { ...user, avatar: url };
-      setUser(updatedUser);
-      localStorage.setItem('church_user', JSON.stringify(updatedUser));
+      setUser({ ...user, avatar: url });
     }
   };
 
   const setRegistrationCompleted = async () => {
     await authService.setRegistrationCompleted();
-    if (user) {
-      const updatedUser = { ...user, registrationCompleted: true };
-      setUser(updatedUser);
-      localStorage.setItem('church_user', JSON.stringify(updatedUser));
-    }
+    if (user) setUser({ ...user, registrationCompleted: true });
   };
 
   useEffect(() => {
+    const loadUserFromSession = async () => {
+      try {
+        const session = await authService.getSession();
+        if (!session?.user) {
+          setAuthLoading(false);
+          return;
+        }
+        const profile = await authService.getProfile();
+        if (!profile) {
+          setAuthLoading(false);
+          return;
+        }
+        const u: User = {
+          id: session.user.id,
+          name: (profile as any).full_name || session.user.email?.split('@')[0] || 'Usuário',
+          email: session.user.email || '',
+          role: ((profile as any).role === 'superadmin' ? 'superadmin' : (profile as any).role) as UserRole,
+          churchId: (profile as any).church_id || undefined,
+          avatar: session.user.user_metadata?.avatar_url ?? (profile as any)?.avatar_url,
+          registrationCompleted: !!(profile as any).registration_completed,
+        };
+        setUser(u);
+        let cid = (profile as any).church_id || undefined;
+        if (u.role === 'superadmin') {
+          try {
+            const viewing = sessionStorage.getItem('superadmin_viewing_church');
+            if (viewing) {
+              const parsed = JSON.parse(viewing) as { id: string; name: string };
+              setViewingChurch(parsed);
+              setChurchId(parsed.id);
+              setUser({ ...u, churchId: parsed.id });
+              return;
+            }
+          } catch {}
+          setViewingChurch(null);
+        }
+        setChurchId(cid);
+      } catch (e) {
+        console.error('AuthContext: Erro ao carregar sessão', e);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    loadUserFromSession();
+
     const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || session === null) {
         setUser(null);
         setChurchId(undefined);
-        localStorage.removeItem('church_user');
+        setViewingChurch(null);
         if (window.location.pathname !== '/login' && window.location.pathname !== '/' && !window.location.pathname.startsWith('/reset-password')) {
           window.location.href = '/login';
         }
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        loadUserFromSession();
       }
     });
     return () => subscription.unsubscribe();
@@ -309,6 +312,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       switchChurch,
       exitChurchView,
       isAuthenticated: !!user,
+      authLoading,
       viewingChurch,
     }}>
       {children}

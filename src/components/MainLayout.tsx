@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Menu, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { PageBreadcrumbs } from './PageBreadcrumbs';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationCenter } from './NotificationCenter';
+import { OnboardingTour } from './OnboardingTour';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Logo } from './Logo';
@@ -21,8 +23,11 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-background" translate="no">
+            <a href="#main-content" className="absolute left-4 top-4 -translate-y-full focus:translate-y-0 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:outline-none transition-transform">
+                Pular para o conteúdo principal
+            </a>
             {/* Sidebar fixa - visível a partir de 768px (tablet/PC), mesma experiência que no PC */}
-            <div className="hidden md:flex print:hidden border-r border-border bg-card">
+            <div className="hidden md:flex print:hidden border-r border-border bg-card" data-onboarding-sidebar>
                 <Sidebar />
             </div>
 
@@ -35,12 +40,12 @@ export function MainLayout({ children }: MainLayoutProps) {
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 relative z-50">
                         <NotificationCenter />
-                        <div className="relative z-50 min-h-[48px] min-w-[48px] flex items-center justify-center">
+                        <div className="relative z-50 min-h-[48px] min-w-[48px] flex items-center justify-center" data-onboarding-themes>
                             <ThemeSwitcher collapsed={true} direction="down" />
                         </div>
                         <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-14 w-14 min-h-[52px] min-w-[52px] md:h-12 md:w-12 shadow-sm border border-border/50 bg-background/50 rounded-xl active:scale-95 transition-transform">
+                                <Button variant="ghost" size="icon" aria-label="Abrir menu de navegação" className="h-14 w-14 min-h-[52px] min-w-[52px] md:h-12 md:w-12 shadow-sm border border-border/50 bg-background/50 rounded-xl active:scale-95 transition-transform">
                                     <Menu className="h-8 w-8 md:h-6 md:w-6" />
                                 </Button>
                             </SheetTrigger>
@@ -58,7 +63,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                     <NotificationCenter />
                 </header>
 
-                <main className="flex-1 overflow-y-auto overflow-x-hidden safe-area-padding">
+                <main id="main-content" className="flex-1 overflow-y-auto overflow-x-hidden safe-area-padding" tabIndex={-1}>
                     {showRootBanner && (
                         <div className="sticky top-0 z-40 print:hidden flex items-center justify-between gap-3 px-4 py-2 sm:px-6 bg-amber-100 dark:bg-amber-950/50 border-b border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200">
                             <span className="text-sm font-medium truncate">
@@ -75,10 +80,12 @@ export function MainLayout({ children }: MainLayoutProps) {
                         </div>
                     )}
                     <div className="container mx-auto p-4 sm:p-6 md:p-8 lg:p-8 max-w-7xl animate-in fade-in duration-500">
+                        <PageBreadcrumbs />
                         {children}
                     </div>
                 </main>
             </div>
+            <OnboardingTour />
         </div>
     );
 }
