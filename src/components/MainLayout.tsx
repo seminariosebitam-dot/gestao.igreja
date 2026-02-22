@@ -24,9 +24,6 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     return (
         <div className="flex min-h-screen bg-background" translate="no">
-            <a href="#main-content" className="absolute left-4 top-4 -translate-y-full focus:translate-y-0 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:ring-2 focus:ring-ring focus:outline-none transition-transform">
-                Pular para o conteúdo principal
-            </a>
             {/* Sidebar fixa - visível a partir de 768px (tablet/PC), mesma experiência que no PC */}
             <div className="hidden md:flex print:hidden border-r border-border bg-card" data-onboarding-sidebar>
                 <Sidebar />
