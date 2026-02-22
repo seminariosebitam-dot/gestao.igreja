@@ -55,8 +55,8 @@ export function PageBreadcrumbs() {
   if (items.length === 0) return null;
 
   return (
-    <Breadcrumb className="mb-4">
-      <BreadcrumbList>
+    <Breadcrumb className="mb-4 py-2.5 px-4 rounded-xl bg-muted/60 border border-border/60">
+      <BreadcrumbList className="text-base sm:text-base gap-2 sm:gap-3 [&_a]:font-medium [&_a]:text-foreground/90 [&_a:hover]:text-primary">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link to="/dashboard">Início</Link>
@@ -67,7 +67,7 @@ export function PageBreadcrumbs() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               {i === items.length - 1 ? (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                <BreadcrumbPage className="font-semibold text-foreground">{item.label}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
                   <Link to={item.path}>{item.label}</Link>

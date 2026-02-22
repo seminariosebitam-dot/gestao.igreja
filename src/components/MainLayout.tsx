@@ -10,6 +10,7 @@ import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Logo } from './Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import { GlobalSearch } from './GlobalSearch';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -39,6 +40,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                         <span className="font-black text-primary text-base sm:text-lg tracking-tight truncate">Gestão Igreja</span>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 relative z-50">
+                        <GlobalSearch />
                         <NotificationCenter />
                         <div className="relative z-50 min-h-[48px] min-w-[48px] flex items-center justify-center" data-onboarding-themes>
                             <ThemeSwitcher collapsed={true} direction="down" />
@@ -58,8 +60,9 @@ export function MainLayout({ children }: MainLayoutProps) {
                     </div>
                 </header>
 
-                {/* Barra superior desktop: notificações */}
+                {/* Barra superior desktop: busca + notificações */}
                 <header className="hidden md:flex items-center justify-end gap-2 px-4 py-2 border-b border-border bg-card/50 print:hidden">
+                    <GlobalSearch />
                     <NotificationCenter />
                 </header>
 

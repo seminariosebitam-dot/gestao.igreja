@@ -96,6 +96,7 @@ export default function Events() {
     const [selectedTab, setSelectedTab] = useState('calendario');
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<string>('todos');
+    const [filterStatus, setFilterStatus] = useState<string>('todos');
     const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
     const [isCreateWorshipOpen, setIsCreateWorshipOpen] = useState(false);
     const [isCreateChecklistOpen, setIsCreateChecklistOpen] = useState(false);
@@ -235,8 +236,9 @@ export default function Events() {
     const filteredEvents = events.filter(event => {
         const matchesSearch = (event.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (event.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterType === 'todos' || event.type === filterType;
-        return matchesSearch && matchesFilter;
+        const matchesType = filterType === 'todos' || event.type === filterType;
+        const matchesStatus = filterStatus === 'todos' || event.status === filterStatus;
+        return matchesSearch && matchesType && matchesStatus;
     });
 
     if (error && events.length === 0 && !loading) {
@@ -409,9 +411,9 @@ export default function Events() {
                             />
                         </div>
                         <Select value={filterType} onValueChange={setFilterType}>
-                            <SelectTrigger className="w-full md:w-[220px] h-14 sm:h-11 text-base sm:text-sm rounded-xl border-primary/20">
+                            <SelectTrigger className="w-full md:w-[180px] h-14 sm:h-11 text-base sm:text-sm rounded-xl border-primary/20">
                                 <Filter className="h-5 w-5 mr-3" />
-                                <SelectValue placeholder="Filtrar por tipo" />
+                                <SelectValue placeholder="Tipo" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="todos">Todos os Tipos</SelectItem>
@@ -420,6 +422,18 @@ export default function Events() {
                                 <SelectItem value="evento">Eventos</SelectItem>
                                 <SelectItem value="reuniao">Reuniões</SelectItem>
                                 <SelectItem value="especial">Especiais</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                            <SelectTrigger className="w-full md:w-[160px] h-14 sm:h-11 text-base sm:text-sm rounded-xl border-primary/20">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="todos">Todos os Status</SelectItem>
+                                <SelectItem value="planejado">Planejado</SelectItem>
+                                <SelectItem value="confirmado">Confirmado</SelectItem>
+                                <SelectItem value="realizado">Realizado</SelectItem>
+                                <SelectItem value="cancelado">Cancelado</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

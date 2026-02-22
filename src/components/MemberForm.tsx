@@ -23,6 +23,8 @@ interface MemberFormProps {
   churchName?: string;
   /** Nome do pastor da igreja (exibido no cadastro) */
   pastorName?: string;
+  /** Exibe loading no botão de enviar */
+  isSubmitting?: boolean;
 }
 
 export interface MemberFormData {
@@ -36,7 +38,7 @@ export interface MemberFormData {
   photoUrl?: string;
 }
 
-export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastorName }: MemberFormProps) {
+export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastorName, isSubmitting }: MemberFormProps) {
   const [formData, setFormData] = useState<MemberFormData>(initialData || {
     name: '',
     birthDate: '',
@@ -242,10 +244,19 @@ export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastor
 
 
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               Cancelar
             </Button>
-            <Button type="submit">{initialData ? 'Salvar Alterações' : 'Cadastrar'}</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                initialData ? 'Salvar Alterações' : 'Cadastrar'
+              )}
+            </Button>
           </div>
         </form>
       </CardContent>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Trash2, Edit, Phone, Mail, MapPin, Cake, MessageSquare } from 'lucide-react';
+import { Search, Trash2, Edit, Phone, Mail, MapPin, Cake, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,12 +22,14 @@ import { Users } from 'lucide-react';
 
 interface MemberListProps {
   members: Member[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void | Promise<void>;
   onEdit: (member: Member) => void;
+  deletingId?: string | null;
 }
 
-export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
+export function MemberList({ members, onDelete, onEdit, deletingId }: MemberListProps) {
   const [search, setSearch] = useState('');
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const { user } = useAuth();
   const canDelete = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
   const canEdit = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario';
@@ -140,27 +142,15 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
                     </Button>
                   )}
                   {canDelete && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-destructive">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tem certeza que deseja excluir o membro {member.name}? Esta ação não pode ser desfeita.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onDelete(member.id)}>
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      disabled={!!deletingId}
+                      onClick={() => setMemberToDelete(member)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   )}
                 </div>
               </div>
@@ -168,6 +158,38 @@ export function MemberList({ members, onDelete, onEdit }: MemberListProps) {
           </Card>
         ))}
       </div>
+
+      <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o membro {memberToDelete?.name}? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!deletingId}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (memberToDelete) {
+                  await onDelete(memberToDelete.id);
+                  setMemberToDelete(null);
+                }
+              }}
+              disabled={!!deletingId}
+            >
+              {deletingId ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Excluir'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

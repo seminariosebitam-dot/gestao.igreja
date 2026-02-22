@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Plus, Loader2, Cake, Users as UsersIcon, FileDown } from 'lucide-react';
+import { Plus, Loader2, Cake, Users as UsersIcon, FileDown, Filter } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Sidebar } from '@/components/Sidebar';
 import { MemberList } from '@/components/MemberList';
 import { MemberForm, MemberFormData } from '@/components/MemberForm';
@@ -24,6 +31,10 @@ export default function Members() {
   const [error, setError] = useState<string | null>(null);
   const [churchName, setChurchName] = useState<string>('');
   const [pastorName, setPastorName] = useState<string>('');
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string>('todos');
+  const [filterMarital, setFilterMarital] = useState<string>('todos');
   const { toast } = useToast();
   const { user, churchId, viewingChurch } = useAuth();
   // Prioriza o churchId do contexto (atualizado quando superadmin visualiza uma igreja)
@@ -92,6 +103,7 @@ export default function Members() {
 
   const handleAddMember = async (data: MemberFormData) => {
     try {
+      setSaving(true);
       if (editingMember) {
         await membersService.update(editingMember.id, {
           name: data.name,
@@ -139,6 +151,8 @@ export default function Members() {
         description: 'Ocorreu um problema ao tentar salvar os dados. Verifique sua permissão ou conexão.',
         variant: 'destructive',
       });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -149,6 +163,7 @@ export default function Members() {
 
   const handleDeleteMember = async (id: string) => {
     try {
+      setDeletingId(id);
       await membersService.delete(id);
       setMembers(members.filter(m => m.id !== id));
       toast({
@@ -162,6 +177,8 @@ export default function Members() {
         description: 'Não foi possível remover o membro.',
         variant: 'destructive',
       });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -210,6 +227,7 @@ export default function Members() {
           initialData={editingMember || undefined}
           churchName={churchName}
           pastorName={pastorName}
+          isSubmitting={saving}
         />
       ) : error && members.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -224,6 +242,33 @@ export default function Members() {
         </div>
       ) : (
         <Tabs defaultValue="todos" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-full sm:w-[140px] h-9">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="membro">Membro</SelectItem>
+                  <SelectItem value="congregado">Congregado</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterMarital} onValueChange={setFilterMarital}>
+                <SelectTrigger className="w-full sm:w-[150px] h-9">
+                  <SelectValue placeholder="Estado civil" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="solteiro">Solteiro(a)</SelectItem>
+                  <SelectItem value="casado">Casado(a)</SelectItem>
+                  <SelectItem value="divorciado">Divorciado(a)</SelectItem>
+                  <SelectItem value="viuvo">Viúvo(a)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <TabsList className="bg-muted/50 p-1">
             <TabsTrigger value="todos" className="gap-2">
               <UsersIcon className="h-4 w-4" />
@@ -247,15 +292,22 @@ export default function Members() {
 
           <TabsContent value="todos">
             <MemberList
-              members={members}
+              members={members.filter(m => {
+                if (filterCategory !== 'todos' && m.category !== filterCategory) return false;
+                if (filterMarital !== 'todos' && m.maritalStatus !== filterMarital) return false;
+                return true;
+              })}
               onDelete={handleDeleteMember}
               onEdit={handleEdit}
+              deletingId={deletingId}
             />
           </TabsContent>
 
           <TabsContent value="aniversariantes">
             <MemberList
               members={members.filter(m => {
+                if (filterCategory !== 'todos' && m.category !== filterCategory) return false;
+                if (filterMarital !== 'todos' && m.maritalStatus !== filterMarital) return false;
                 if (!m.birthDate) return false;
                 const birthMonth = new Date(m.birthDate).getMonth() + 1;
                 const todayMonth = new Date().getMonth() + 1;
@@ -267,6 +319,7 @@ export default function Members() {
               })}
               onDelete={handleDeleteMember}
               onEdit={handleEdit}
+              deletingId={deletingId}
             />
             {members.filter(m => {
               if (!m.birthDate) return false;

@@ -68,6 +68,7 @@ export default function Cells() {
   });
   const [geocoding, setGeocoding] = useState(false);
   const [deleteCellConfirm, setDeleteCellConfirm] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: '', name: '' });
+  const [filterDay, setFilterDay] = useState<string>('todos');
   const [error, setError] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -272,8 +273,9 @@ export default function Cells() {
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-4 px-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
           <div className="bg-white border border-primary/20 p-2 rounded-lg shadow-sm">
             <Home className="h-5 w-5 text-primary" />
           </div>
@@ -373,10 +375,28 @@ export default function Cells() {
             </DialogContent>
           </Dialog>
         )}
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={filterDay} onValueChange={setFilterDay}>
+            <SelectTrigger className="w-full sm:w-[180px] h-9">
+              <SelectValue placeholder="Dia da reunião" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os dias</SelectItem>
+              <SelectItem value="Segunda-feira">Segunda-feira</SelectItem>
+              <SelectItem value="Terça-feira">Terça-feira</SelectItem>
+              <SelectItem value="Quarta-feira">Quarta-feira</SelectItem>
+              <SelectItem value="Quinta-feira">Quinta-feira</SelectItem>
+              <SelectItem value="Sexta-feira">Sexta-feira</SelectItem>
+              <SelectItem value="Sábado">Sábado</SelectItem>
+              <SelectItem value="Domingo">Domingo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cells.map((cell) => (
+        {cells.filter(c => filterDay === 'todos' || c.meetingDay === filterDay).map((cell) => (
           <Card
             key={cell.id}
             className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group border-primary/10 overflow-hidden bg-card"
