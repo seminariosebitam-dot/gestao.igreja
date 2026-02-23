@@ -18,7 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useInstallPWA } from '@/hooks/useInstallPWA';
 import { APP_NAME } from '@/lib/constants';
 
-const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/X104535775J';
+const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/H104541730A';
 
 const features = [
   {
