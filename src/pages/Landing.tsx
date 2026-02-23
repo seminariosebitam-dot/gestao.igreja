@@ -9,11 +9,13 @@ import {
   Shield,
   Check,
   ArrowRight,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/contexts/AuthContext';
+import { useInstallPWA } from '@/hooks/useInstallPWA';
 import { APP_NAME } from '@/lib/constants';
 
 const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/X104535775J';
@@ -54,6 +56,7 @@ const features = [
 export default function Landing() {
   useDocumentTitle(`${APP_NAME} - Gestão para sua igreja`);
   const { isAuthenticated } = useAuth();
+  const { canInstall, install } = useInstallPWA();
 
   // Força o tema laranja nas páginas públicas
   useEffect(() => {
@@ -84,11 +87,19 @@ export default function Landing() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Logo size="sm" showText={true} />
-          <Link to="/login">
-            <Button variant="ghost" className="font-semibold">
-              Entrar
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {canInstall && (
+              <Button variant="outline" size="sm" className="gap-2" onClick={install}>
+                <Download className="h-4 w-4" />
+                Instalar App
+              </Button>
+            )}
+            <Link to="/login">
+              <Button variant="ghost" className="font-semibold">
+                Entrar
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -101,7 +112,7 @@ export default function Landing() {
           <p className="text-lg md:text-xl text-muted-foreground mb-8">
             Membros, ministérios, financeiro, eventos e documentos oficiais em um só lugar.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 flex-wrap justify-center">
             <a href={HOTMART_CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="gap-2 text-lg px-8 h-14 shadow-lg shadow-primary/25">
                 Assinar agora
@@ -113,6 +124,12 @@ export default function Landing() {
                 Ver planos
               </Button>
             </a>
+            {canInstall && (
+              <Button size="lg" variant="outline" className="text-lg px-8 h-14 gap-2" onClick={install}>
+                <Download className="h-5 w-5" />
+                Instalar App
+              </Button>
+            )}
           </div>
         </div>
       </section>
