@@ -31,3 +31,6 @@ netlify-env-import.txt
 
 # Local Netlify folder
 .netlify
+
+.vercel
+.env*.local
