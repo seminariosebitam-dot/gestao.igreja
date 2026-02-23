@@ -55,6 +55,7 @@ export function InstallPWA() {
         src="/logo-app.png"
         alt="Gestão Igreja"
         className="h-14 w-14 rounded-xl object-contain shrink-0 bg-primary/10"
+        style={{ filter: 'brightness(0)' }}
       />
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-foreground">Instalar App</p>
