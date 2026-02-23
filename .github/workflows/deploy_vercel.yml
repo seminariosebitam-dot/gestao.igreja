@@ -1,5 +1,7 @@
 # Deploy automático para Vercel em todo push na main
+# Configure os secrets no GitHub: Settings → Secrets and variables → Actions
 # Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+# Para desativar: renomeie para deploy_vercel.yml.disabled
 
 name: Deploy to Vercel
 

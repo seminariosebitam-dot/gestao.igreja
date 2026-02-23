@@ -1,5 +1,7 @@
 # Deploy automático para Netlify em todo push na main
+# Configure os secrets no GitHub: Settings → Secrets and variables → Actions
 # Secrets: NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+# Para desativar: renomeie para deploy_netlify.yml.disabled
 
 name: Deploy to Netlify
 
