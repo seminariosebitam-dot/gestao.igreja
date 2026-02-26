@@ -1,4 +1,4 @@
-export type UserRole = 'superadmin' | 'admin' | 'pastor' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio' | 'aluno' | 'congregado';
+export type UserRole = 'superadmin' | 'admin' | 'pastor' | 'secretario' | 'tesoureiro' | 'membro' | 'lider_celula' | 'lider_ministerio' | 'aluno' | 'congregado' | 'diretor_patrimonio';
 
 export interface Church {
   id: string;
@@ -74,4 +74,37 @@ export interface CellReport {
 export interface BibleVerse {
   text: string;
   reference: string;
+}
+
+export type AssetStatus = 'ativo' | 'inativo' | 'em_manutencao';
+export type MaintenanceStatus = 'agendada' | 'em_andamento' | 'concluida' | 'cancelada';
+
+export interface Asset {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  serialNumber?: string;
+  acquisitionDate?: string;
+  value?: number;
+  location?: string;
+  status: AssetStatus;
+  photoUrl?: string;
+  qrCode?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssetMaintenance {
+  id: string;
+  assetId: string;
+  description: string;
+  scheduledDate?: string;
+  completionDate?: string;
+  cost?: number;
+  responsible?: string;
+  status: MaintenanceStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }

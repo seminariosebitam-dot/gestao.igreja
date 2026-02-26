@@ -4,16 +4,17 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo-app.png', 'placeholder.svg'],
+      includeAssets: ['favicon.ico', 'logo-app.png', 'logo-192.png', 'logo-512.png', 'placeholder.svg'],
       manifest: {
         name: 'Gestão Igreja',
-        short_name: 'Igreja',
+        short_name: 'Gestão Igreja',
         description: 'Sistema de Gestão Eclesiástica Premium',
-        theme_color: '#f97316',
+        theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
         display_override: ['fullscreen', 'standalone', 'minimal-ui', 'browser'],
@@ -21,8 +22,10 @@ export default defineConfig({
         scope: '/',
         orientation: 'any',
         icons: [
-          { src: '/logo-app.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-          { src: '/logo-app.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/logo-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/logo-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: '/logo-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/logo-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

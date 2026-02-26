@@ -89,4 +89,16 @@ export const discipleshipService = {
         if (error) throw error;
         return data;
     },
+
+    /**
+     * Delete a discipleship
+     */
+    async delete(id: string) {
+        const { error } = await supabase
+            .from('discipleships')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    },
 };

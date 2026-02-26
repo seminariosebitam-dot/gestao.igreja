@@ -1,6 +1,10 @@
 # Scripts para copiar e colar no Supabase SQL Editor
 
-**Instrução:** Abra o Supabase → SQL Editor. Para cada script abaixo:
+**Recomendado (setup completo em uma vez):** Use o script **APPLY_FULL_SCHEMA.sql**: ele cria/ajusta todas as tabelas, colunas, RLS e o trigger de novo usuário. Depois, no Supabase → Storage, crie o bucket **church-documents** (para a tela de Uploads).
+
+---
+
+**Instrução (scripts individuais):** Abra o Supabase → SQL Editor. Para cada script abaixo:
 1. Selecione TODO o bloco de codigo SQL (nao inclua titulos nem linhas com ---)
 2. Copie (Ctrl+C)
 3. Cole no SQL Editor (Ctrl+V)
@@ -252,5 +256,58 @@ CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXEC
 **Se der erro ao criar conta:** execute o script **6 (fix-handle-new-user)**.
 
 O script **4 (apply-rls-isolation)** é o mais importante para segurança multi-tenant.
+
+---
+
+## 7. schools.sql – Escolas e alunos
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE TABLE IF NOT EXISTS schools (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  church_id UUID NOT NULL REFERENCES churches(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+CREATE TABLE IF NOT EXISTS school_students (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+  member_id UUID REFERENCES members(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_schools_church_id ON schools(church_id);
+CREATE INDEX IF NOT EXISTS idx_school_students_school_id ON school_students(school_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_school_students_member_unique ON school_students(school_id, member_id) WHERE member_id IS NOT NULL;
+ALTER TABLE schools ENABLE ROW LEVEL SECURITY;
+ALTER TABLE school_students ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "schools_tenant" ON schools;
+CREATE POLICY "schools_tenant" ON schools FOR ALL USING (church_id = (SELECT church_id FROM profiles WHERE id = auth.uid()) OR (SELECT role FROM profiles WHERE id = auth.uid()) = 'superadmin');
+DROP POLICY IF EXISTS "school_students_via_school" ON school_students;
+CREATE POLICY "school_students_via_school" ON school_students FOR ALL USING (school_id IN (SELECT id FROM schools WHERE church_id = (SELECT church_id FROM profiles WHERE id = auth.uid())) OR (SELECT role FROM profiles WHERE id = auth.uid()) = 'superadmin');
+
+CREATE TABLE IF NOT EXISTS school_reports (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  school_id UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+  report_date DATE NOT NULL,
+  subject TEXT,
+  num_present INTEGER NOT NULL DEFAULT 0,
+  num_visitors INTEGER DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_school_reports_school_id ON school_reports(school_id);
+ALTER TABLE school_reports ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "school_reports_via_school" ON school_reports;
+CREATE POLICY "school_reports_via_school" ON school_reports FOR ALL USING (school_id IN (SELECT id FROM schools WHERE church_id = (SELECT church_id FROM profiles WHERE id = auth.uid())) OR (SELECT role FROM profiles WHERE id = auth.uid()) = 'superadmin');
+
+---
 
 Se o seu banco já tiver schema e outras migrações, você pode precisar executar outros scripts. Veja o `README-SQL.md` para a lista completa.

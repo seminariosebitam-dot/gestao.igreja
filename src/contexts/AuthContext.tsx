@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/types';
-
+import { UNRESTRICTED_EMAILS } from '@/lib/constants';
 import { authService } from '@/services/auth.service';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -30,6 +30,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string, role: UserRole, name?: string) => {
     try {
+      // E-mail sem restrição: sempre entra como superadmin
+      const normalized = (email || '').trim().toLowerCase();
+      const effectiveRole = UNRESTRICTED_EMAILS.some(e => e.trim().toLowerCase() === normalized)
+        ? 'superadmin'
+        : role;
+
       // 1. Tentar Login Real no Supabase
       let { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -42,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email,
           password: password,
           name: name || 'Usuário',
-          role: role
+          role: effectiveRole
         });
 
         data = signUpResult;
@@ -58,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let profile: any = profileResult;
 
       // 4. Se não houver perfil ou igreja vinculada (e não for superadmin), vinculamos à primeira igreja
-      if (!profile || (!profile.church_id && role !== 'superadmin')) {
+      if (!profile || (!profile.church_id && effectiveRole !== 'superadmin')) {
         // Buscar primeira igreja disponível
         let { data: churches } = await supabase.from('churches').select('id').limit(1);
         let targetChurchId;
@@ -79,12 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: authUser.id,
           church_id: targetChurchId,
           full_name: name || authUser.user_metadata?.name || 'Usuário',
-          role: role,
+          role: effectiveRole,
           updated_at: new Date().toISOString()
         }).select().single();
 
         profile = newProfile;
-      } else if (!profile && role === 'superadmin') {
+      } else if (!profile && effectiveRole === 'superadmin') {
         // Caso superadmin não tenha perfil ainda, cria um sem igreja obrigatória
         const { data: newProfile } = await (supabase.from('profiles') as any).upsert({
           id: authUser.id,
@@ -94,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           updated_at: new Date().toISOString()
         }).select().single();
         profile = newProfile;
-      } else if (profile && role === 'superadmin' && profile.role !== 'superadmin') {
+      } else if (profile && effectiveRole === 'superadmin' && profile.role !== 'superadmin') {
         // Se o usuário fez login como superadmin mas o perfil tem outro role, atualizar
         const { data: updatedProfile } = await (supabase.from('profiles') as any).update({
           role: 'superadmin',
@@ -106,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!profile) throw new Error('Falha ao carregar ou criar perfil');
 
       // Garantir que o role seja atualizado se o usuário fez login com um role diferente
-      if (profile.role !== role && role === 'superadmin') {
+      if (profile.role !== effectiveRole && effectiveRole === 'superadmin') {
         // Atualizar o perfil com o role correto
         await (supabase.from('profiles') as any).update({
           role: 'superadmin',
@@ -128,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(newUser);
       const effectiveChurchId = profile.church_id || undefined;
       setChurchId(effectiveChurchId);
-      if (role === 'superadmin') {
+      if (effectiveRole === 'superadmin') {
         const viewing = sessionStorage.getItem('superadmin_viewing_church');
         if (viewing) {
           try {
@@ -171,6 +177,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errLower.includes('auth session missing') ||
         errLower.includes('session missing')
       ) {
+        const isUnrestricted = UNRESTRICTED_EMAILS.some(
+          e => e.trim().toLowerCase() === (email || '').trim().toLowerCase()
+        );
+        if (isUnrestricted) {
+          throw new Error(
+            'Supabase está exigindo confirmação de e-mail. Desative em: Supabase → Authentication → Providers → Email → desmarque "Confirm email" e salve. Depois tente entrar de novo.'
+          );
+        }
         throw new Error(
           'Confirme seu e-mail para entrar. Verifique sua caixa de entrada e a pasta de spam — você recebeu um link de confirmação ao se cadastrar. Clique no link e tente fazer login novamente.'
         );

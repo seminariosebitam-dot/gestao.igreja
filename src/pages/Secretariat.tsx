@@ -46,8 +46,8 @@ export default function Secretariat() {
     const { user, churchId } = useAuth();
     const effectiveChurchId = churchId ?? user?.churchId;
 
-    // Permissão: Admin, Pastor, Secretário e SuperAdmin podem editar
-    const canEdit = user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'secretario' || user?.role === 'superadmin';
+    // Permissão: Pastor, Secretário e SuperAdmin podem editar
+    const canEdit = user?.role === 'pastor' || user?.role === 'secretario' || user?.role === 'superadmin';
 
     const handlePrint = () => {
         window.print();
@@ -132,12 +132,14 @@ export default function Secretariat() {
                         <span>Gestão de documentos e certificados oficiais</span>
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button onClick={handlePrint} className="gap-2">
-                        <Download className="h-4 w-4" />
-                        Baixar PDF / Imprimir
-                    </Button>
-                </div>
+                {canEdit && (
+                    <div className="flex gap-2">
+                        <Button onClick={handlePrint} className="gap-2">
+                            <Download className="h-4 w-4" />
+                            Baixar PDF / Imprimir
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -534,31 +536,31 @@ function MembersRoll({ members }: { members: Member[] }) {
                 </div>
 
                 <div className="overflow-x-auto min-w-0 print:overflow-visible">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nome Completo</TableHead>
-                            <TableHead>Telefone</TableHead>
-                            <TableHead>Status</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filtered.map((member) => (
-                            <TableRow key={member.id}>
-                                <TableCell className="font-medium"><span>{member.name}</span></TableCell>
-                                <TableCell><span>{member.phone}</span></TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className={`capitalize ${member.category === 'membro'
-                                        ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                        : 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-                                        }`}>
-                                        <span>{member.category}</span>
-                                    </Badge>
-                                </TableCell>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nome Completo</TableHead>
+                                <TableHead>Telefone</TableHead>
+                                <TableHead>Status</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {filtered.map((member) => (
+                                <TableRow key={member.id}>
+                                    <TableCell className="font-medium"><span>{member.name}</span></TableCell>
+                                    <TableCell><span>{member.phone}</span></TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className={`capitalize ${member.category === 'membro'
+                                            ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                            : 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+                                            }`}>
+                                            <span>{member.category}</span>
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
         </div>
@@ -707,7 +709,7 @@ function MemberIdCardTemplate({ members, canEdit }: { members: Member[], canEdit
                     <p className="text-muted-foreground print:hidden"><span>Selecione um membro para gerar a credencial</span></p>
                 </div>
                 <div className="flex gap-2 print:hidden items-center">
-                    {selectedMemberId && (
+                    {selectedMemberId && canEdit && (
                         <>
                             <Button
                                 variant="outline"
@@ -986,53 +988,53 @@ function SavedDocumentsList({ canEdit }: { canEdit: boolean }) {
                 />
             ) : (
                 <div className="overflow-x-auto min-w-0">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead><span>Título</span></TableHead>
-                            <TableHead><span>Categoria</span></TableHead>
-                            <TableHead><span>Data</span></TableHead>
-                            <TableHead className="text-right"><span>Ações</span></TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {docs.map((doc) => (
-                            <TableRow key={doc.id}>
-                                <TableCell className="font-medium"><span>{doc.title}</span></TableCell>
-                                <TableCell><Badge variant="outline" className="capitalize"><span>{doc.category}</span></Badge></TableCell>
-                                <TableCell>
-                                    <span>
-                                        {(() => {
-                                            try {
-                                                return format(new Date(doc.created_at), 'dd/MM/yyyy');
-                                            } catch (e) {
-                                                return '--/--/----';
-                                            }
-                                        })()}
-                                    </span>
-                                </TableCell>
-                                <TableCell className="text-right space-x-2">
-                                    {doc.file_url.startsWith('text://') ? (
-                                        <Button variant="ghost" size="icon" onClick={() => setViewingDoc(doc)}>
-                                            <Search className="h-4 w-4" />
-                                        </Button>
-                                    ) : (
-                                        <Button variant="ghost" size="icon" asChild>
-                                            <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                                                <Download className="h-4 w-4" />
-                                            </a>
-                                        </Button>
-                                    )}
-                                    {canEdit && (
-                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(doc)} className="text-destructive">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    )}
-                                </TableCell>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead><span>Título</span></TableHead>
+                                <TableHead><span>Categoria</span></TableHead>
+                                <TableHead><span>Data</span></TableHead>
+                                <TableHead className="text-right"><span>Ações</span></TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {docs.map((doc) => (
+                                <TableRow key={doc.id}>
+                                    <TableCell className="font-medium"><span>{doc.title}</span></TableCell>
+                                    <TableCell><Badge variant="outline" className="capitalize"><span>{doc.category}</span></Badge></TableCell>
+                                    <TableCell>
+                                        <span>
+                                            {(() => {
+                                                try {
+                                                    return format(new Date(doc.created_at), 'dd/MM/yyyy');
+                                                } catch (e) {
+                                                    return '--/--/----';
+                                                }
+                                            })()}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        {doc.file_url.startsWith('text://') ? (
+                                            <Button variant="ghost" size="icon" onClick={() => setViewingDoc(doc)}>
+                                                <Search className="h-4 w-4" />
+                                            </Button>
+                                        ) : (
+                                            <Button variant="ghost" size="icon" asChild>
+                                                <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                                                    <Download className="h-4 w-4" />
+                                                </a>
+                                            </Button>
+                                        )}
+                                        {canEdit && (
+                                            <Button variant="ghost" size="icon" onClick={() => handleDelete(doc)} className="text-destructive">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             )}
 
@@ -1048,10 +1050,12 @@ function SavedDocumentsList({ canEdit }: { canEdit: boolean }) {
                         {viewingDoc?.description}
                     </div>
                     <div className="flex justify-end gap-2 mt-4 print:hidden">
-                        <Button onClick={() => window.print()} className="gap-2">
-                            <Download className="h-4 w-4" />
-                            Imprimir
-                        </Button>
+                        {canEdit && (
+                            <Button onClick={() => window.print()} className="gap-2">
+                                <Download className="h-4 w-4" />
+                                Imprimir
+                            </Button>
+                        )}
                         <Button variant="outline" onClick={() => setViewingDoc(null)}>
                             Fechar
                         </Button>

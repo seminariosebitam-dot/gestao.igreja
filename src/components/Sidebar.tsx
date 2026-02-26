@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  Church,
   Send,
   BookOpen,
   Share2,
@@ -19,6 +18,8 @@ import {
   CreditCard,
   FileText,
   MapPin,
+  GraduationCap,
+  Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -50,12 +51,10 @@ const navGroups: NavGroup[] = [
   {
     title: '',
     items: [
-      { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
-      { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: Users, label: 'Membros e Congregados', href: '/membros', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-      { icon: FileText, label: 'Secretaria', href: '/secretaria', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
+      { icon: Users, label: 'Membros e Congregados', href: '/membros', roles: ['pastor', 'secretario', 'superadmin'] },
       { icon: Send, label: 'Boletins e Avisos', href: '/boletins', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
       { icon: BookOpen, label: 'Planos de Leitura', href: '/planos-leitura', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+      { icon: Package, label: 'Patrimonial', href: '/patrimonio', roles: ['admin', 'pastor', 'superadmin', 'diretor_patrimonio'] },
       { icon: Share2, label: 'Redes Sociais', href: '/redes-sociais', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
       { icon: CreditCard, label: 'Contas e PIX Igreja', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
     ],
@@ -96,7 +95,7 @@ export function Sidebar() {
   })).filter((grp) => grp.items.length > 0);
   const filteredOther = otherItems.filter(canSee);
   const showDashboard = canSee(dashboardItem);
-  
+
   // Garantir que superadmin sempre veja o Painel Root
   const isSuperAdmin = user?.role === 'superadmin';
 

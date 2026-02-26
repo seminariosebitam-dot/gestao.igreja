@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
 
-// Logo em public/logo-app.png (evita cache vazio)
-const LOGO_SRC = '/logo-app.png?v=2';
+const LOGO_SRC = '/logo-app.png';
 
 interface LogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -73,7 +72,7 @@ export function Logo({ size = 'md', showText = true }: LogoProps) {
 
       {showText && (
         <div className="flex flex-col gap-0.5">
-          <div 
+          <div
             className={cn(
               "font-black tracking-tight leading-none flex items-center gap-1.5",
               textSizeClasses[size]

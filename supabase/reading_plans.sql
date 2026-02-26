@@ -1,6 +1,7 @@
--- Planos de leitura diária (Bíblia, devocionais, etc.)
+-- Planos de leitura diaria (Biblia, devocionais, etc.)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-create table if not exists reading_plans (
+CREATE TABLE IF NOT EXISTS reading_plans (
   id uuid default uuid_generate_v4() primary key,
   church_id uuid references churches(id) on delete cascade,
   name text not null,
@@ -10,7 +11,7 @@ create table if not exists reading_plans (
   created_at timestamptz default now()
 );
 
-create table if not exists reading_plan_days (
+CREATE TABLE IF NOT EXISTS reading_plan_days (
   id uuid default uuid_generate_v4() primary key,
   plan_id uuid references reading_plans(id) on delete cascade not null,
   day_number integer not null check (day_number > 0),
@@ -21,7 +22,7 @@ create table if not exists reading_plan_days (
   unique (plan_id, day_number)
 );
 
-create table if not exists reading_plan_progress (
+CREATE TABLE IF NOT EXISTS reading_plan_progress (
   user_id uuid references auth.users(id) on delete cascade,
   plan_id uuid references reading_plans(id) on delete cascade,
   current_day integer default 1,
@@ -35,21 +36,30 @@ alter table reading_plan_days enable row level security;
 alter table reading_plan_progress enable row level security;
 
 -- Políticas: planos visíveis para usuários da igreja; progresso do próprio usuário
-create policy "Reading plans viewable by church"
-  on reading_plans for select
-  using (
-    church_id is null
-    or church_id = (select church_id from profiles where id = auth.uid())
-    or (select role from profiles where id = auth.uid()) = 'superadmin'
-  );
+-- (usa DO blocks para ignorar "policy already exists" ao re-executar o script)
+do $$
+begin
+  drop policy if exists "Reading plans viewable by church" on reading_plans;
+  create policy "Reading plans viewable by church" on reading_plans for select
+    using (church_id is null or church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin');
+exception when duplicate_object then
+  drop policy if exists "Reading plans viewable by church" on reading_plans;
+  create policy "Reading plans viewable by church" on reading_plans for select
+    using (church_id is null or church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin');
+end $$;
 
-create policy "Reading plans insert by admins"
-  on reading_plans for insert
-  with check (
-    (select role from profiles where id = auth.uid()) in ('admin', 'pastor', 'secretario', 'superadmin')
-    and (church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin')
-  );
+do $$
+begin
+  drop policy if exists "Reading plans insert by admins" on reading_plans;
+  create policy "Reading plans insert by admins" on reading_plans for insert
+  with check ((select role from profiles where id = auth.uid()) in ('admin', 'pastor', 'secretario', 'superadmin') and (church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin'));
+exception when duplicate_object then
+  drop policy if exists "Reading plans insert by admins" on reading_plans;
+  create policy "Reading plans insert by admins" on reading_plans for insert
+  with check ((select role from profiles where id = auth.uid()) in ('admin', 'pastor', 'secretario', 'superadmin') and (church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin'));
+end $$;
 
+drop policy if exists "Reading plans update by admins" on reading_plans;
 create policy "Reading plans update by admins"
   on reading_plans for update
   using (
@@ -57,6 +67,7 @@ create policy "Reading plans update by admins"
     and (church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin')
   );
 
+drop policy if exists "Reading plans delete by admins" on reading_plans;
 create policy "Reading plans delete by admins"
   on reading_plans for delete
   using (
@@ -64,6 +75,7 @@ create policy "Reading plans delete by admins"
     and (church_id = (select church_id from profiles where id = auth.uid()) or (select role from profiles where id = auth.uid()) = 'superadmin')
   );
 
+drop policy if exists "Reading plan days viewable" on reading_plan_days;
 create policy "Reading plan days viewable"
   on reading_plan_days for select
   using (
@@ -74,6 +86,7 @@ create policy "Reading plan days viewable"
     )
   );
 
+drop policy if exists "Reading plan days manageable" on reading_plan_days;
 create policy "Reading plan days manageable"
   on reading_plan_days for all
   using (
@@ -81,6 +94,7 @@ create policy "Reading plan days manageable"
   )
   with check (true);
 
+drop policy if exists "Users manage own progress" on reading_plan_progress;
 create policy "Users manage own progress"
   on reading_plan_progress for all
   using (auth.uid() = user_id)
@@ -91,7 +105,7 @@ create index if not exists idx_reading_plan_days_plan_id on reading_plan_days(pl
 create index if not exists idx_reading_plans_church_id on reading_plans(church_id);
 
 -- Registro de conclusão (cada dia marcado como lido)
-create table if not exists reading_plan_completions (
+CREATE TABLE IF NOT EXISTS reading_plan_completions (
   user_id uuid references auth.users(id) on delete cascade,
   plan_id uuid references reading_plans(id) on delete cascade,
   day_number integer not null check (day_number > 0),

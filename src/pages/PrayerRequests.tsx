@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { canWriteInRestrictedModules } from '@/lib/permissions';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EmptyState } from '@/components/EmptyState';
@@ -23,6 +24,7 @@ export default function PrayerRequests() {
   const { user, churchId, viewingChurch } = useAuth();
   const { toast } = useToast();
   const effectiveChurchId = viewingChurch?.id ?? churchId ?? user?.churchId;
+  const canEdit = canWriteInRestrictedModules(user?.role);
 
   const [requests, setRequests] = useState<PrayerRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,6 +154,7 @@ export default function PrayerRequests() {
         </Card>
       ) : (
         <>
+          {canEdit && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -193,6 +196,7 @@ export default function PrayerRequests() {
               </form>
             </CardContent>
           </Card>
+          )}
 
           <Card>
             <CardHeader>
@@ -227,6 +231,7 @@ export default function PrayerRequests() {
                             {formatDistanceToNow(new Date(req.created_at), { addSuffix: true, locale: ptBR })}
                           </span>
                           <div className="flex items-center gap-1">
+                            {canEdit && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -236,6 +241,8 @@ export default function PrayerRequests() {
                               <Heart className="h-4 w-4" />
                               <span>{req.prayed_count > 0 ? req.prayed_count : 'Orei'}</span>
                             </Button>
+                            )}
+                            {canEdit && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -245,6 +252,13 @@ export default function PrayerRequests() {
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
+                            )}
+                            {!canEdit && req.prayed_count > 0 && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Heart className="h-4 w-4" />
+                                {req.prayed_count} oração(ões)
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

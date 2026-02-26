@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 
+const STORAGE_BUCKET = import.meta.env.VITE_STORAGE_BUCKET || 'church-documents';
+
 export interface ChurchDocument {
     id: string;
     title: string;
@@ -34,21 +36,22 @@ export const documentsService = {
         return data as ChurchDocument[];
     },
 
-    async uploadFile(file: File, category: string, churchId: string, title?: string) {
+    async uploadFile(file: File, category: string, churchId?: string | null, title?: string) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${churchId}/${category}/${fileName}`;
+        const prefix = churchId || 'global';
+        const filePath = `${prefix}/${category}/${fileName}`;
 
         // 1. Upload file to Storage
         const { error: uploadError } = await supabase.storage
-            .from('church-documents')
+            .from(STORAGE_BUCKET)
             .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
         // 2. Get Public URL
         const { data: { publicUrl } } = supabase.storage
-            .from('church-documents')
+            .from(STORAGE_BUCKET)
             .getPublicUrl(filePath);
 
         // 3. Save reference in Database
@@ -60,7 +63,7 @@ export const documentsService = {
                     file_type: file.type,
                     file_size: file.size,
                     category: category,
-                    church_id: churchId,
+                    church_id: churchId ?? null,
                 },
             ] as any)
             .select()
@@ -72,11 +75,11 @@ export const documentsService = {
 
     async delete(id: string, fileUrl: string) {
         // Extract path from URL (rough implementation)
-        if (fileUrl && fileUrl.includes('church-documents/')) {
-            const urlParts = fileUrl.split('church-documents/');
+        if (fileUrl && fileUrl.includes(STORAGE_BUCKET + '/')) {
+            const urlParts = fileUrl.split(STORAGE_BUCKET + '/');
             if (urlParts.length > 1) {
                 const filePath = urlParts[1];
-                await supabase.storage.from('church-documents').remove([filePath]);
+                await supabase.storage.from(STORAGE_BUCKET).remove([filePath]);
             }
         }
 

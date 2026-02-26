@@ -9,24 +9,41 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Igreja" />
-  <meta name="theme-color" content="#f97316" />
-  <meta name="msapplication-TileColor" content="#f97316" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="msapplication-TileColor" content="#2563eb" />
   <meta name="msapplication-tap-highlight" content="no" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/png" href="/logo-app.png" />
-  <link rel="apple-touch-icon" href="/logo-app.png" sizes="180x180" />
+  <link rel="apple-touch-icon" href="/logo-192.png" sizes="180x180" />
   <meta name="google" content="notranslate" />
   <title>Gestão Igreja</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    body { margin: 0; min-height: 100vh; background: #f8fafc; font-family: system-ui, sans-serif; }
-    #root { min-height: 100vh; }
-    #root:empty::after { content: "Carregando..."; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #64748b; font-size: 1.125rem; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f8fafc;
+      font-family: system-ui, sans-serif;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    #root:empty::after {
+      content: "Carregando...";
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #64748b;
+      font-size: 1.125rem;
+    }
   </style>
 </head>
 
@@ -34,6 +51,24 @@
   <div id="root" translate="no" class="notranslate"></div>
   <script type="module" src="/src/main.tsx"></script>
   <script>
+    // Ensure we capture the PWA prompt event globally 
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      window.deferredPrompt = e;
+      console.log('PWA disponível e evento capturado no index.html');
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then((reg) => console.log('SW registrado com sucesso:', reg.scope))
+          .catch((err) => console.error('Erro ao registrar SW:', err));
+      });
+    }
+
     // Se o app não montar em 8s, mostra mensagem de ajuda (erro de import/rede/etc.)
     setTimeout(function () {
       var root = document.getElementById('root');

@@ -75,8 +75,8 @@ export default function Cells() {
   const { user, churchId } = useAuth();
   const effectiveChurchId = churchId ?? user?.churchId;
 
-  const canReport = user?.role === 'superadmin' || (user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado' && user?.role !== 'tesoureiro');
-  const isAdmin = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'secretario' || user?.role === 'pastor' || user?.role === 'lider_celula';
+  const canReport = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'lider_celula';
+  const isAdmin = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'lider_celula';
 
   useEffect(() => {
     loadData();
@@ -276,105 +276,105 @@ export default function Cells() {
       <div className="flex flex-col gap-4 px-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-          <div className="bg-white border border-primary/20 p-2 rounded-lg shadow-sm">
-            <Home className="h-5 w-5 text-primary" />
+            <div className="bg-white border border-primary/20 p-2 rounded-lg shadow-sm">
+              <Home className="h-5 w-5 text-primary" />
+            </div>
+            <p className="font-semibold text-lg">{cells.length} Células Ativas</p>
           </div>
-          <p className="font-semibold text-lg">{cells.length} Células Ativas</p>
-        </div>
-        {isAdmin && (
-          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all rounded-full h-12 w-12 p-0 sm:w-auto sm:px-4 sm:rounded-xl" title="Nova Célula">
-                <Plus className="h-6 w-6 sm:mr-2" />
-                <span className="hidden sm:inline">Nova Célula</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
-              <form onSubmit={handleCreateCell}>
-                <DialogHeader>
-                  <DialogTitle>Cadastrar Nova Célula</DialogTitle>
-                  <DialogDescription>Inicie um novo grupo de comunhão</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cell-name">Nome da Célula</Label>
-                    <Input id="cell-name" value={newCell.name} onChange={(e) => setNewCell({ ...newCell, name: e.target.value })} required placeholder="Ex: Célua Peniel" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cell-address">Endereço da Reunião</Label>
-                    <div className="flex gap-2">
-                      <Input id="cell-address" value={newCell.address} onChange={(e) => setNewCell({ ...newCell, address: e.target.value })} required placeholder="Rua, Número, Bairro, Cidade" className="flex-1" />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={!newCell.address.trim() || geocoding}
-                        onClick={async () => {
-                          setGeocoding(true);
-                          try {
-                            const result = await geocodeAddress(newCell.address);
-                            if (result) {
-                              setNewCell(prev => ({ ...prev, latitude: result.lat, longitude: result.lng }));
-                              toast({ title: 'Localização encontrada', description: 'Ajuste o pin no mapa se necessário.' });
-                            } else {
-                              toast({ title: 'Endereço não encontrado', description: 'Tente outro endereço ou defina no mapa.', variant: 'destructive' });
+          {isAdmin && (
+            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all rounded-full h-12 w-12 p-0 sm:w-auto sm:px-4 sm:rounded-xl" title="Nova Célula">
+                  <Plus className="h-6 w-6 sm:mr-2" />
+                  <span className="hidden sm:inline">Nova Célula</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-none sm:rounded-lg">
+                <form onSubmit={handleCreateCell}>
+                  <DialogHeader>
+                    <DialogTitle>Cadastrar Nova Célula</DialogTitle>
+                    <DialogDescription>Inicie um novo grupo de comunhão</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="cell-name">Nome da Célula</Label>
+                      <Input id="cell-name" value={newCell.name} onChange={(e) => setNewCell({ ...newCell, name: e.target.value })} required placeholder="Ex: Célua Peniel" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cell-address">Endereço da Reunião</Label>
+                      <div className="flex gap-2">
+                        <Input id="cell-address" value={newCell.address} onChange={(e) => setNewCell({ ...newCell, address: e.target.value })} required placeholder="Rua, Número, Bairro, Cidade" className="flex-1" />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={!newCell.address.trim() || geocoding}
+                          onClick={async () => {
+                            setGeocoding(true);
+                            try {
+                              const result = await geocodeAddress(newCell.address);
+                              if (result) {
+                                setNewCell(prev => ({ ...prev, latitude: result.lat, longitude: result.lng }));
+                                toast({ title: 'Localização encontrada', description: 'Ajuste o pin no mapa se necessário.' });
+                              } else {
+                                toast({ title: 'Endereço não encontrado', description: 'Tente outro endereço ou defina no mapa.', variant: 'destructive' });
+                              }
+                            } catch {
+                              toast({ title: 'Erro ao buscar', description: 'Tente novamente.', variant: 'destructive' });
+                            } finally {
+                              setGeocoding(false);
                             }
-                          } catch {
-                            toast({ title: 'Erro ao buscar', description: 'Tente novamente.', variant: 'destructive' });
-                          } finally {
-                            setGeocoding(false);
-                          }
-                        }}
-                      >
-                        {geocoding ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPinned className="h-4 w-4" />}
-                        <span className="hidden sm:inline ml-1">Buscar no mapa</span>
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Localização (opcional)</Label>
-                    <CellMapPicker
-                      latitude={newCell.latitude}
-                      longitude={newCell.longitude}
-                      onSelect={(lat, lng) => setNewCell(prev => ({ ...prev, latitude: lat, longitude: lng }))}
-                      height="220px"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="cell-day">Dia da Semana</Label>
-                      <Input id="cell-day" value={newCell.meetingDay} onChange={(e) => setNewCell({ ...newCell, meetingDay: e.target.value })} placeholder="Ex: Quinta-feira" required />
+                          }}
+                        >
+                          {geocoding ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPinned className="h-4 w-4" />}
+                          <span className="hidden sm:inline ml-1">Buscar no mapa</span>
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="cell-time">Horário</Label>
-                      <Input id="cell-time" type="time" value={newCell.meetingTime} onChange={(e) => setNewCell({ ...newCell, meetingTime: e.target.value })} />
+                      <Label>Localização (opcional)</Label>
+                      <CellMapPicker
+                        latitude={newCell.latitude}
+                        longitude={newCell.longitude}
+                        onSelect={(lat, lng) => setNewCell(prev => ({ ...prev, latitude: lat, longitude: lng }))}
+                        height="220px"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="cell-day">Dia da Semana</Label>
+                        <Input id="cell-day" value={newCell.meetingDay} onChange={(e) => setNewCell({ ...newCell, meetingDay: e.target.value })} placeholder="Ex: Quinta-feira" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cell-time">Horário</Label>
+                        <Input id="cell-time" type="time" value={newCell.meetingTime} onChange={(e) => setNewCell({ ...newCell, meetingTime: e.target.value })} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Líder</Label>
+                        <Select value={newCell.leaderId} onValueChange={(v) => setNewCell({ ...newCell, leaderId: v })}>
+                          <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                          <SelectContent>{members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Anfitrião</Label>
+                        <Select value={newCell.hostId} onValueChange={(v) => setNewCell({ ...newCell, hostId: v })}>
+                          <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                          <SelectContent>{members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Líder</Label>
-                      <Select value={newCell.leaderId} onValueChange={(v) => setNewCell({ ...newCell, leaderId: v })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                        <SelectContent>{members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Anfitrião</Label>
-                      <Select value={newCell.hostId} onValueChange={(v) => setNewCell({ ...newCell, hostId: v })}>
-                        <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                        <SelectContent>{members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-                  <Button type="submit">Cadastrar Célula</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+                    <Button type="submit">Cadastrar Célula</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Select value={filterDay} onValueChange={setFilterDay}>
@@ -679,143 +679,143 @@ function CellDetailsDialog({ open, onOpenChange, cell, onSuccess }: {
 
   return (
     <>
-    <ConfirmDialog
-      open={removeMemberConfirm.open}
-      onOpenChange={(o) => setRemoveMemberConfirm(prev => ({ ...prev, open: o }))}
-      title="Remover membro"
-      description="Deseja remover este membro da célula?"
-      onConfirm={executeRemoveMember}
-      confirmLabel="Remover"
-      variant="destructive"
-    />
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-none sm:rounded-lg">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Home className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <DialogTitle className="text-2xl font-bold text-primary">
-                {cell.name}
-              </DialogTitle>
-              <DialogDescription>{cell.address}</DialogDescription>
-              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {cell.meetingTime ? `${cell.meetingDay}, ${cell.meetingTime}` : cell.meetingDay}
-              </p>
-              {cell.latitude != null && cell.longitude != null && (
-                <div className="flex gap-2 mt-2 flex-wrap">
-                  <a href={openStreetMapUrl(cell.latitude, cell.longitude)} target="_blank" rel="noopener noreferrer" className="text-sm inline-flex items-center gap-1 text-primary hover:underline">
-                    <Navigation className="h-4 w-4" />
-                    Abrir no OpenStreetMap
-                  </a>
-                  <a href={googleMapsUrl(cell.latitude, cell.longitude)} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary hover:underline">
-                    Google Maps
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="flex-1 overflow-y-auto space-y-6 py-4">
-          {cell.latitude != null && cell.longitude != null && (
-            <div className="space-y-2">
-              <Label className="text-lg font-bold flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                Localização
-              </Label>
-              <CellMapView latitude={cell.latitude} longitude={cell.longitude} name={cell.name} height="200px" />
-            </div>
-          )}
-          <div className="space-y-4">
-            <Label className="text-lg font-bold flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Membros Integrados ({members.length})
-            </Label>
-            <div className="grid gap-2">
-              {members.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
-                  Nenhum membro vinculado a esta célula.
+      <ConfirmDialog
+        open={removeMemberConfirm.open}
+        onOpenChange={(o) => setRemoveMemberConfirm(prev => ({ ...prev, open: o }))}
+        title="Remover membro"
+        description="Deseja remover este membro da célula?"
+        onConfirm={executeRemoveMember}
+        confirmLabel="Remover"
+        variant="destructive"
+      />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-none sm:rounded-lg">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg">
+                <Home className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <DialogTitle className="text-2xl font-bold text-primary">
+                  {cell.name}
+                </DialogTitle>
+                <DialogDescription>{cell.address}</DialogDescription>
+                <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  {cell.meetingTime ? `${cell.meetingDay}, ${cell.meetingTime}` : cell.meetingDay}
                 </p>
-              ) : (
-                members.map((m: any) => (
-                  <div key={m.id} className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">
-                        {m.member?.name?.[0]}
-                      </div>
-                      <div>
-                        <p className="font-bold">{m.member?.name}</p>
-                        <p className="text-xs text-muted-foreground">{m.member?.phone || 'Sem telefone'}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => handleRemovePerson(m.member_id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                {cell.latitude != null && cell.longitude != null && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    <a href={openStreetMapUrl(cell.latitude, cell.longitude)} target="_blank" rel="noopener noreferrer" className="text-sm inline-flex items-center gap-1 text-primary hover:underline">
+                      <Navigation className="h-4 w-4" />
+                      Abrir no OpenStreetMap
+                    </a>
+                    <a href={googleMapsUrl(cell.latitude, cell.longitude)} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                      Google Maps
+                    </a>
                   </div>
-                ))
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          </DialogHeader>
 
-          <Separator />
-
-          <div className="space-y-4">
-            <Label className="text-lg font-bold flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              Histórico de Relatórios
-            </Label>
-            <div className="space-y-3">
-              {reports.length === 0 ? (
-                <p className="text-center py-4 text-muted-foreground text-sm">Nenhum relatório enviado ainda.</p>
-              ) : (
-                reports.map((r: any) => (
-                  <div key={r.id} className="p-4 rounded-xl bg-muted/30 border text-sm space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold">{new Date(r.date).toLocaleDateString('pt-BR')}</span>
-                      <Badge variant="secondary">{r.members_present} Membros | {r.visitors} Visitantes</Badge>
+          <div className="flex-1 overflow-y-auto space-y-6 py-4">
+            {cell.latitude != null && cell.longitude != null && (
+              <div className="space-y-2">
+                <Label className="text-lg font-bold flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Localização
+                </Label>
+                <CellMapView latitude={cell.latitude} longitude={cell.longitude} name={cell.name} height="200px" />
+              </div>
+            )}
+            <div className="space-y-4">
+              <Label className="text-lg font-bold flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Membros Integrados ({members.length})
+              </Label>
+              <div className="grid gap-2">
+                {members.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
+                    Nenhum membro vinculado a esta célula.
+                  </p>
+                ) : (
+                  members.map((m: any) => (
+                    <div key={m.id} className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">
+                          {m.member?.name?.[0]}
+                        </div>
+                        <div>
+                          <p className="font-bold">{m.member?.name}</p>
+                          <p className="text-xs text-muted-foreground">{m.member?.phone || 'Sem telefone'}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => handleRemovePerson(m.member_id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <p className="font-medium text-primary">Tema: {r.study_topic}</p>
-                    {r.notes && <p className="text-xs text-muted-foreground line-clamp-2">{r.notes}</p>}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-4">
-            <Label className="text-lg font-bold">Adicionar Novo Membro</Label>
-            <Select onValueChange={handleAddPerson} disabled={addingMember}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Busque por nome ou e-mail..." />
-              </SelectTrigger>
-              <SelectContent>
-                {allMembers
-                  .filter(am => !members.some(m => m.member_id === am.id))
-                  .map(m => (
-                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
                   ))
-                }
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground italic">* O membro selecionado passará a fazer parte das estatísticas de frequência desta célula.</p>
-          </div>
-        </div>
+                )}
+              </div>
+            </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">Fechar Detalhes</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <Separator />
+
+            <div className="space-y-4">
+              <Label className="text-lg font-bold flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Histórico de Relatórios
+              </Label>
+              <div className="space-y-3">
+                {reports.length === 0 ? (
+                  <p className="text-center py-4 text-muted-foreground text-sm">Nenhum relatório enviado ainda.</p>
+                ) : (
+                  reports.map((r: any) => (
+                    <div key={r.id} className="p-4 rounded-xl bg-muted/30 border text-sm space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold">{new Date(r.date).toLocaleDateString('pt-BR')}</span>
+                        <Badge variant="secondary">{r.members_present} Membros | {r.visitors} Visitantes</Badge>
+                      </div>
+                      <p className="font-medium text-primary">Tema: {r.study_topic}</p>
+                      {r.notes && <p className="text-xs text-muted-foreground line-clamp-2">{r.notes}</p>}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <Label className="text-lg font-bold">Adicionar Novo Membro</Label>
+              <Select onValueChange={handleAddPerson} disabled={addingMember}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Busque por nome ou e-mail..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {allMembers
+                    .filter(am => !members.some(m => m.member_id === am.id))
+                    .map(m => (
+                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground italic">* O membro selecionado passará a fazer parte das estatísticas de frequência desta célula.</p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">Fechar Detalhes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

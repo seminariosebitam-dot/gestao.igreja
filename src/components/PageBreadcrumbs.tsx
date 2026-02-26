@@ -12,7 +12,6 @@ import {
 const ROUTE_LABELS: Record<string, string> = {
   '/dashboard': 'Início',
   '/membros': 'Membros',
-  '/ministerios': 'Ministérios',
   '/celulas': 'Células',
   '/eventos': 'Eventos',
   '/relatorios': 'Relatórios',
@@ -27,10 +26,10 @@ const ROUTE_LABELS: Record<string, string> = {
   '/solicitacoes-oracao': 'Solicitações de Oração',
   '/redes-sociais': 'Redes Sociais',
   '/pix-donacoes': 'PIX e Doações',
-  '/discipulado': 'Discipulado',
   '/cadastro': 'Cadastro',
   '/como-acessar': 'Como Acessar',
   '/superadmin': 'Super Admin',
+  '/escolas': 'Escolas',
 };
 
 interface BreadcrumbConfig {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, User, Users, Briefcase } from 'lucide-react';
+import { Shield, User, Users, Briefcase, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -83,6 +83,14 @@ export default function Login() {
                 active={role === 'membro'}
                 onClick={() => setRole('membro')}
               />
+              <div className="col-span-2 sm:col-span-1">
+                <RoleButton
+                  icon={<Archive size={16} />}
+                  label="Patrimônio"
+                  active={role === 'diretor_patrimonio'}
+                  onClick={() => setRole('diretor_patrimonio')}
+                />
+              </div>
             </div>
 
             {/* Form */}
@@ -138,7 +146,7 @@ function RoleButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition
+      className={`flex items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm transition w-full
         ${active
           ? 'border-primary bg-primary/10 text-primary'
           : 'border-muted hover:bg-muted'

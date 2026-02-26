@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Upload, FileText, Image, File, Trash2, Loader2, Youtube, Plus, Link } from 'lucide-react';
+import { Upload, FileText, Image, File, Trash2, Loader2, Youtube, Plus, Link, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,7 +30,7 @@ const typeLabels: Record<string, string> = {
   videos: 'Vídeos e Cultos',
 };
 
-const typeIcons: Record<string, React.ElementType> = {
+const typeIcons: Record<string, LucideIcon> = {
   study: FileText,
   financial: FileText,
   minutes: File,
@@ -46,7 +46,7 @@ export default function Uploads() {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [youtubeTitle, setYoutubeTitle] = useState('');
   const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, churchId } = useAuth();
   const { toast } = useToast();
   const canManage = user?.role !== 'aluno' && user?.role !== 'membro' && user?.role !== 'congregado';
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,6 +65,8 @@ export default function Uploads() {
 
   const handleYoutubeLink = async () => {
     if (!youtubeUrl) return;
+    const effectiveChurchId = user?.churchId || churchId || null;
+
     const videoId = getYoutubeId(youtubeUrl);
     if (!videoId) {
       toast({
@@ -77,16 +79,16 @@ export default function Uploads() {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('documents')
+      const { data, error } = await (supabase.from('documents') as any)
         .insert([
           {
             title: youtubeTitle || 'Vídeo do YouTube',
             file_url: `https://www.youtube.com/embed/${videoId}`,
             file_type: 'video/youtube',
             category: 'videos',
-          },
-        ])
+            church_id: effectiveChurchId,
+          } as any,
+        ] as any)
         .select()
         .single();
 
@@ -151,7 +153,8 @@ export default function Uploads() {
 
     try {
       setUploading(activeCategory);
-      await documentsService.uploadFile(file, activeCategory);
+      const effectiveChurchId = user?.churchId || churchId || null;
+      await documentsService.uploadFile(file, activeCategory, effectiveChurchId);
 
       toast({
         title: 'Upload concluído',

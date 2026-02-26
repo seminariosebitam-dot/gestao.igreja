@@ -34,3 +34,5 @@ netlify-env-import.txt
 
 .vercel
 .env*.local
+release
+vite.config.ts.timestamp-*.mjs

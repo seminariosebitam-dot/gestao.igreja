@@ -34,7 +34,7 @@ const features = [
   {
     icon: LayoutDashboard,
     title: 'Dashboard (Painel)',
-    items: ['Visão geral do dia: versículo, aniversariantes e ações rápidas.', 'Acesso direto a Ministérios, Células, Secretaria, Relatórios e mais.'],
+    items: ['Visão geral do dia: versículo, aniversariantes e ações rápidas.', 'Acesso direto a Células, Secretaria, Relatórios e mais.'],
   },
   {
     icon: Users,
@@ -43,8 +43,8 @@ const features = [
   },
   {
     icon: MapPin,
-    title: 'Ministérios e Células',
-    items: ['Organize ministérios e células.', 'Cadastre líderes e participantes.', 'Acompanhe relatórios de frequência.'],
+    title: 'Células',
+    items: ['Organize células.', 'Cadastre líderes e participantes.', 'Acompanhe relatórios de frequência.'],
   },
   {
     icon: Send,
@@ -99,7 +99,7 @@ const features = [
   {
     icon: BarChart3,
     title: 'Relatórios',
-    items: ['Relatórios de membros, finanças, células e ministérios.'],
+    items: ['Relatórios de membros, finanças e células.'],
   },
   {
     icon: Upload,
@@ -117,11 +117,6 @@ const features = [
     items: ['Registre e acompanhe pedidos de oração.'],
   },
   {
-    icon: Users,
-    title: 'Discipulado',
-    items: ['Acompanhe processos de discipulado.', 'Disponível para líderes e pastores.'],
-  },
-  {
     icon: CheckCircle2,
     title: 'Confirmar escala',
     items: ['Link para membros confirmarem presença em escalas de culto.', 'Receba o link pelo celular ou e-mail e confirme sua participação.'],
@@ -130,10 +125,10 @@ const features = [
 
 const roles = [
   { role: 'Administrador', desc: 'Acesso total: membros, finanças, configurações, etc.' },
-  { role: 'Pastor', desc: 'Dashboard, membros, ministérios, secretaria, relatórios, uploads Estudos' },
+  { role: 'Pastor', desc: 'Dashboard, membros, secretaria, relatórios, uploads Estudos' },
   { role: 'Secretário', desc: 'Membros, documentação, boletins, uploads Atas/Fotos/Vídeos' },
   { role: 'Tesoureiro', desc: 'Caixa diário, relatórios financeiros, Contas e PIX Igreja, uploads Financeiro' },
-  { role: 'Líder de Célula', desc: 'Membros da célula, discipulado, relatórios' },
+  { role: 'Líder de Célula', desc: 'Membros da célula, relatórios' },
   { role: 'Líder de Ministério', desc: 'Membros do ministério, relatórios' },
   { role: 'Membro/Congregado', desc: 'Sua página, avisos, escala, visualização de PIX e Uploads e Atas' },
 ];
@@ -152,7 +147,7 @@ const steps = [
   'Sem conta? Peça ao administrador da igreja para cadastrar você.',
   'Use o **Dashboard** para ver versículo, aniversariantes e ações rápidas.',
   'Cadastre membros e congregados em **Membros e Congregados** (com foto e categorias).',
-  'Organize ministérios e células e cadastre líderes e participantes.',
+  'Organize células e cadastre líderes e participantes.',
   'Envie boletins e avisos para a igreja.',
   'Visualize ou configure a chave PIX da igreja em **Contas e PIX Igreja** (todos visualizam; apenas tesoureiro edita).',
   'Personalize logo e dados da igreja em **Página Institucional**.',

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Shield, User, Users, Briefcase, MapPin, Church } from 'lucide-react';
+import { Shield, User, Users, Briefcase, MapPin, Church, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/Logo';
@@ -67,6 +67,11 @@ export default function SimpleLogin() {
                                 icon={<Users className="h-6 w-6" />}
                                 label="Membro"
                                 onClick={() => handleLogin('membro', 'Membro')}
+                            />
+                            <RoleCard
+                                icon={<Archive className="h-6 w-6" />}
+                                label="Patrimônio"
+                                onClick={() => handleLogin('diretor_patrimonio', 'Diretor(a) de Patrimônio')}
                             />
                         </div>
                     </CardContent>

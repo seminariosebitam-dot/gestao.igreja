@@ -5,7 +5,6 @@ import {
   TrendingUp,
   Heart,
   Users,
-  Church,
   BookOpen,
   Target,
   Award,
@@ -64,8 +63,6 @@ import {
 import { financialService } from '@/services/financial.service';
 import { membersService } from '@/services/members.service';
 import { cellsService } from '@/services/cells.service';
-import { ministriesService } from '@/services/ministries.service';
-import { discipleshipService } from '@/services/discipleship.service';
 import { budgetsService } from '@/services/budgets.service';
 import { DEFAULT_CHURCH_NAME } from '@/lib/constants';
 
@@ -108,13 +105,10 @@ export default function Reports() {
     baptisms: 0,
     conversions: 0,
     activeCells: 0,
-    activeMinistries: 0,
   });
-  const [ministriesData, setMinistriesData] = useState<any[]>([]);
   const [spiritualGrowthData, setSpiritualGrowthData] = useState<any>({
     bibleStudy: [],
     prayerMeetings: [],
-    discipleship: { active: 0, completed: 0, inProgress: 0 },
   });
   const [budgets, setBudgets] = useState<any[]>([]);
   const [currentMonth, setCurrentMonth] = useState(format(new Date(), 'yyyy-MM'));
@@ -165,10 +159,9 @@ export default function Reports() {
     }
 
     try {
-      const [stats, activeCells, activeMinistries, allReports] = await Promise.all([
+      const [stats, activeCells, allReports] = await Promise.all([
         membersService.getStatistics().catch(() => null),
         cellsService.getActive().catch(() => []),
-        ministriesService.getActive().catch(() => []),
         cellsService.getAllReports().catch(() => []),
       ]);
       const reportsList = Array.isArray(allReports) ? allReports : [];
@@ -194,33 +187,17 @@ export default function Reports() {
         baptisms: (stats as any)?.baptized_members ?? 0,
         conversions: 0,
         activeCells: Array.isArray(activeCells) ? activeCells.length : 0,
-        activeMinistries: Array.isArray(activeMinistries) ? activeMinistries.length : 0,
       });
     } catch (e) {
       console.error('Erro ao carregar saúde da igreja:', e);
-      setChurchHealthData({ attendance: attendanceDataFallback, newMembers: 0, baptisms: 0, conversions: 0, activeCells: 0, activeMinistries: 0 });
+      setChurchHealthData({ attendance: attendanceDataFallback, newMembers: 0, baptisms: 0, conversions: 0, activeCells: 0 });
     }
 
     try {
-      const activeMinistries = await ministriesService.getActive().catch(() => []);
-      const list = Array.isArray(activeMinistries) ? activeMinistries : [];
-      const mapped = await Promise.all(list.map(async (m: any) => {
-        const count = await ministriesService.getMemberCount(m?.id).catch(() => 0);
-        return { name: m?.name ?? 'Ministério', members: count, activities: 0, engagement: 85 };
-      }));
-      setMinistriesData(mapped);
-    } catch (e) {
-      console.error('Erro ao carregar ministérios:', e);
-      setMinistriesData([]);
-    }
-
-    try {
-      const discStats = await discipleshipService.getStatistics().catch(() => null);
-      const d = discStats && typeof discStats === 'object' ? { active: (discStats as any).active ?? 0, completed: (discStats as any).completed ?? 0, inProgress: (discStats as any).inProgress ?? (discStats as any).active ?? 0 } : { active: 0, completed: 0, inProgress: 0 };
-      setSpiritualGrowthData({ bibleStudy: attendanceDataFallback.map((a: any) => ({ month: a?.month ?? '', participants: a?.total ?? 0 })), prayerMeetings: [], discipleship: d });
+      setSpiritualGrowthData({ bibleStudy: attendanceDataFallback.map((a: any) => ({ month: a?.month ?? '', participants: a?.total ?? 0 })), prayerMeetings: [] });
     } catch (e) {
       console.error('Erro ao carregar crescimento espiritual:', e);
-      setSpiritualGrowthData({ bibleStudy: [], prayerMeetings: [], discipleship: { active: 0, completed: 0, inProgress: 0 } });
+      setSpiritualGrowthData({ bibleStudy: [], prayerMeetings: [] });
     }
 
     setLoading(false);
@@ -294,14 +271,6 @@ export default function Reports() {
               Saldo: 7000 + i * 500
             });
             break;
-          case 'ministerios':
-            mockData.push({
-              Ministério: `Ministério ${i}`,
-              Membros: 10 + i * 2,
-              Atividades: 5 + i,
-              Engajamento: `${75 + i * 2}%`
-            });
-            break;
           case 'crescimento':
             mockData.push({
               Mês: `Mês ${i}`,
@@ -349,22 +318,6 @@ export default function Reports() {
           dataToExport = [...dataToExport, ...generateMockData('financeiro').slice(0, needed)];
         }
         fileName = "relatorio_financeiro.csv";
-        break;
-      case 'ministerios':
-        dataToExport = (Array.isArray(ministriesData) ? ministriesData : []).map(m => ({
-          Ministério: m.name,
-          Membros: m.members,
-          Atividades: m.activities,
-          Engajamento: `${m.engagement}%`
-        }));
-        // Adiciona dados fictícios para garantir 10 itens
-        if (dataToExport.length === 0) {
-          dataToExport = generateMockData('ministerios');
-        } else if (dataToExport.length < 10) {
-          const needed = 10 - dataToExport.length;
-          dataToExport = [...dataToExport, ...generateMockData('ministerios').slice(0, needed)];
-        }
-        fileName = "relatorio_ministerios.csv";
         break;
       case 'crescimento':
         dataToExport = (Array.isArray(spiritualGrowthData?.bibleStudy) ? spiritualGrowthData.bibleStudy : []).map((b: any, i: number) => ({
@@ -500,14 +453,18 @@ export default function Reports() {
           </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2 print:hidden">
-          <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2 h-11 min-h-[44px] text-base px-4">
-            <Printer className="h-5 w-5" />
-            Imprimir
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="gap-2 h-11 min-h-[44px] text-base px-4">
-            <FileDown className="h-5 w-5" />
-            Baixar PDF
-          </Button>
+          {canDownload && (
+            <>
+              <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2 h-11 min-h-[44px] text-base px-4">
+                <Printer className="h-5 w-5" />
+                Imprimir
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="gap-2 h-11 min-h-[44px] text-base px-4">
+                <FileDown className="h-5 w-5" />
+                Baixar PDF
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -527,11 +484,6 @@ export default function Reports() {
             <DollarSign className="h-[20px] w-[20px]" />
             <span className="hidden sm:inline">Financeiro</span>
             <span className="sm:hidden">$</span>
-          </TabsTrigger>
-          <TabsTrigger value="ministerios" className="gap-2 text-xs">
-            <Church className="h-[20px] w-[20px]" />
-            <span className="hidden sm:inline">Ministérios</span>
-            <span className="sm:hidden">Min.</span>
           </TabsTrigger>
           <TabsTrigger value="crescimento" className="gap-2 text-xs">
             <TrendingUp className="h-[20px] w-[20px]" />
@@ -571,11 +523,6 @@ export default function Reports() {
             currentMonth={currentMonth}
             onRefresh={loadAllData}
           />
-        </TabsContent>
-
-        {/* Ministérios Tab */}
-        <TabsContent value="ministerios" className="space-y-6">
-          <MinistriesReport data={ministriesData} />
         </TabsContent>
 
         {/* Crescimento Espiritual Tab */}
@@ -633,17 +580,6 @@ function EvolutionReport({
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-[#22c55e]">{churchHealthData?.activeCells ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-[#f59e0b] shadow-lg bg-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base md:text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Church className="h-5 w-5 md:h-4 md:w-4 text-[#f59e0b]" />
-              Ministérios
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-[#f59e0b]">{churchHealthData?.activeMinistries ?? 0}</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-[#8b5cf6] shadow-lg bg-card">
@@ -879,7 +815,7 @@ function ChurchHealthReport({ data }: { data: any }) {
         </CardContent>
       </Card>
 
-      {/* Cells and Ministries */}
+      {/* Células */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="border-primary/10 shadow-lg">
           <CardHeader>
@@ -900,24 +836,6 @@ function ChurchHealthReport({ data }: { data: any }) {
           </CardContent>
         </Card>
 
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Church className="h-5 w-5" />
-              Ministérios Ativos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-4xl font-bold text-primary">{data?.activeMinistries ?? 0}</span>
-              <Badge className="bg-green-100 text-green-800">Ativo</Badge>
-            </div>
-            <Progress value={100} className="h-2" />
-            <p className="text-sm text-muted-foreground mt-2">
-              Todos os ministérios estão operacionais
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </>
   );
@@ -1264,136 +1182,13 @@ function FinancialReport({ data, totalIncome, totalExpenses, balance, chartConfi
   );
 }
 
-// Ministries Report Component
-function MinistriesReport({ data }: { data: any[] }) {
-  const safeData = Array.isArray(data) ? data : [];
-  return (
-    <>
-      {/* Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Ministérios
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">{safeData.length}</p>
-          </CardContent>
-        </Card>
-
-
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Engajamento Médio
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">
-              {safeData.length > 0 ? (safeData.reduce((sum, m) => sum + (m?.engagement ?? 0), 0) / safeData.length).toFixed(0) : 0}%
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Ministries List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {safeData.map((ministry) => (
-          <Card key={ministry?.name ?? ministry?.id ?? Math.random()} className="border-primary/10 shadow-lg hover:shadow-xl transition-all">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Church className="h-5 w-5 text-primary" />
-                  {ministry?.name ?? 'Ministério'}
-                </CardTitle>
-                <Badge className="bg-primary text-primary-foreground">
-                  {ministry?.engagement ?? 0}%
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Membros</p>
-                  <p className="text-2xl font-bold text-primary">{ministry?.members ?? 0}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Atividades</p>
-                  <p className="text-2xl font-bold text-primary">{ministry?.activities ?? 0}</p>
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Engajamento</span>
-                  <span className="text-sm font-bold">{ministry?.engagement ?? 0}%</span>
-                </div>
-                <Progress value={ministry?.engagement ?? 0} className="h-2" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </>
-  );
-}
 
 // Spiritual Growth Report Component
 function SpiritualGrowthReport({ data }: { data: any }) {
-  const disc = data?.discipleship ?? { active: 0, completed: 0, inProgress: 0 };
   const bibleStudy = Array.isArray(data?.bibleStudy) ? data.bibleStudy : [];
   const prayerMeetings = Array.isArray(data?.prayerMeetings) ? data.prayerMeetings : [];
   return (
     <>
-      {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Discipulados Ativos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">{disc.active}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {disc.inProgress} em andamento
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              Concluídos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-green-600">{disc.completed}</p>
-            <p className="text-xs text-muted-foreground mt-1">Últimos 6 meses</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-primary/10 shadow-lg">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              Taxa de Conclusão
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">
-              {disc.active > 0 ? ((disc.completed / disc.active) * 100).toFixed(0) : 0}%
-            </p>
-            <Progress
-              value={disc.active > 0 ? (disc.completed / disc.active) * 100 : 0}
-              className="h-2 mt-2"
-            />
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-primary/10 shadow-lg">
@@ -1452,40 +1247,6 @@ function SpiritualGrowthReport({ data }: { data: any }) {
           </CardContent>
         </Card>
       </div>
-
-      {/* Discipleship Progress */}
-      <Card className="border-primary/10 shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Progresso de Discipulado
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Em Andamento</span>
-                <span className="font-bold text-primary">{disc.inProgress}</span>
-              </div>
-              <Progress
-                value={disc.active > 0 ? (disc.inProgress / disc.active) * 100 : 0}
-                className="h-3"
-              />
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Concluídos</span>
-                <span className="font-bold text-green-600">{disc.completed}</span>
-              </div>
-              <Progress
-                value={disc.active > 0 ? (disc.completed / disc.active) * 100 : 0}
-                className="h-3 [&>div]:bg-green-600"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </>
   );
 }

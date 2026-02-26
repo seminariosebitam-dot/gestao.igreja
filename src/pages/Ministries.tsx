@@ -46,7 +46,7 @@ export default function Ministries() {
   const { toast } = useToast();
   const { user, churchId } = useAuth();
   const effectiveChurchId = churchId ?? user?.churchId;
-  const canCreate = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'secretario' || user?.role === 'pastor' || user?.role === 'lider_ministerio';
+  const canCreate = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'lider_ministerio';
 
   useEffect(() => {
     loadMinistries();
@@ -290,7 +290,7 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
   const { toast } = useToast();
   const { churchId, user } = useAuth();
   const effectiveChurchId = churchId ?? user?.churchId;
-  const canEdit = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'secretario' || user?.role === 'pastor' || user?.role === 'lider_ministerio';
+  const canEdit = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'pastor' || user?.role === 'lider_ministerio';
 
   useEffect(() => {
     if (open) {
@@ -362,148 +362,148 @@ function MinistryDetailsDialog({ open, onOpenChange, ministry, onSuccess }: {
 
   return (
     <>
-    <ConfirmDialog open={removeMemberConfirm.open} onOpenChange={(o) => setRemoveMemberConfirm(prev => ({ ...prev, open: o }))} title="Remover membro" description="Deseja remover este membro do ministério?" onConfirm={executeRemoveMember} confirmLabel="Remover" variant="destructive" />
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-none sm:rounded-lg">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-primary">
-            {ministry.name}
-          </DialogTitle>
-          <DialogDescription>{ministry.description}</DialogDescription>
-        </DialogHeader>
+      <ConfirmDialog open={removeMemberConfirm.open} onOpenChange={(o) => setRemoveMemberConfirm(prev => ({ ...prev, open: o }))} title="Remover membro" description="Deseja remover este membro do ministério?" onConfirm={executeRemoveMember} confirmLabel="Remover" variant="destructive" />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-screen h-screen sm:w-[95vw] sm:max-w-2xl sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-none sm:rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-primary">
+              {ministry.name}
+            </DialogTitle>
+            <DialogDescription>{ministry.description}</DialogDescription>
+          </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-6 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3">
-              <Users className="h-8 w-8 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Participantes</p>
-                <p className="text-2xl font-bold text-primary">{members.length}</p>
+          <div className="flex-1 overflow-y-auto space-y-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3">
+                <Users className="h-8 w-8 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Participantes</p>
+                  <p className="text-2xl font-bold text-primary">{members.length}</p>
+                </div>
+              </div>
+              <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3">
+                <Calendar className="h-8 w-8 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Reuniões (mês)</p>
+                  <p className="text-2xl font-bold text-primary">{meetingsCount}</p>
+                </div>
               </div>
             </div>
-            <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3">
-              <Calendar className="h-8 w-8 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Reuniões (mês)</p>
-                <p className="text-2xl font-bold text-primary">{meetingsCount}</p>
-              </div>
-            </div>
-          </div>
 
-          {(canEdit || monthlyReport) && (
-            <>
-              <Separator />
-              <div className="space-y-4">
-                <Label className="text-lg font-bold flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Relatório da Atividade Mensal
-                </Label>
-                {canEdit ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="meetings-count">Número de reuniões</Label>
-                      <Input
-                        id="meetings-count"
-                        type="number"
-                        min={0}
-                        value={meetingsCount}
-                        onChange={(e) => setMeetingsCount(Math.max(0, parseInt(e.target.value) || 0))}
-                        placeholder="0"
-                      />
+            {(canEdit || monthlyReport) && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <Label className="text-lg font-bold flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Relatório da Atividade Mensal
+                  </Label>
+                  {canEdit ? (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="meetings-count">Número de reuniões</Label>
+                        <Input
+                          id="meetings-count"
+                          type="number"
+                          min={0}
+                          value={meetingsCount}
+                          onChange={(e) => setMeetingsCount(Math.max(0, parseInt(e.target.value) || 0))}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="monthly-report">Relatório (atividades realizadas)</Label>
+                        <Textarea
+                          id="monthly-report"
+                          value={monthlyReport}
+                          onChange={(e) => setMonthlyReport(e.target.value)}
+                          placeholder="Descreva as atividades realizadas no mês..."
+                          rows={4}
+                          className="resize-none"
+                        />
+                      </div>
+                      <Button onClick={handleSaveReport} disabled={savingReport} className="gap-2">
+                        {savingReport ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        Salvar relatório
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="monthly-report">Relatório (atividades realizadas)</Label>
-                      <Textarea
-                        id="monthly-report"
-                        value={monthlyReport}
-                        onChange={(e) => setMonthlyReport(e.target.value)}
-                        placeholder="Descreva as atividades realizadas no mês..."
-                        rows={4}
-                        className="resize-none"
-                      />
+                  ) : (
+                    <div className="rounded-xl bg-muted/50 p-4 space-y-2">
+                      <p className="text-sm text-muted-foreground">Reuniões no mês: <strong className="text-foreground">{meetingsCount}</strong></p>
+                      {monthlyReport && <p className="text-sm whitespace-pre-wrap">{monthlyReport}</p>}
                     </div>
-                    <Button onClick={handleSaveReport} disabled={savingReport} className="gap-2">
-                      {savingReport ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                      Salvar relatório
-                    </Button>
-                  </div>
+                  )}
+                </div>
+                <Separator />
+              </>
+            )}
+
+            <div className="space-y-4">
+              <Label className="text-lg font-bold">Participantes ({members.length})</Label>
+              <div className="grid gap-2">
+                {members.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
+                    Nenhum membro cadastrado neste ministério.
+                  </p>
                 ) : (
-                  <div className="rounded-xl bg-muted/50 p-4 space-y-2">
-                    <p className="text-sm text-muted-foreground">Reuniões no mês: <strong className="text-foreground">{meetingsCount}</strong></p>
-                    {monthlyReport && <p className="text-sm whitespace-pre-wrap">{monthlyReport}</p>}
-                  </div>
+                  members.map((m: any) => (
+                    <div key={m.id} className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
+                          {m.member?.name?.[0]}
+                        </div>
+                        <div>
+                          <p className="font-bold">{m.member?.name}</p>
+                          <p className="text-xs text-muted-foreground">{m.role || 'Membro'}</p>
+                        </div>
+                      </div>
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => handleRemovePerson(m.member_id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))
                 )}
               </div>
-              <Separator />
-            </>
-          )}
+            </div>
 
-          <div className="space-y-4">
-            <Label className="text-lg font-bold">Participantes ({members.length})</Label>
-            <div className="grid gap-2">
-              {members.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
-                  Nenhum membro cadastrado neste ministério.
-                </p>
-              ) : (
-                members.map((m: any) => (
-                  <div key={m.id} className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-                        {m.member?.name?.[0]}
-                      </div>
-                      <div>
-                        <p className="font-bold">{m.member?.name}</p>
-                        <p className="text-xs text-muted-foreground">{m.role || 'Membro'}</p>
-                      </div>
-                    </div>
-                    {canEdit && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => handleRemovePerson(m.member_id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                    )}
+            {canEdit && (
+              <>
+                <Separator />
+
+                <div className="space-y-4">
+                  <Label className="text-lg font-bold">Adicionar Membro</Label>
+                  <div className="flex gap-2">
+                    <Select onValueChange={handleAddPerson} disabled={addingMember}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Selecione um membro para adicionar..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allMembers
+                          .filter(am => !members.some(m => m.member_id === am.id))
+                          .map(m => (
+                            <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
                   </div>
-                ))
-              )}
-            </div>
+                </div>
+              </>
+            )}
           </div>
 
-          {canEdit && (
-          <>
-          <Separator />
-
-          <div className="space-y-4">
-            <Label className="text-lg font-bold">Adicionar Membro</Label>
-            <div className="flex gap-2">
-              <Select onValueChange={handleAddPerson} disabled={addingMember}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Selecione um membro para adicionar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {allMembers
-                    .filter(am => !members.some(m => m.member_id === am.id))
-                    .map(m => (
-                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                    ))
-                  }
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          </>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

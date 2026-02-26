@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Logo } from './Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { GlobalSearch } from './GlobalSearch';
-import { InstallPWA } from './InstallPWA';
+
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -87,7 +87,6 @@ export function MainLayout({ children }: MainLayoutProps) {
                 </main>
             </div>
             <OnboardingTour />
-            <InstallPWA />
         </div>
     );
 }

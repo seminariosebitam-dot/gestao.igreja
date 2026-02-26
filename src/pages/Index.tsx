@@ -13,8 +13,8 @@ const features = [
   },
   {
     icon: Church,
-    title: 'Ministérios',
-    description: 'Gerencie células, grupos e ministérios de forma centralizada.',
+    title: 'Gestão Igreja',
+    description: 'Gerencie células e grupos de forma centralizada.',
   },
   {
     icon: BarChart3,
@@ -54,7 +54,7 @@ export default function Index() {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto">
-              Um sistema completo para administrar membros, ministérios,
+              Um sistema completo para administrar membros,
               finanças e relatórios com organização, clareza e segurança.
             </p>
 

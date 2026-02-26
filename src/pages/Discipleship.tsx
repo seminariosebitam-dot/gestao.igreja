@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
     Heart, Users, Calendar, Plus, Search,
     ChevronRight, Loader2, CheckCircle2, XCircle, Clock,
-    UserPlus, MessageSquare, Info
+    UserPlus, MessageSquare, Info, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -29,10 +29,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { canWriteInRestrictedModules } from '@/lib/permissions';
 import { discipleshipService } from '@/services/discipleship.service';
 import { membersService } from '@/services/members.service';
 import { Member } from '@/types';
 import { EmptyState } from '@/components/EmptyState';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export default function Discipleship() {
     useDocumentTitle('Discipulado');
@@ -40,12 +42,16 @@ export default function Discipleship() {
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
     const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
+    const [newMentorId, setNewMentorId] = useState<string>('');
+    const [newDiscipleId, setNewDiscipleId] = useState<string>('');
+    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [stats, setStats] = useState({ active: 0, completed: 0, total: 0 });
     const [error, setError] = useState<string | null>(null);
 
     const { user, churchId } = useAuth();
     const effectiveChurchId = churchId ?? user?.churchId;
     const { toast } = useToast();
+    const canEdit = canWriteInRestrictedModules(user?.role);
 
     useEffect(() => {
         loadData();
@@ -85,18 +91,32 @@ export default function Discipleship() {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
 
+        const mentorId = newMentorId || formData.get('mentor_id');
+        const discipleId = newDiscipleId || formData.get('disciple_id');
+        if (!mentorId || !discipleId) {
+            toast({ title: 'Campos obrigatórios', description: 'Selecione o mentor e o discípulo.', variant: 'destructive' });
+            return;
+        }
+        if (mentorId === discipleId) {
+            toast({ title: 'Inválido', description: 'Mentor e discípulo devem ser pessoas diferentes.', variant: 'destructive' });
+            return;
+        }
+
         try {
-            if (!user?.churchId) throw new Error('Igreja não identificada.');
+            const cid = effectiveChurchId;
+            if (!cid) throw new Error('Igreja não identificada. Vincule-se a uma igreja ou selecione uma no painel.');
 
             await discipleshipService.create({
-                disciple_id: formData.get('disciple_id'),
-                mentor_id: formData.get('mentor_id'),
+                disciple_id: discipleId,
+                mentor_id: mentorId,
                 start_date: formData.get('start_date'),
                 status: 'em_andamento',
-                notes: formData.get('notes'),
-            }, user.churchId);
+                notes: formData.get('notes') || null,
+            }, cid);
 
             setIsNewDialogOpen(false);
+            setNewMentorId('');
+            setNewDiscipleId('');
             loadData();
             toast({ title: 'Discipulado iniciado!', description: 'O novo vínculo de discipulado foi criado.' });
         } catch (error: any) {
@@ -132,6 +152,18 @@ export default function Discipleship() {
             try { return JSON.parse(match[1]); } catch (e) { return []; }
         }
         return [];
+    };
+
+    const executeDelete = async () => {
+        if (!deleteConfirm) return;
+        try {
+            await discipleshipService.delete(deleteConfirm);
+            setDeleteConfirm(null);
+            loadData();
+            toast({ title: 'Discipulado excluído', description: 'O vínculo de discipulado foi removido.' });
+        } catch (err: any) {
+            toast({ title: 'Erro ao excluir', description: err?.message ?? 'Não foi possível excluir.', variant: 'destructive' });
+        }
     };
 
     const handleToggleStage = async (ds: any, stageId: string) => {
@@ -223,7 +255,8 @@ export default function Discipleship() {
 
             <div className="flex justify-between items-center px-2">
                 <h2 className="text-xl font-bold">Acompanhamento Ativo</h2>
-                <Dialog open={isNewDialogOpen} onOpenChange={setIsNewDialogOpen}>
+                {canEdit && (
+                <Dialog open={isNewDialogOpen} onOpenChange={(open) => { setIsNewDialogOpen(open); if (!open) { setNewMentorId(''); setNewDiscipleId(''); } }}>
                     <DialogTrigger asChild>
                         <Button className="bg-primary text-primary-foreground hover:shadow-lg transition-all">
                             <Plus className="h-4 w-4 mr-2" />
@@ -239,7 +272,7 @@ export default function Discipleship() {
                             <div className="space-y-4 py-4">
                                 <div className="space-y-2">
                                     <Label>Mentor (Quem cuida)</Label>
-                                    <Select name="mentor_id" required>
+                                    <Select name="mentor_id" value={newMentorId || undefined} onValueChange={setNewMentorId}>
                                         <SelectTrigger><SelectValue placeholder="Selecione o mentor..." /></SelectTrigger>
                                         <SelectContent>
                                             {members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
@@ -248,7 +281,7 @@ export default function Discipleship() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Discípulo (Quem é cuidado)</Label>
-                                    <Select name="disciple_id" required>
+                                    <Select name="disciple_id" value={newDiscipleId || undefined} onValueChange={setNewDiscipleId}>
                                         <SelectTrigger><SelectValue placeholder="Selecione o discípulo..." /></SelectTrigger>
                                         <SelectContent>
                                             {members.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
@@ -271,6 +304,7 @@ export default function Discipleship() {
                         </form>
                     </DialogContent>
                 </Dialog>
+                )}
             </div>
 
             {/* Grid de Discipulados */}
@@ -281,8 +315,8 @@ export default function Discipleship() {
                             icon={Heart}
                             title="Nenhum discipulado ativo"
                             description="Inicie hoje mesmo o acompanhamento de novos membros!"
-                            actionLabel="Iniciar discipulado"
-                            onAction={() => setIsNewDialogOpen(true)}
+                            actionLabel={canEdit ? "Iniciar discipulado" : undefined}
+                            onAction={canEdit ? () => setIsNewDialogOpen(true) : undefined}
                         />
                     </div>
                 ) : (
@@ -337,8 +371,8 @@ export default function Discipleship() {
                                             return (
                                                 <button
                                                     key={stage.id}
-                                                    disabled={ds.status !== 'em_andamento'}
-                                                    onClick={() => handleToggleStage(ds, stage.id)}
+                                                    disabled={!canEdit || ds.status !== 'em_andamento'}
+                                                    onClick={() => canEdit && handleToggleStage(ds, stage.id)}
                                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all border ${isCompleted
                                                             ? 'bg-green-500 text-white border-green-600 shadow-md scale-105'
                                                             : 'bg-muted/50 text-muted-foreground border-transparent hover:border-primary/20 hover:bg-muted'
@@ -360,7 +394,19 @@ export default function Discipleship() {
                                     </div>
 
                                     <div className="flex items-center gap-2">
+                                        {canEdit && (
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                                                onClick={() => setDeleteConfirm(ds.id)}
+                                                title="Excluir discipulado"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                         {ds.status === 'em_andamento' ? (
+                                            canEdit ? (
                                             <div className="flex gap-1">
                                                 <Button
                                                     size="sm"
@@ -381,6 +427,7 @@ export default function Discipleship() {
                                                     Cancelar
                                                 </Button>
                                             </div>
+                                            ) : null
                                         ) : (
                                             <Badge variant={ds.status === 'concluido' ? 'default' : 'secondary'} className="capitalize">
                                                 {ds.status === 'concluido' ? 'Concluído' : 'Cancelado'}
@@ -393,6 +440,16 @@ export default function Discipleship() {
                     ))
                 )}
             </div>
+
+            <ConfirmDialog
+                open={!!deleteConfirm}
+                onOpenChange={(o) => !o && setDeleteConfirm(null)}
+                title="Excluir discipulado"
+                description="Tem certeza que deseja excluir este vínculo de discipulado?"
+                onConfirm={executeDelete}
+                confirmLabel="Excluir"
+                variant="destructive"
+            />
         </div>
     );
 }

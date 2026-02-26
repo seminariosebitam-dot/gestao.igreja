@@ -3,9 +3,7 @@ import type { ElementType } from 'react';
 import type { UserRole } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import {
-  Church,
   MapPin,
-  Heart,
   FileText,
   BarChart3,
   Upload,
@@ -13,10 +11,13 @@ import {
   CreditCard,
   Calendar,
   HandHeart,
+  HeartHandshake,
   Landmark,
   UserRound,
   Shield,
   HelpCircle,
+  GraduationCap,
+  Users,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DailyVerse } from '@/components/DailyVerse';
@@ -32,20 +33,21 @@ import {
 } from '@/lib/dashboardConfig';
 
 interface QuickActionDef {
-  icon: ElementType;
+  icon?: ElementType | null;
   label: string;
   href: string;
   roles: UserRole[];
 }
 
 const quickActionsList: QuickActionDef[] = [
-  { icon: Church, label: 'Ministérios', href: '/ministerios', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: Heart, label: 'Discipulado', href: '/discipulado', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
-  { icon: FileText, label: 'Secretaria', href: '/secretaria', roles: ['admin', 'pastor', 'secretario', 'superadmin'] },
+  { icon: Users, label: 'Ministérios', href: '/ministerios', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'tesoureiro', 'superadmin'] },
+  { icon: MapPin, label: 'Células', href: '/celulas', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'tesoureiro', 'superadmin'] },
+  { icon: FileText, label: 'Secretaria', href: '/secretaria', roles: ['pastor', 'secretario', 'superadmin'] },
   { icon: BarChart3, label: 'Relatórios', href: '/relatorios', roles: ['admin', 'pastor', 'secretario', 'lider_ministerio', 'superadmin'] },
   { icon: Upload, label: 'Uploads e Atas', href: '/uploads', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
-  { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['admin', 'pastor', 'tesoureiro', 'superadmin'] },
+  { icon: GraduationCap, label: 'Escolas', href: '/escolas', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
+  { icon: HeartHandshake, label: 'Discipulado', href: '/discipulado', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'tesoureiro', 'superadmin'] },
+  { icon: DollarSign, label: 'Caixa Diário', href: '/caixa-diario', roles: ['pastor', 'tesoureiro', 'superadmin'] },
   { icon: Calendar, label: 'Eventos', href: '/eventos', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
   { icon: HandHeart, label: 'Solicitações de Oração', href: '/solicitacoes-oracao', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
   { icon: CreditCard, label: 'Contas e PIX Igreja', href: '/pix-donacoes', roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_ministerio', 'aluno', 'congregado', 'superadmin'] },
@@ -118,7 +120,7 @@ export default function Dashboard() {
   );
 }
 
-function QuickAction({ icon: Icon, label, href }: { icon: ElementType; label: string; href: string }) {
+function QuickAction({ icon: Icon, label, href }: { icon?: ElementType | null; label: string; href: string }) {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -131,9 +133,11 @@ function QuickAction({ icon: Icon, label, href }: { icon: ElementType; label: st
       onClick={handleClick}
       className="flex flex-col items-center gap-4 p-8 sm:p-6 rounded-2xl bg-white dark:bg-card hover:bg-primary/5 border-2 border-primary/10 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-xl group shadow-md cursor-pointer"
     >
-      <div className="p-4 rounded-xl bg-primary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
-        <Icon className="h-8 w-8 sm:h-6 sm:w-6 text-primary-foreground" />
-      </div>
+      {Icon && (
+        <div className="p-4 rounded-xl bg-primary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+          <Icon className="h-8 w-8 sm:h-6 sm:w-6 text-primary-foreground" />
+        </div>
+      )}
       <span className="text-base sm:text-sm font-black text-center text-foreground group-hover:text-primary transition-colors">
         {label}
       </span>

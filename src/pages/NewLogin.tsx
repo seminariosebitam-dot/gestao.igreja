@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Shield, User, Users, Briefcase, ArrowRight, MapPin, Church, Mail } from 'lucide-react';
+import { Shield, User, Users, Briefcase, ArrowRight, MapPin, Church, Mail, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types';
 import { authService } from '@/services/auth.service';
-import { SHOW_SUPERADMIN_LOGIN } from '@/lib/constants';
+import { SHOW_SUPERADMIN_LOGIN, UNRESTRICTED_EMAILS } from '@/lib/constants';
 import { z } from 'zod';
 import {
     Dialog,
@@ -40,13 +40,13 @@ interface FormData {
 
 export default function NewLogin() {
     useDocumentTitle('Login');
-    
+
     // Força o tema laranja nas páginas públicas
     useEffect(() => {
         // Aplica imediatamente o tema laranja
         document.documentElement.setAttribute('data-theme', 'fe-radiante');
         document.body.setAttribute('data-theme', 'fe-radiante');
-        
+
         // Cleanup: restaura o tema do usuário apenas se estiver navegando para área autenticada
         return () => {
             // Só restaura se não estiver indo para outra página pública
@@ -59,7 +59,7 @@ export default function NewLogin() {
             }
         };
     }, []);
-    
+
     const [step, setStep] = useState<Step>(1);
     const [formData, setFormData] = useState<FormData>({
         fullName: '',
@@ -83,6 +83,11 @@ export default function NewLogin() {
             const msg = result.error.errors.map(e => e.message).join('. ');
             setError(msg);
             return;
+        }
+        // E-mail sem restrição: pré-seleciona SuperAdmin
+        const email = formData.email.trim().toLowerCase();
+        if (UNRESTRICTED_EMAILS.some(e => e.trim().toLowerCase() === email)) {
+            setFormData(f => ({ ...f, role: 'superadmin' }));
         }
         setStep(2);
     };
@@ -353,13 +358,19 @@ export default function NewLogin() {
                                             active={formData.role === 'membro'}
                                             onClick={() => setFormData({ ...formData, role: 'membro' })}
                                         />
-                                        {SHOW_SUPERADMIN_LOGIN && (
                                         <RoleCard
-                                            icon={<Shield className="h-5 w-5" />}
-                                            label="SuperAdmin"
-                                            active={formData.role === 'superadmin'}
-                                            onClick={() => setFormData({ ...formData, role: 'superadmin' })}
+                                            icon={<Archive className="h-5 w-5" />}
+                                            label="Patrimônio"
+                                            active={formData.role === 'diretor_patrimonio'}
+                                            onClick={() => setFormData({ ...formData, role: 'diretor_patrimonio' })}
                                         />
+                                        {(SHOW_SUPERADMIN_LOGIN || UNRESTRICTED_EMAILS.some(e => e.trim().toLowerCase() === (formData.email || '').trim().toLowerCase())) && (
+                                            <RoleCard
+                                                icon={<Shield className="h-5 w-5" />}
+                                                label="SuperAdmin"
+                                                active={formData.role === 'superadmin'}
+                                                onClick={() => setFormData({ ...formData, role: 'superadmin' })}
+                                            />
                                         )}
                                         <RoleCard
                                             icon={<User className="h-5 w-5" />}

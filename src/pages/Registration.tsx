@@ -8,6 +8,8 @@ import { membersService } from '@/services/members.service';
 import { churchesService } from '@/services/churches.service';
 import { pastorsService } from '@/services/pastors.service';
 import { setProfileCompleted } from '@/lib/profileCompletion';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 export default function Registration() {
     useDocumentTitle('Cadastro');
@@ -56,11 +58,15 @@ export default function Registration() {
             });
 
             navigate('/dashboard');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro ao realizar cadastro:', error);
+            const msg = error?.message || '';
+            const isNoChurch = /igreja|church|vinculad/i.test(msg);
             toast({
                 title: 'Erro ao salvar',
-                description: 'Não conseguimos salvar seus dados. Verifique sua conexão e tente novamente.',
+                description: isNoChurch
+                    ? 'Sua conta ainda não está vinculada a uma igreja. Entre em contato com o administrador para vincular seu usuário à igreja.'
+                    : (msg || 'Não conseguimos salvar seus dados. Verifique sua conexão e tente novamente.'),
                 variant: 'destructive',
             });
         }
@@ -73,11 +79,22 @@ export default function Registration() {
                 <p className="text-muted-foreground">Precisamos de mais algumas informações para seu acesso ao painel.</p>
             </div>
 
+            {!effectiveChurchId && (
+                <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Igreja não vinculada</AlertTitle>
+                    <AlertDescription>
+                        Sua conta ainda não está vinculada a uma igreja. Não é possível concluir o cadastro até que um administrador associe seu usuário a uma igreja. Entre em contato com a secretaria ou o pastor.
+                    </AlertDescription>
+                </Alert>
+            )}
+
             <MemberForm
                 onSubmit={handleRegistrationSubmit}
                 onCancel={() => navigate('/dashboard')}
                 churchName={churchName}
                 pastorName={pastorName}
+                disabled={!effectiveChurchId}
             />
         </div>
     );

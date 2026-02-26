@@ -245,7 +245,10 @@ create policy "Financial transactions updatable by admins and treasurers" on fin
 drop policy if exists "Financial transactions deletable by admins" on financial_transactions;
 create policy "Financial transactions deletable by admins" on financial_transactions for delete using (true);
 
--- Create views
+-- Create views (drop first to avoid "cannot change data type" when column types differ)
+drop view if exists financial_summary;
+drop view if exists member_statistics;
+
 create or replace view member_statistics as
 select
   count(*) as total_members,
@@ -258,7 +261,7 @@ select
   count(*) filter (where date_part('year', age(birth_date)) > 18) as adults
 from members;
 
-create or replace view financial_summary as
+create view financial_summary as
 select
   to_char(date, 'YYYY-MM') as month,
   sum(amount) filter (where type = 'entrada') as total_income,

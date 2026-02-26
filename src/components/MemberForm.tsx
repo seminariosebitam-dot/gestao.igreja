@@ -25,6 +25,8 @@ interface MemberFormProps {
   pastorName?: string;
   /** Exibe loading no botão de enviar */
   isSubmitting?: boolean;
+  /** Desabilita envio (ex.: quando não há igreja vinculada) */
+  disabled?: boolean;
 }
 
 export interface MemberFormData {
@@ -38,7 +40,7 @@ export interface MemberFormData {
   photoUrl?: string;
 }
 
-export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastorName, isSubmitting }: MemberFormProps) {
+export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastorName, isSubmitting, disabled }: MemberFormProps) {
   const [formData, setFormData] = useState<MemberFormData>(initialData || {
     name: '',
     birthDate: '',
@@ -247,7 +249,7 @@ export function MemberForm({ onSubmit, onCancel, initialData, churchName, pastor
             <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || disabled}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -61,11 +61,11 @@ export const churchesService = {
     },
 
     async create(church: ChurchInsert & { adminEmail?: string }) {
-        const insertPayload = {
+        const insertPayload: Record<string, unknown> = {
             name: church.name,
             slug: church.slug,
-            logo_url: church.logo_url ?? null
         };
+        if (church.logo_url !== undefined) insertPayload.logo_url = church.logo_url ?? null;
 
         if (church.adminEmail?.trim()) {
             const { data, error } = await supabase.rpc('create_church_with_admin', {

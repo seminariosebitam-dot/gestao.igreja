@@ -9,6 +9,11 @@ export const APP_SHORT_NAME = 'Igreja';
 export const SHOW_SUPERADMIN_LOGIN =
   import.meta.env.DEV || import.meta.env.VITE_SHOW_SUPERADMIN === 'true';
 
+/** E-mails com acesso total (superadmin) – sempre sem restrições */
+export const UNRESTRICTED_EMAILS: string[] = [
+  'edukadoshmda@gmail.com',
+];
+
 export const DOCUMENT_CATEGORIES = {
   study: 'Estudos para Células',
   financial: 'Relatórios Financeiros',
@@ -30,6 +35,7 @@ export const ROLES_LABELS: Record<string, string> = {
   tesoureiro: 'Tesoureiro',
   lider_celula: 'Líder de Célula',
   lider_ministerio: 'Líder de Ministério',
+  diretor_patrimonio: 'Diretor(a) de Patrimônio',
   membro: 'Membro',
   congregado: 'Congregado',
   aluno: 'Aluno',
@@ -38,7 +44,7 @@ export const ROLES_LABELS: Record<string, string> = {
 /** Todos os roles do sistema (centralizado) */
 export const ALL_ROLES = [
   'superadmin', 'admin', 'pastor', 'secretario', 'tesoureiro',
-  'lider_celula', 'lider_ministerio', 'membro', 'aluno', 'congregado',
+  'lider_celula', 'lider_ministerio', 'diretor_patrimonio', 'membro', 'aluno', 'congregado',
 ] as const;
 
 export const MEMBER_CATEGORIES = ['membro', 'congregado'] as const;
