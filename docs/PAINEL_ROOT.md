@@ -30,13 +30,15 @@ As igrejas podem se cadastrar sozinhas pela **página de vendas** (Checkout): ap
 
 ### Mensalidades
 - Acompanhamento de mensalidades (R$ 150/mês)
-- **Vencimento:** dia 10 de cada mês
-- **Suspensão automática:** dia 15 se não houver pagamento
+- **Vencimento:** 30 dias após a assinatura
+- **Tolerância:** 5 dias após o vencimento
+- **Suspensão automática:** após o fim da tolerância
 - **Status:** Adimplente, Inadimplente, Suspensa, Cancelada
-- **Ações manuais (menu ⋮):** Registrar pagamento, Suspender, Retomar serviço, Excluir/Cancelar assinatura
+- **Ações manuais (menu ⋮):** Ver histórico de pagamentos, Registrar pagamento, Suspender, Retomar serviço, Excluir/Cancelar assinatura
 - Após registrar pagamento ou retomar, o sistema volta automaticamente para a igreja
 - Igrejas inadimplentes ou suspensas veem uma tela de bloqueio ao tentar usar o sistema
-- Execute `supabase/church_subscriptions.sql` e `supabase/church_subscriptions_actions.sql` no Supabase
+- **Histórico de pagamentos:** Cada pagamento registrado fica salvo com data, valor, quem registrou e origem (manual, Hotmart, PIX, etc.)
+- Execute `supabase/church_subscriptions.sql`, `supabase/church_subscriptions_actions.sql` e `supabase/church_subscription_payments.sql` no Supabase
 
 ## Cadastro automático de igrejas
 

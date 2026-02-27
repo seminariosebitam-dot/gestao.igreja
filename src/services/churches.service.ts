@@ -225,7 +225,7 @@ export const churchesService = {
         if (error) throw error;
     },
 
-    /** Registrar pagamento (volta ativa, próximo vencimento dia 10) */
+    /** Registrar pagamento (volta ativa, vencimento 30 dias após assinatura + 5 dias tolerância) */
     async registerPayment(churchId: string) {
         const { error } = await (supabase as any).rpc('register_payment_church', { p_church_id: churchId });
         if (error) throw error;
@@ -235,6 +235,15 @@ export const churchesService = {
     async cancelChurchSubscription(churchId: string) {
         const { error } = await (supabase as any).rpc('cancel_church_subscription', { p_church_id: churchId });
         if (error) throw error;
+    },
+
+    /** Histórico de pagamentos de uma igreja (para SuperAdmin) */
+    async getChurchSubscriptionPayments(churchId: string): Promise<{ paid_at: string; amount: number; registered_by_name: string; source: string }[]> {
+        try {
+            const { data, error } = await (supabase as any).rpc('get_church_subscription_payments', { p_church_id: churchId });
+            if (!error && data?.length) return data;
+        } catch { }
+        return [];
     },
 
     /** Status da assinatura da igreja do usuário (para bloqueio) */

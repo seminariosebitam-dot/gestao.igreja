@@ -19,6 +19,8 @@ import {
     Play,
     Banknote,
     XCircle,
+    History,
+    Copy,
 } from 'lucide-react';
 import {
     Card,
@@ -61,6 +63,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/contexts/AuthContext';
 import { churchesService, Church } from '@/services/churches.service';
+import { SUBSCRIPTION_PIX } from '@/lib/subscriptionConfig';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -90,6 +93,8 @@ export default function SuperAdmin() {
     const [actionChurchId, setActionChurchId] = useState<string | null>(null);
     const [excludeConfirm, setExcludeConfirm] = useState<{ churchId: string; name: string } | null>(null);
     const [removeChurchConfirm, setRemoveChurchConfirm] = useState<{ id: string; name: string } | null>(null);
+    const [historyDialog, setHistoryDialog] = useState<{ churchId: string; churchName: string } | null>(null);
+    const [paymentHistory, setPaymentHistory] = useState<{ paid_at: string; amount: number; registered_by_name: string; source: string }[]>([]);
 
     useEffect(() => {
         loadData();
@@ -99,6 +104,12 @@ export default function SuperAdmin() {
         if (activeTab === 'relatorios') loadReports();
         if (activeTab === 'mensalidades') loadSubscriptions();
     }, [activeTab]);
+
+    useEffect(() => {
+        if (historyDialog) {
+            churchesService.getChurchSubscriptionPayments(historyDialog.churchId).then(setPaymentHistory);
+        }
+    }, [historyDialog]);
 
     async function loadData() {
         try {
@@ -157,6 +168,9 @@ export default function SuperAdmin() {
             } else if (action === 'registerPayment') {
                 await churchesService.registerPayment(churchId);
                 toast({ title: 'Pagamento registrado', description: `${churchName} — sistema ativo até o próximo vencimento.` });
+                if (historyDialog?.churchId === churchId) {
+                    churchesService.getChurchSubscriptionPayments(churchId).then(setPaymentHistory);
+                }
             } else if (action === 'exclude') {
                 await churchesService.cancelChurchSubscription(churchId);
                 toast({ title: 'Assinatura cancelada', description: `${churchName} — assinatura excluída.` });
@@ -459,9 +473,30 @@ export default function SuperAdmin() {
                     <Card className="border-none shadow-md">
                         <CardHeader>
                             <CardTitle>Acompanhamento de Mensalidades</CardTitle>
-                            <CardDescription>R$ 150/mês por igreja. Vencimento dia 10 — suspensão automática dia 15 se inadimplente.</CardDescription>
+                            <CardDescription>Hotmart vende o app. Mensalidades via PIX direto. 50 primeiras igrejas: R$ 75/mês. Demais: R$ 150/mês. Vencimento 30 dias + 5 de tolerância; após isso, suspensão.</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-6">
+                            <Card className="border-primary/30 bg-primary/5">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <DollarSign className="h-5 w-5" />
+                                        Pagamento via PIX (mensalidades)
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Instruções para as igrejas: 1) Informe o nome da igreja no PIX antes de pagar. 2) Envie o comprovante para gestaoigreja@gmail.com. Após receber, registre o pagamento no botão abaixo.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-2 text-sm">
+                                    <p><strong>Chave PIX (celular):</strong> <span className="font-mono bg-muted px-2 py-1 rounded">{SUBSCRIPTION_PIX.pixKey}</span>
+                                    <Button variant="ghost" size="sm" className="ml-2 h-7" onClick={() => { navigator.clipboard?.writeText(SUBSCRIPTION_PIX.pixKey); toast({ title: 'Chave PIX copiada!', duration: 2000 }); }}>
+                                        <Copy className="h-3.5 w-3.5 mr-1" /> Copiar
+                                    </Button>
+                                    </p>
+                                    <p><strong>Titular:</strong> {SUBSCRIPTION_PIX.holderName}</p>
+                                    <p><strong>Banco:</strong> {SUBSCRIPTION_PIX.bank}</p>
+                                    <p className="text-muted-foreground pt-2">50 primeiras igrejas: R$ {SUBSCRIPTION_PIX.promoPrice}/mês · Demais: R$ {SUBSCRIPTION_PIX.fullPrice}/mês</p>
+                                </CardContent>
+                            </Card>
                             {loadingSubs ? (
                                 <div className="flex items-center justify-center py-20">
                                     <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -475,6 +510,7 @@ export default function SuperAdmin() {
                                                 <TableHead>Status</TableHead>
                                                 <TableHead className="text-right">Valor</TableHead>
                                                 <TableHead>Próximo vencimento</TableHead>
+                                                <TableHead>Último pagamento</TableHead>
                                                 <TableHead className="text-right">Ações</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -503,6 +539,9 @@ export default function SuperAdmin() {
                                                         <TableCell className="text-muted-foreground text-sm">
                                                             {nextDue ? format(new Date(nextDue), "dd 'de' MMM, yyyy", { locale: ptBR }) : '—'}
                                                         </TableCell>
+                                                        <TableCell className="text-muted-foreground text-sm">
+                                                            {sub.last_payment_at ? format(new Date(sub.last_payment_at), "dd/MM/yyyy", { locale: ptBR }) : '—'}
+                                                        </TableCell>
                                                         <TableCell className="text-right">
                                                             {churchId && (
                                                                 <div className="flex items-center justify-end gap-1">
@@ -518,6 +557,11 @@ export default function SuperAdmin() {
                                                                             </DropdownMenuTrigger>
                                                                             <DropdownMenuContent align="end">
                                                                                 <DropdownMenuLabel>Ações manuais</DropdownMenuLabel>
+                                                                                <DropdownMenuSeparator />
+                                                                                <DropdownMenuItem onClick={() => setHistoryDialog({ churchId, churchName })} disabled={loading}>
+                                                                                    <History className="h-4 w-4 mr-2" />
+                                                                                    Ver histórico de pagamentos
+                                                                                </DropdownMenuItem>
                                                                                 <DropdownMenuSeparator />
                                                                                 <DropdownMenuItem onClick={() => handleSubscriptionAction(churchId, churchName, 'registerPayment')} disabled={loading}>
                                                                                     <Banknote className="h-4 w-4 mr-2" />
@@ -551,7 +595,7 @@ export default function SuperAdmin() {
                                             })}
                                             {subscriptions.length === 0 && !loadingSubs && (
                                                 <TableRow>
-                                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                                         Execute o script <code className="text-xs">supabase/church_subscriptions.sql</code> no Supabase para habilitar o acompanhamento automático.
                                                     </TableCell>
                                                 </TableRow>
@@ -630,6 +674,43 @@ export default function SuperAdmin() {
                 confirmLabel="Sim, remover"
                 variant="destructive"
             />
+
+            <Dialog open={!!historyDialog} onOpenChange={(o) => !o && setHistoryDialog(null)}>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Histórico de pagamentos</DialogTitle>
+                        <DialogDescription>
+                            {historyDialog ? `${historyDialog.churchName} — quem pagou e quando` : ''}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[400px] overflow-y-auto">
+                        {paymentHistory.length === 0 ? (
+                            <p className="text-muted-foreground text-sm py-4 text-center">Nenhum pagamento registrado ainda.</p>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Data</TableHead>
+                                        <TableHead className="text-right">Valor</TableHead>
+                                        <TableHead>Registrado por</TableHead>
+                                        <TableHead>Origem</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {paymentHistory.map((p, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell className="text-sm">{p.paid_at ? format(new Date(p.paid_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : '—'}</TableCell>
+                                            <TableCell className="text-right font-medium">R$ {Number(p.amount).toFixed(2)}</TableCell>
+                                            <TableCell className="text-sm">{p.registered_by_name || '—'}</TableCell>
+                                            <TableCell className="text-sm capitalize">{p.source === 'manual' ? 'Manual' : p.source}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

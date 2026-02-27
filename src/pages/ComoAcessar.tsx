@@ -2,6 +2,7 @@ import {
   HelpCircle,
   LogIn,
   Menu,
+  Copy,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -28,6 +29,9 @@ import {
   Share2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { SUBSCRIPTION_PIX } from '@/lib/subscriptionConfig';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const features = [
@@ -161,6 +165,7 @@ const steps = [
 
 export default function ComoAcessar() {
   useDocumentTitle('Como Acessar o App');
+  const { toast } = useToast();
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
@@ -304,6 +309,35 @@ export default function ComoAcessar() {
               </li>
             ))}
           </ol>
+        </CardContent>
+      </Card>
+
+      {/* Mensalidade via PIX */}
+      <Card className="border-none shadow-lg overflow-hidden">
+        <div className="h-2 bg-emerald-500/30 w-full" />
+        <CardHeader>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-primary" />
+            Mensalidade da plataforma (PIX)
+          </CardTitle>
+          <CardDescription>
+            Hotmart vende o app. As mensalidades são pagas via PIX. 1) Informe o nome da igreja no PIX antes de pagar. 2) Envie o comprovante para gestaoigreja@gmail.com
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p><strong>Chave PIX:</strong> <span className="font-mono bg-muted px-2 py-1 rounded">{SUBSCRIPTION_PIX.pixKey}</span>
+            <Button variant="ghost" size="sm" className="ml-2 h-7" onClick={() => { navigator.clipboard?.writeText(SUBSCRIPTION_PIX.pixKey); toast({ title: 'Chave PIX copiada!', duration: 2000 }); }}>
+              <Copy className="h-3.5 w-3.5 mr-1" /> Copiar
+            </Button>
+          </p>
+          <p><strong>Titular:</strong> {SUBSCRIPTION_PIX.holderName} · {SUBSCRIPTION_PIX.bank}</p>
+          <p className="text-sm text-muted-foreground">50 primeiras igrejas: R$ {SUBSCRIPTION_PIX.promoPrice}/mês · Demais: R$ {SUBSCRIPTION_PIX.fullPrice}/mês</p>
+          <p className="text-sm pt-2">
+            Envie o comprovante para{' '}
+            <a href={`mailto:${SUBSCRIPTION_PIX.receiptEmail}?subject=Comprovante%20PIX%20-%20Mensalidade%20-%20[Nome%20da%20Igreja]`} className="text-primary underline font-medium">
+              {SUBSCRIPTION_PIX.receiptEmail}
+            </a>
+          </p>
         </CardContent>
       </Card>
 

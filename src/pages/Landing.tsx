@@ -12,7 +12,7 @@ import { useInstallPWA } from '@/hooks/useInstallPWA';
 import { APP_NAME } from '@/lib/constants';
 import { motion } from 'framer-motion';
 
-const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/H104541730A';
+const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/O104666619F?bid=1772219819580';
 
 const formatTime = (time: number) => {
   const minutes = Math.floor(time / 60);
@@ -130,11 +130,15 @@ export default function Landing() {
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest text-center">
                   Tempo estipulado para compra com desconto. Agarre a oportunidade!
                 </p>
+                <p className="text-2xl font-bold text-foreground">
+                  Por apenas <span className="text-primary">R$ 75,00</span>/mês
+                  <span className="text-sm font-normal text-muted-foreground ml-2 line-through">R$ 150,00</span>
+                </p>
               </div>
 
               <a href={HOTMART_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="w-full block">
                 <Button size="lg" className="w-full text-lg h-16 rounded-xl font-bold gap-3 group transition-all duration-300 hover:scale-[1.02]">
-                  Assinar com 50% OFF agora
+                  Assinar com 50% OFF por R$ 75,00/mês
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
