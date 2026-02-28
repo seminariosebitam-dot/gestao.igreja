@@ -98,6 +98,7 @@ export default function SuperAdmin() {
 
     useEffect(() => {
         loadData();
+        loadSubscriptions(); // Carrega assinaturas para ter dados na aba Gestão também
     }, []);
 
     useEffect(() => {
@@ -396,6 +397,39 @@ export default function SuperAdmin() {
                                                                 <DropdownMenuItem onClick={() => { switchChurch(church.id, church.name); navigate('/dashboard'); }}>
                                                                     <ExternalLink className="mr-2 h-4 w-4" /> Acessar Painel
                                                                 </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleSubscriptionAction(church.id, church.name, 'registerPayment')}
+                                                                    disabled={actionChurchId === church.id}
+                                                                >
+                                                                    {actionChurchId === church.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Banknote className="mr-2 h-4 w-4" />}
+                                                                    Confirmar pagamento
+                                                                </DropdownMenuItem>
+                                                                {(() => {
+                                                                    const sub = subscriptions.find((s) => (s.church_id ?? s.churchId) === church.id);
+                                                                    const status = sub?.status ?? 'ativa';
+                                                                    const isActive = status === 'ativa' || status === 'trial';
+                                                                    const isSuspended = status === 'suspensa' || status === 'inadimplente';
+                                                                    if (isActive) return (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleSubscriptionAction(church.id, church.name, 'suspend')}
+                                                                        disabled={actionChurchId === church.id}
+                                                                    >
+                                                                        {actionChurchId === church.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Pause className="mr-2 h-4 w-4" />}
+                                                                        Desativar serviço
+                                                                    </DropdownMenuItem>
+                                                                );
+                                                                    if (isSuspended) return (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleSubscriptionAction(church.id, church.name, 'resume')}
+                                                                        disabled={actionChurchId === church.id}
+                                                                    >
+                                                                        {actionChurchId === church.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
+                                                                        Ativar serviço
+                                                                    </DropdownMenuItem>
+                                                                    );
+                                                                    return null;
+                                                                })()}
                                                                 <DropdownMenuSeparator />
                                                                 <DropdownMenuItem
                                                                     className="text-destructive focus:text-destructive"

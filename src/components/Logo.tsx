@@ -9,13 +9,13 @@ interface LogoProps {
   showText?: boolean;
 }
 
-// Tamanhos da logo (xs para header mobile; reduzidos 20% + 10% + 10%)
+// Tamanhos da logo (+30% em relação ao original)
 const sizeStyles: Record<string, { width: string; height: string }> = {
-  xs: { width: '2rem', height: '2rem' },
-  sm: { width: '7.01rem', height: '7.01rem' },
-  md: { width: '12.27rem', height: '12.27rem' },
-  lg: { width: '21.02rem', height: '21.02rem' },
-  xl: { width: '33.29rem', height: '33.29rem' },
+  xs: { width: '2.6rem', height: '2.6rem' },
+  sm: { width: '9.11rem', height: '9.11rem' },
+  md: { width: '15.95rem', height: '15.95rem' },
+  lg: { width: '27.33rem', height: '27.33rem' },
+  xl: { width: '43.28rem', height: '43.28rem' },
 };
 
 export function Logo({ size = 'md', showText = true }: LogoProps) {
@@ -25,11 +25,11 @@ export function Logo({ size = 'md', showText = true }: LogoProps) {
   const logoColor = currentTheme?.primaryHex || '#F97316';
 
   const textSizeClasses = {
-    xs: 'text-base',
-    sm: 'text-[1.38rem] md:text-[1.24rem]',
-    md: 'text-[1.65rem]',
-    lg: 'text-[2.48rem]',
-    xl: 'text-[4.13rem]',
+    xs: 'text-[1.04rem]',
+    sm: 'text-[1.79rem] md:text-[1.61rem]',
+    md: 'text-[2.15rem]',
+    lg: 'text-[3.22rem]',
+    xl: 'text-[5.37rem]',
   };
 
   return (

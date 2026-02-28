@@ -14,6 +14,7 @@ const ROLE_DEFAULT_WIDGETS: Partial<Record<UserRole, DashboardWidgetId[]>> = {
   admin: ['verse', 'birthdays', 'quick_actions'],
   secretario: ['verse', 'birthdays', 'quick_actions'],
   tesoureiro: ['verse', 'birthdays', 'quick_actions'],
+  diretor_patrimonio: ['verse', 'birthdays', 'quick_actions'],
   superadmin: ['verse', 'birthdays', 'quick_actions'],
 };
 

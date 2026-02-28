@@ -44,7 +44,7 @@ const dashboardItem: NavItem = {
   icon: LayoutDashboard,
   label: 'Dashboard',
   href: '/dashboard',
-  roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'tesoureiro', 'superadmin'],
+  roles: ['admin', 'pastor', 'secretario', 'membro', 'lider_celula', 'lider_ministerio', 'aluno', 'congregado', 'tesoureiro', 'superadmin', 'diretor_patrimonio'],
 };
 
 const navGroups: NavGroup[] = [
@@ -85,8 +85,12 @@ export function Sidebar() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
+  // Tesoureiro, secretário e diretor de patrimônio veem todos os itens da sidebar (exceto Painel Root)
+  const rolesQueVeemTudoSidebar = ['tesoureiro', 'secretario', 'diretor_patrimonio'];
   const canSee = (item: NavItem) => {
     if (!user) return false;
+    if (item.href === '/superadmin') return user.role === 'superadmin';
+    if (rolesQueVeemTudoSidebar.includes(user.role ?? '')) return true;
     return item.roles.includes(user.role);
   };
   const filteredGroups = navGroups.map((grp) => ({
@@ -148,14 +152,11 @@ export function Sidebar() {
     >
       <div className="p-4 border-b border-border/50">
         <div className="flex items-start justify-between gap-2">
-          {/* Logo e texto "Gestão Igreja" alinhados: logo em cima, texto bem abaixo */}
+          {/* Logo */}
           <div className={cn('flex flex-col items-center gap-0 min-w-0 flex-1', collapsed && 'flex-none')}>
-            <div className={cn('origin-center -mb-3', collapsed ? 'scale-[1.05]' : 'scale-[1.05]')}>
+            <div className={cn('origin-center', collapsed ? 'scale-[1.05]' : 'scale-[1.05]')}>
               <Logo size="sm" showText={false} />
             </div>
-            {!collapsed && (
-              <span className="font-black text-primary text-lg tracking-tight text-center -mt-3 leading-tight block">Gestão Igreja</span>
-            )}
           </div>
           <Button
             variant="ghost"
