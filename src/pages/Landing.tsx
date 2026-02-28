@@ -81,17 +81,19 @@ export default function Landing() {
     <div className="min-h-screen bg-background selection:bg-primary/30">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl border-primary/20">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Logo size="sm" showText={true} />
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto flex h-14 sm:h-16 md:h-20 lg:h-24 items-center justify-between gap-4 md:gap-6 px-4 md:px-6 py-2 md:py-3 min-w-0">
+          <div className="shrink-0 scale-[0.55] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
+            <Logo size="sm" showText={true} />
+          </div>
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {canInstall && (
               <Button variant="outline" size="sm" className="hidden sm:flex gap-2" onClick={install}>
                 <Download className="h-4 w-4" /> Instalar App
               </Button>
             )}
             <Link to="/login">
-              <Button variant="default" className="font-semibold px-6 rounded-full shadow-lg shadow-primary/20">
-                <LogIn className="w-4 h-4 mr-2" /> Entrar
+              <Button variant="default" className="font-semibold px-4 sm:px-6 rounded-full shadow-lg shadow-primary/20 text-sm sm:text-base">
+                <LogIn className="w-4 h-4 mr-2 shrink-0" /> Entrar
               </Button>
             </Link>
           </div>
@@ -105,9 +107,9 @@ export default function Landing() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-8 border border-red-500/20"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-8 border border-red-500/20 text-xs sm:text-sm text-center flex-wrap justify-center"
           >
-            <Gift className="w-5 h-5 animate-pulse" />
+            <Gift className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse shrink-0" />
             Promoção para as 50 primeiras assinaturas: 50% de Desconto!
           </motion.div>
 
@@ -137,9 +139,12 @@ export default function Landing() {
               </div>
 
               <a href={HOTMART_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="w-full block">
-                <Button size="lg" className="w-full text-lg h-16 rounded-xl font-bold gap-3 group transition-all duration-300 hover:scale-[1.02]">
-                  Assinar com 50% OFF por R$ 75,00/mês
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <Button
+                  size="lg"
+                  className="w-full text-sm sm:text-base md:text-lg min-h-[52px] sm:min-h-[56px] md:h-16 rounded-xl font-bold gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 group transition-all duration-300 hover:scale-[1.02] flex items-center justify-center flex-wrap overflow-hidden"
+                >
+                  <span className="text-center leading-tight break-words max-w-full">Assinar com 50% OFF por R$ 75,00/mês</span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 ml-0.5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
             </div>
