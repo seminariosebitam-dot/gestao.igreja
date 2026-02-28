@@ -90,10 +90,12 @@ export default function Landing() {
               <Logo size="sm" showText={true} />
             </div>
           </div>
-          <div className="flex items-center justify-center gap-1.5 sm:gap-3">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-3 flex-wrap">
             {canInstall && (
-              <Button variant="outline" size="sm" className="flex gap-2" onClick={install}>
-                <Download className="h-4 w-4" /> Instalar App
+              <Button variant="outline" size="sm" className="flex gap-2 shrink-0" onClick={install}>
+                <Download className="h-4 w-4 shrink-0" />
+                <span className="hidden sm:inline">Instalar App</span>
+                <span className="sm:hidden">Instalar</span>
               </Button>
             )}
             <Link to="/login" className="shrink-0 scale-[0.56] sm:scale-100 flex justify-center">
@@ -107,20 +109,20 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero with Promo Countdown */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background pt-16 pb-24 border-b border-primary/10">
+      {/* Hero with Promo Countdown — texto 30% menor, menu mais próximo */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background pt-6 sm:pt-8 pb-24 border-b border-primary/10">
         <div className="container px-4 mx-auto text-center z-10 relative">
 
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-8 border border-red-500/20 text-xs sm:text-sm text-center flex-wrap justify-center"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-4 sm:mb-6 border border-red-500/20 text-xs sm:text-sm text-center flex-wrap justify-center"
           >
             <Gift className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse shrink-0" />
             7 dias grátis para testar · 50 primeiras assinaturas: 50% de Desconto!
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 max-w-5xl mx-auto leading-[1.1] tracking-tighter">
+          <h1 className="text-[2.1rem] sm:text-[2.8rem] md:text-[3.15rem] font-black text-foreground mb-6 max-w-5xl mx-auto leading-[1.1] tracking-tighter">
             Gestão Igreja <br className="hidden sm:block" />
             <span className="inline-block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-amber-500 drop-shadow-sm filter">
               Gestão de Excelência
