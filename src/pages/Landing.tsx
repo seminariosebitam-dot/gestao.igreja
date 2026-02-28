@@ -5,6 +5,13 @@ import {
   Clock, Heart, Smartphone, BookOpen, PenTool, BarChart, FileBox, LogIn, LayoutDashboard, Fingerprint, Video, UserCog, Link as LinkIcon, Edit, UserPlus, Gift, Send, Phone, Mail
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Logo } from '@/components/Logo';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,8 +64,19 @@ const profiles = [
 export default function Landing() {
   useDocumentTitle(`${APP_NAME} — Gestão de Excelência`);
   const { isAuthenticated } = useAuth();
-  const { canInstall, install } = useInstallPWA();
+  const { canInstall, install, isInstalled } = useInstallPWA();
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+
+  const handleInstallClick = async () => {
+    if (canInstall) {
+      await install();
+    } else {
+      setShowInstallHelp(true);
+    }
+  };
+
+  const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'fe-radiante');
@@ -82,47 +100,75 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">
-      {/* Header — logo, Entrar e Instalar sempre visíveis em todas as telas */}
+      {/* Header — logo, Entrar e Instalar SEMPRE visíveis (mobile, tablet, desktop) */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl border-primary/20 safe-area-padding">
-        <div className="container mx-auto grid grid-cols-[1fr_auto_1fr] sm:flex sm:justify-between h-12 sm:h-14 md:h-16 items-center gap-2 sm:gap-3 px-4 md:px-6 py-2 min-w-0 overflow-visible">
-          <div className="flex justify-start">
-            <div className="shrink-0 scale-[0.55] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
+        <div className="w-full max-w-7xl mx-auto flex flex-row justify-between items-center gap-2 sm:gap-4 px-3 sm:px-6 py-2 min-h-[48px] sm:min-h-[56px]">
+          <div className="flex-shrink-0 min-w-0 max-w-[45%] sm:max-w-none">
+            <div className="scale-[0.5] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
               <Logo size="sm" showText={true} />
             </div>
           </div>
-          <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 flex-wrap">
-            {canInstall && (
-              <Button variant="outline" size="sm" className="inline-flex gap-1.5 shrink-0 text-xs sm:text-sm" onClick={install}>
+          <div className="flex items-center justify-end gap-1.5 sm:gap-3 flex-shrink-0">
+            {!isInstalled && (
+              <Button variant="outline" size="sm" className="inline-flex gap-1.5 shrink-0 text-xs sm:text-sm" onClick={handleInstallClick}>
                 <Download className="h-4 w-4 shrink-0" />
                 <span>Instalar App</span>
               </Button>
             )}
-            <Link to="/login" className="shrink-0 flex justify-center">
-              <Button variant="default" className="font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg shadow-primary/20 text-xs sm:text-sm justify-center gap-1.5 whitespace-nowrap overflow-visible">
+            <Link to="/login" className="shrink-0">
+              <Button variant="default" className="font-semibold px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg shadow-primary/20 text-xs sm:text-sm gap-1.5 whitespace-nowrap">
                 <LogIn className="h-4 w-4 shrink-0" />
                 <span>Entrar</span>
               </Button>
             </Link>
           </div>
-          <div className="hidden sm:block" />
         </div>
       </header>
 
-      {/* Hero — título sem repetir logo, menu próximo, tudo visível */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background pt-4 sm:pt-6 pb-24 border-b border-primary/10">
+      <Dialog open={showInstallHelp} onOpenChange={setShowInstallHelp}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Instalar no celular</DialogTitle>
+            <DialogDescription asChild>
+              <div className="space-y-3 pt-2">
+                {isIOS ? (
+                  <>
+                    <p><strong>No Safari:</strong></p>
+                    <ol className="list-decimal list-inside space-y-1 text-sm">
+                      <li>Toque no ícone <strong>Compartilhar</strong> (seta para cima) na barra inferior</li>
+                      <li>Role e toque em <strong>Adicionar à Tela de Início</strong></li>
+                      <li>Toque em <strong>Adicionar</strong></li>
+                    </ol>
+                  </>
+                ) : (
+                  <>
+                    <p><strong>No Chrome ou Edge:</strong></p>
+                    <ol className="list-decimal list-inside space-y-1 text-sm">
+                      <li>Toque no menu <strong>⋮</strong> (três pontos) no canto superior direito</li>
+                      <li>Selecione <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong></li>
+                    </ol>
+                  </>
+                )}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      {/* Hero — título limpo, sem sobreposição */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background pt-6 sm:pt-8 pb-24 border-b border-primary/10">
         <div className="container px-4 mx-auto text-center z-10 relative">
 
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-3 sm:mb-4 border border-red-500/20 text-[11px] sm:text-xs text-center flex-wrap justify-center"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-6 sm:mb-8 border border-red-500/20 text-xs sm:text-sm text-center justify-center mx-auto"
           >
             <Gift className="w-4 h-4 animate-pulse shrink-0" />
             7 dias grátis para testar · 50 primeiras assinaturas: 50% de Desconto!
           </motion.div>
 
-          <h1 className="text-[1.75rem] sm:text-[2.25rem] md:text-[2.75rem] font-black mb-4 sm:mb-6 max-w-4xl mx-auto leading-[1.15] tracking-tighter">
-            <span className="block text-foreground/80 text-[0.6em] font-bold mb-0.5">Gestão Igreja</span>
+          <h1 className="text-[2rem] sm:text-[2.5rem] md:text-[3rem] font-black mb-4 sm:mb-6 max-w-4xl mx-auto leading-[1.15] tracking-tighter">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-orange-500 to-amber-500 drop-shadow-sm">
               Gestão de Excelência
             </span>
