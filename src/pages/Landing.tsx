@@ -92,7 +92,7 @@ export default function Landing() {
           </div>
           <div className="flex items-center justify-center gap-1.5 sm:gap-3">
             {canInstall && (
-              <Button variant="outline" size="sm" className="hidden sm:flex gap-2" onClick={install}>
+              <Button variant="outline" size="sm" className="flex gap-2" onClick={install}>
                 <Download className="h-4 w-4" /> Instalar App
               </Button>
             )}
