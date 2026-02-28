@@ -79,25 +79,26 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">
-      {/* Header — mobile/tablet: ícone menor, bem perto do texto; PC mantido */}
+      {/* Header — logo mantido; botão Entrar 30% menor e centralizado */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl border-primary/20 safe-area-padding">
-        <div className="container mx-auto flex h-14 sm:h-16 md:h-20 lg:h-24 items-center justify-start sm:justify-between gap-1.5 sm:gap-3 md:gap-6 px-3 sm:px-4 md:px-6 py-2 md:py-3 min-w-0 overflow-visible">
-          <div className="shrink-0 scale-[0.38] sm:scale-[0.5] md:scale-75 lg:scale-85 origin-left">
+        <div className="container mx-auto grid grid-cols-[1fr_auto_1fr] sm:flex sm:justify-between h-14 sm:h-16 md:h-20 lg:h-24 items-center gap-2 sm:gap-4 md:gap-6 px-4 md:px-6 py-2 md:py-3 min-w-0 overflow-visible">
+          <div className="shrink-0 flex justify-start scale-[0.55] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
             <Logo size="sm" showText={true} />
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 shrink-0">
             {canInstall && (
               <Button variant="outline" size="sm" className="hidden sm:flex gap-2" onClick={install}>
                 <Download className="h-4 w-4" /> Instalar App
               </Button>
             )}
-            <Link to="/login" className="shrink-0">
-              <Button variant="default" className="font-semibold px-3 py-2 sm:px-6 sm:py-2.5 rounded-full shadow-lg shadow-primary/20 text-xs sm:text-base justify-center gap-1.5 sm:gap-2 whitespace-nowrap overflow-visible">
+            <Link to="/login" className="shrink-0 scale-[0.7] flex justify-center">
+              <Button variant="default" className="font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-lg shadow-primary/20 text-sm sm:text-base justify-center gap-2 whitespace-nowrap overflow-visible">
                 <LogIn className="h-4 w-4 shrink-0" />
                 <span>Entrar</span>
               </Button>
             </Link>
           </div>
+          <div className="hidden sm:block" />
         </div>
       </header>
 
