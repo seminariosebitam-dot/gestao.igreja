@@ -507,7 +507,7 @@ export default function SuperAdmin() {
                     <Card className="border-none shadow-md">
                         <CardHeader>
                             <CardTitle>Acompanhamento de Mensalidades</CardTitle>
-                            <CardDescription>Hotmart vende o app. Mensalidades via PIX direto. 50 primeiras igrejas: R$ 75/mês. Demais: R$ 150/mês. Vencimento 30 dias + 5 de tolerância; após isso, suspensão.</CardDescription>
+                            <CardDescription>7 dias grátis para testar. Hotmart vende o app. Mensalidades via PIX direto. 50 primeiras igrejas: R$ 75/mês. Demais: R$ 150/mês. Vencimento 30 dias + 5 de tolerância; após isso, suspensão.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <Card className="border-primary/30 bg-primary/5">

@@ -42,7 +42,8 @@ export function SubscriptionBlock({ children }: { children: React.ReactNode }) {
           A mensalidade da sua igreja está em atraso. O acesso foi interrompido até a regularização do pagamento.
         </p>
         <div className="space-y-2 text-left text-sm text-muted-foreground bg-muted/50 rounded-lg p-4">
-          <p>• Vencimento: <strong>30 dias</strong> após a assinatura</p>
+          <p>• Período de teste: <strong>7 dias</strong> grátis para novas igrejas</p>
+          <p>• Vencimento: <strong>30 dias</strong> após o pagamento (ou fim do teste)</p>
           <p>• Tolerância: <strong>5 dias</strong> após o vencimento</p>
           <p>• Após essa data: <strong>suspensão automática</strong> até regularização</p>
           <p>• Após o pagamento, o sistema retorna automaticamente</p>

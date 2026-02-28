@@ -14,6 +14,9 @@ import { motion } from 'framer-motion';
 
 const HOTMART_CHECKOUT_URL = import.meta.env.VITE_HOTMART_CHECKOUT_URL || 'https://pay.hotmart.com/O104666619F?bid=1772219819580';
 
+/** ID do vídeo YouTube para a página de vendas. Use VITE_LANDING_VIDEO_ID no .env para trocar. */
+const LANDING_VIDEO_ID = import.meta.env.VITE_LANDING_VIDEO_ID || 'tg6745ZFLVw';
+
 const formatTime = (time: number) => {
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
@@ -79,19 +82,21 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">
-      {/* Header — logo mantido; botão Entrar 30% menor e centralizado */}
+      {/* Header — logo mantido; botão Entrar 56% (mais 20% menor) e centralizado no celular */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl border-primary/20 safe-area-padding">
-        <div className="container mx-auto grid grid-cols-[1fr_auto_1fr] sm:flex sm:justify-between h-14 sm:h-16 md:h-20 lg:h-24 items-center gap-2 sm:gap-4 md:gap-6 px-4 md:px-6 py-2 md:py-3 min-w-0 overflow-visible">
-          <div className="shrink-0 flex justify-start scale-[0.55] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
-            <Logo size="sm" showText={true} />
+        <div className="container mx-auto grid grid-cols-[1fr_auto_1fr] sm:flex sm:justify-between h-14 sm:h-16 md:h-20 lg:h-24 items-center gap-1.5 sm:gap-3 md:gap-5 px-4 md:px-6 py-3 min-w-0 overflow-visible">
+          <div className="flex justify-start">
+            <div className="shrink-0 scale-[0.55] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
+              <Logo size="sm" showText={true} />
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-2 sm:gap-4 shrink-0">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-3">
             {canInstall && (
               <Button variant="outline" size="sm" className="hidden sm:flex gap-2" onClick={install}>
                 <Download className="h-4 w-4" /> Instalar App
               </Button>
             )}
-            <Link to="/login" className="shrink-0 scale-[0.7] flex justify-center">
+            <Link to="/login" className="shrink-0 scale-[0.56] sm:scale-100 flex justify-center">
               <Button variant="default" className="font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-lg shadow-primary/20 text-sm sm:text-base justify-center gap-2 whitespace-nowrap overflow-visible">
                 <LogIn className="h-4 w-4 shrink-0" />
                 <span>Entrar</span>
@@ -112,7 +117,7 @@ export default function Landing() {
             className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-8 border border-red-500/20 text-xs sm:text-sm text-center flex-wrap justify-center"
           >
             <Gift className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse shrink-0" />
-            Promoção para as 50 primeiras assinaturas: 50% de Desconto!
+            7 dias grátis para testar · 50 primeiras assinaturas: 50% de Desconto!
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6 max-w-5xl mx-auto leading-[1.1] tracking-tighter">
@@ -156,6 +161,34 @@ export default function Landing() {
         {/* Background decorative elements */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full opacity-50 pointer-events-none -z-10" />
       </section>
+
+      {/* Vídeo de apresentação */}
+      {LANDING_VIDEO_ID && (
+        <section className="py-16 md:py-24 bg-muted/30 border-b border-primary/10">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4">
+                <Video className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-black text-foreground mb-3">
+                Veja o app em ação
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Assista ao vídeo e descubra como o Gestão Igreja facilita o dia a dia da sua igreja.
+              </p>
+            </div>
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/20 bg-black aspect-video">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${LANDING_VIDEO_ID}?rel=0`}
+                title="Gestão Igreja - Apresentação"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Como Acessar O App */}
       <section className="py-24 bg-card/30 relative overflow-hidden">

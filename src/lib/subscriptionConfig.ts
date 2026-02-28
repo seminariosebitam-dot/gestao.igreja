@@ -3,6 +3,9 @@
  * Hotmart vende o app (assinatura inicial). Mensalidades vêm via PIX direto.
  */
 
+/** Período de teste gratuito para novas igrejas (dias) */
+export const TRIAL_DAYS = 7;
+
 export const SUBSCRIPTION_PIX = {
   /** Chave PIX - Celular */
   pixKey: '(91) 99383-7093',
