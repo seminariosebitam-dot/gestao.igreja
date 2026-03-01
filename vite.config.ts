@@ -3,9 +3,27 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
+/** Alerta se Supabase não estiver configurado no build. */
+function envCheck() {
+  return {
+    name: 'env-check',
+    buildStart() {
+      const url = process.env.VITE_SUPABASE_URL || '';
+      const key = process.env.VITE_SUPABASE_ANON_KEY || '';
+      const ok = url && key && !url.includes('placeholder') && key !== 'placeholder-key';
+      if (!ok) {
+        console.warn('\n⚠️  Supabase não configurado: faltam VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY.');
+        console.warn('   Local: configure .env.local e reinicie npm run dev.');
+        console.warn('   Vercel: Settings > Environment Variables.\n');
+      }
+    },
+  };
+}
+
 export default defineConfig({
   base: './',
   plugins: [
+    envCheck(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

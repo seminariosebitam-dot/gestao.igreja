@@ -165,9 +165,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Falha de rede / Supabase não configurado
       if (errMsg === 'Failed to fetch' || errMsg.includes('fetch')) {
-        throw new Error(
-          'Não foi possível conectar ao servidor. Verifique se o arquivo .env.local existe na raiz do projeto com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (copie do .env.example e preencha no painel Supabase > Settings > API).'
-        );
+        const isProd = import.meta.env.PROD || !window.location.hostname.includes('localhost');
+        const hint = isProd
+          ? 'Verifique: (1) Projeto Supabase ativo em supabase.com/dashboard, (2) VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no Vercel (Settings > Env Vars), (3) Supabase > Auth > URL Configuration com sua URL.'
+          : 'Verifique .env.local com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (Supabase > Settings > API) e reinicie npm run dev.';
+        throw new Error(`Não foi possível conectar ao servidor. ${hint}`);
       }
 
       // Erro de sessão ausente ou email não confirmado (precisa confirmar o e-mail)
