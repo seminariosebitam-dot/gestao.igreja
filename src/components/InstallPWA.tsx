@@ -1,44 +1,56 @@
 import { useState, useEffect } from "react";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isStandalone = () =>
+  typeof window !== "undefined" &&
+  (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any)?.standalone);
+
 export function InstallPWA() {
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     if (sessionStorage.getItem("pwa-dismissed")) return;
-
-    if (window.matchMedia("(display-mode: standalone)").matches) return;
+    if (isStandalone()) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowBanner(true);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
 
+    const timer = setTimeout(() => setShowBanner(true), 1500);
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
+      clearTimeout(timer);
     };
   }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-
-    if (outcome === "accepted") {
-      setShowBanner(false);
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") setShowBanner(false);
+    } else {
+      setShowHelpDialog(true);
     }
   };
 
@@ -50,35 +62,59 @@ export function InstallPWA() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 flex items-center gap-4 p-4 rounded-2xl shadow-xl border bg-white animate-in slide-in-from-bottom-4">
-      <img
-        src="/logo-app-v3.png"
-        alt="Gestão Igreja"
-        className="h-14 w-14 rounded-xl object-contain shrink-0"
-      />
-
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-black">Instalar App</p>
-        <p className="text-sm text-gray-500">
-          Use Gestão Igreja como app no celular ou PC
-        </p>
+    <>
+      <div className="fixed bottom-4 left-4 right-4 sm:left-4 sm:right-auto sm:max-w-md md:bottom-6 md:left-6 md:max-w-[420px] z-50 flex items-center gap-3 sm:gap-4 p-3 sm:p-4 md:p-5 rounded-2xl shadow-xl border bg-white dark:bg-zinc-900 dark:border-zinc-800 animate-in slide-in-from-bottom-4">
+        <img
+          src="/logo-app-v3.png"
+          alt="Gestão Igreja"
+          className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 rounded-xl object-contain shrink-0"
+        />
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-black dark:text-white text-sm sm:text-base md:text-lg">Instalar App</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            Use Gestão Igreja como app no celular, tablet ou PC
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+          <Button size="sm" onClick={handleInstall} className="gap-2 text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4">
+            <Download className="h-4 w-4" />
+            Instalar
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleDismiss}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2 shrink-0">
-        <Button size="sm" onClick={handleInstall} className="gap-2">
-          <Download className="h-4 w-4" />
-          Instalar
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={handleDismiss}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
+      <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Instalar App</DialogTitle>
+            <DialogDescription asChild>
+              <div className="space-y-3 pt-2">
+                {isIOS ? (
+                  <>
+                    <p><strong>No Safari (iPhone/iPad):</strong></p>
+                    <ol className="list-decimal list-inside space-y-1 text-sm">
+                      <li>Toque no ícone <strong>Compartilhar</strong> (seta para cima) na barra inferior</li>
+                      <li>Role e toque em <strong>Adicionar à Tela de Início</strong></li>
+                      <li>Toque em <strong>Adicionar</strong></li>
+                    </ol>
+                  </>
+                ) : (
+                  <>
+                    <p><strong>No Chrome ou Edge (PC, tablet, Android):</strong></p>
+                    <ol className="list-decimal list-inside space-y-1 text-sm">
+                      <li>Toque no menu <strong>⋮</strong> (três pontos) no canto superior direito</li>
+                      <li>Selecione <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong></li>
+                    </ol>
+                  </>
+                )}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
