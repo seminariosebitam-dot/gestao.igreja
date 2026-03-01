@@ -230,24 +230,24 @@ export default function Uploads() {
 
       <Tabs defaultValue="study" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto p-1 gap-1">
-          <TabsTrigger value="study" className="py-3 gap-2 text-[2rem] md:text-sm">
-            <FileText className="h-8 w-8 md:h-4 md:w-4" />
+          <TabsTrigger value="study" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
+            <FileText className="h-4 w-4 md:h-2 md:w-2" />
             Estudos
           </TabsTrigger>
-          <TabsTrigger value="financial" className="py-3 gap-2 text-[2rem] md:text-sm">
-            <FileText className="h-8 w-8 md:h-4 md:w-4" />
+          <TabsTrigger value="financial" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
+            <FileText className="h-4 w-4 md:h-2 md:w-2" />
             Financeiro
           </TabsTrigger>
-          <TabsTrigger value="minutes" className="py-3 gap-2 text-[2rem] md:text-sm">
-            <File className="h-8 w-8 md:h-4 md:w-4" />
+          <TabsTrigger value="minutes" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
+            <File className="h-4 w-4 md:h-2 md:w-2" />
             Atas
           </TabsTrigger>
-          <TabsTrigger value="media" className="py-3 gap-2 text-[2rem] md:text-sm">
-            <Image className="h-8 w-8 md:h-4 md:w-4" />
+          <TabsTrigger value="media" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
+            <Image className="h-4 w-4 md:h-2 md:w-2" />
             Fotos
           </TabsTrigger>
-          <TabsTrigger value="videos" className="py-3 gap-2 text-[2rem] md:text-sm">
-            <Link className="h-8 w-8 md:h-4 md:w-4" />
+          <TabsTrigger value="videos" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
+            <Link className="h-4 w-4 md:h-2 md:w-2" />
             Vídeos
           </TabsTrigger>
         </TabsList>

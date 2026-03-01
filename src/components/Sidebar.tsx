@@ -184,13 +184,13 @@ export function Sidebar() {
               'h-6 w-6 flex-shrink-0',
               location.pathname !== dashboardItem.href && 'text-primary'
             )} />
-            {!collapsed && <span className="text-[15px]">{dashboardItem.label}</span>}
+            {!collapsed && <span className="text-[12px]">{dashboardItem.label}</span>}
           </Link>
         )}
         {filteredGroups.map((group, idx) => (
           <div key={group.title || `nav-group-${idx}`} className="space-y-1">
             {!collapsed && group.title && (
-              <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {group.title}
               </p>
             )}
@@ -211,7 +211,7 @@ export function Sidebar() {
                     'h-6 w-6 flex-shrink-0',
                     !isActive && 'text-primary'
                   )} />
-                  {!collapsed && <span className="text-[15px]">{item.label}</span>}
+                  {!collapsed && <span className="text-[12px]">{item.label}</span>}
                 </Link>
               );
             })}
@@ -234,7 +234,7 @@ export function Sidebar() {
                   'h-6 w-6 flex-shrink-0',
                   location.pathname !== '/superadmin' && 'text-primary'
                 )} />
-                {!collapsed && <span className="text-[15px]">Painel Root</span>}
+                {!collapsed && <span className="text-[12px]">Painel Root</span>}
               </button>
             )}
             {/* Outros itens filtrados */}
@@ -255,7 +255,7 @@ export function Sidebar() {
                     'h-6 w-6 flex-shrink-0',
                     !isActive && 'text-primary'
                   )} />
-                  {!collapsed && <span className="text-[15px]">{item.label}</span>}
+                  {!collapsed && <span className="text-[12px]">{item.label}</span>}
                 </button>
               );
             })}
@@ -315,7 +315,7 @@ export function Sidebar() {
           onClick={logout}
         >
           <LogOut className="h-6 w-6 flex-shrink-0" />
-          {!collapsed && <span className="ml-3 text-[15px]">Sair</span>}
+          {!collapsed && <span className="ml-3 text-[12px]">Sair</span>}
         </Button>
       </div>
     </aside>

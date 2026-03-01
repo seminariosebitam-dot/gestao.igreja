@@ -43,7 +43,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <header className="md:hidden flex items-center justify-between py-3 px-4 sm:py-4 border-b border-border bg-card print:hidden shadow-sm relative z-50 safe-area-padding">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                         <Logo size="xs" showText={false} />
-                        <span className="font-black text-primary text-base sm:text-lg tracking-tight truncate">Gestão Igreja</span>
+                        <span className="font-black text-primary text-[12.5px] sm:text-[14.5px] tracking-tight truncate">Gestão Igreja</span>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 relative z-50">
                         <GlobalSearch />

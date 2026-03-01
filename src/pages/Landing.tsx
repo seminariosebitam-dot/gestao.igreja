@@ -102,13 +102,13 @@ export default function Landing() {
     <div className="min-h-screen bg-background selection:bg-primary/30">
       {/* Header — logo, Entrar e Instalar SEMPRE visíveis (mobile, tablet, desktop) */}
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl border-primary/20 safe-area-padding">
-        <div className="w-full max-w-7xl mx-auto flex flex-row justify-between items-center gap-2 sm:gap-4 px-3 sm:px-6 py-2 min-h-[48px] sm:min-h-[56px]">
-          <div className="flex-shrink-0 min-w-0 max-w-[45%] sm:max-w-none">
-            <div className="scale-[0.5] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left">
-              <Logo size="sm" showText={true} />
+        <div className="w-full max-w-2xl mx-auto flex flex-row justify-between items-center gap-1 px-2 sm:px-4 py-2 min-h-[48px] sm:min-h-[56px]">
+          <div className="flex-shrink-0 min-w-0 overflow-visible sm:max-w-none">
+            <div className="scale-[0.55] sm:scale-[0.7] md:scale-75 lg:scale-85 origin-left overflow-visible">
+              <Logo size="sm" showText={false} />
             </div>
           </div>
-          <div className="flex items-center justify-end gap-1.5 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center justify-end gap-1 flex-shrink-0">
             {!isInstalled && (
               <Button variant="outline" size="sm" className="inline-flex gap-1.5 shrink-0 text-xs sm:text-sm" onClick={handleInstallClick}>
                 <Download className="h-4 w-4 shrink-0" />
@@ -162,9 +162,9 @@ export default function Landing() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-6 sm:mb-8 border border-red-500/20 text-xs sm:text-sm text-center justify-center mx-auto"
+            className="inline-flex items-center gap-1.5 px-2 py-1 sm:px-4 sm:py-2 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 font-bold mb-6 sm:mb-8 border border-red-500/20 text-[10px] sm:text-sm text-center justify-center mx-auto whitespace-nowrap sm:whitespace-normal"
           >
-            <Gift className="w-4 h-4 animate-pulse shrink-0" />
+            <Gift className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse shrink-0" />
             7 dias grátis para testar · 50 primeiras assinaturas: 50% de Desconto!
           </motion.div>
 
