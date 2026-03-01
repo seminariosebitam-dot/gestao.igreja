@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types';
 import { authService } from '@/services/auth.service';
 import { UNRESTRICTED_EMAILS } from '@/lib/constants';
+import { testSupabaseConnection } from '@/lib/supabaseClient';
 import { z } from 'zod';
 import {
     Dialog,
@@ -71,6 +72,9 @@ export default function NewLogin() {
     const [forgotOpen, setForgotOpen] = useState(false);
     const [forgotEmail, setForgotEmail] = useState('');
     const [forgotLoading, setForgotLoading] = useState(false);
+    const [connectionTestOpen, setConnectionTestOpen] = useState(false);
+    const [connectionTestResult, setConnectionTestResult] = useState<{ urlConfigured: boolean; keyConfigured: boolean; ok: boolean; error?: string } | null>(null);
+    const [connectionTestLoading, setConnectionTestLoading] = useState(false);
     const { login } = useAuth();
     const { toast } = useToast();
     const pinRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -134,6 +138,20 @@ export default function NewLogin() {
         } catch (err: any) {
             console.error('Erro no login:', err);
             setError(err.message || 'Ocorreu um erro ao tentar entrar. Tente novamente.');
+        }
+    };
+
+    const handleConnectionTest = async () => {
+        setConnectionTestLoading(true);
+        setConnectionTestResult(null);
+        setConnectionTestOpen(true);
+        try {
+            const r = await testSupabaseConnection();
+            setConnectionTestResult(r);
+        } catch {
+            setConnectionTestResult({ urlConfigured: false, keyConfigured: false, ok: false, error: 'Erro ao testar.' });
+        } finally {
+            setConnectionTestLoading(false);
         }
     };
 
@@ -252,10 +270,58 @@ export default function NewLogin() {
                                 >
                                     Esqueci minha senha
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={handleConnectionTest}
+                                    disabled={connectionTestLoading}
+                                    className="text-xs text-muted-foreground/70 hover:text-primary transition-colors w-full"
+                                >
+                                    {connectionTestLoading ? 'Testando…' : 'Problemas de conexão? Verificar'}
+                                </button>
                             </form>
                         </CardContent>
                     </Card>
                 )}
+
+                <Dialog open={connectionTestOpen} onOpenChange={setConnectionTestOpen}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Diagnóstico de conexão</DialogTitle>
+                            <DialogDescription>
+                                Resultado do teste de conexão com o Supabase.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3 text-sm">
+                            {connectionTestLoading ? (
+                                <p className="text-muted-foreground">Testando…</p>
+                            ) : connectionTestResult ? (
+                                <>
+                                    <p>
+                                        <span className="font-medium">URL configurada:</span>{' '}
+                                        {connectionTestResult.urlConfigured ? 'Sim' : 'Não'}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Chave configurada:</span>{' '}
+                                        {connectionTestResult.keyConfigured ? 'Sim' : 'Não'}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Conexão:</span>{' '}
+                                        {connectionTestResult.ok ? (
+                                            <span className="text-green-600 font-medium">OK</span>
+                                        ) : (
+                                            <span className="text-destructive font-medium">{connectionTestResult.error || 'Falhou'}</span>
+                                        )}
+                                    </p>
+                                    {!connectionTestResult.ok && (
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                            Se &quot;Failed to fetch&quot;: projeto Supabase pausado, URL/chave errada, ou falta adicionar sua URL em Supabase → Auth → URL Configuration.
+                                        </p>
+                                    )}
+                                </>
+                            ) : null}
+                        </div>
+                    </DialogContent>
+                </Dialog>
 
                 <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
                     <DialogContent className="sm:max-w-md">
@@ -428,6 +494,14 @@ export default function NewLogin() {
                                         className="text-sm text-muted-foreground hover:text-primary transition-colors"
                                     >
                                         Esqueci minha senha
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleConnectionTest}
+                                        disabled={connectionTestLoading}
+                                        className="text-xs text-muted-foreground/70 hover:text-primary transition-colors"
+                                    >
+                                        {connectionTestLoading ? 'Testando…' : 'Problemas de conexão? Verificar'}
                                     </button>
                                 </div>
                             </form>

@@ -229,25 +229,25 @@ export default function Uploads() {
       </div>
 
       <Tabs defaultValue="study" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto p-1 gap-1">
-          <TabsTrigger value="study" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
-            <FileText className="h-4 w-4 md:h-2 md:w-2" />
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto p-1 md:p-1.5 gap-1 md:gap-1.5">
+          <TabsTrigger value="study" className="py-2 md:py-2.5 gap-1.5 md:gap-2 text-[1.12rem] md:text-[10px] md:leading-tight">
+            <FileText className="h-4 w-4 md:h-[10px] md:w-[10px] shrink-0" />
             Estudos
           </TabsTrigger>
-          <TabsTrigger value="financial" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
-            <FileText className="h-4 w-4 md:h-2 md:w-2" />
+          <TabsTrigger value="financial" className="py-2 md:py-2.5 gap-1.5 md:gap-2 text-[1.12rem] md:text-[10px] md:leading-tight">
+            <FileText className="h-4 w-4 md:h-[10px] md:w-[10px] shrink-0" />
             Financeiro
           </TabsTrigger>
-          <TabsTrigger value="minutes" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
-            <File className="h-4 w-4 md:h-2 md:w-2" />
+          <TabsTrigger value="minutes" className="py-2 md:py-2.5 gap-1.5 md:gap-2 text-[1.12rem] md:text-[10px] md:leading-tight">
+            <File className="h-4 w-4 md:h-[10px] md:w-[10px] shrink-0" />
             Atas
           </TabsTrigger>
-          <TabsTrigger value="media" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
-            <Image className="h-4 w-4 md:h-2 md:w-2" />
+          <TabsTrigger value="media" className="py-2 md:py-2.5 gap-1.5 md:gap-2 text-[1.12rem] md:text-[10px] md:leading-tight">
+            <Image className="h-4 w-4 md:h-[10px] md:w-[10px] shrink-0" />
             Fotos
           </TabsTrigger>
-          <TabsTrigger value="videos" className="py-2 gap-1.5 text-[1.12rem] md:text-[8px]">
-            <Link className="h-4 w-4 md:h-2 md:w-2" />
+          <TabsTrigger value="videos" className="py-2 md:py-2.5 gap-1.5 md:gap-2 text-[1.12rem] md:text-[10px] md:leading-tight">
+            <Link className="h-4 w-4 md:h-[10px] md:w-[10px] shrink-0" />
             Vídeos
           </TabsTrigger>
         </TabsList>

@@ -54,6 +54,35 @@ export async function getCurrentUser() {
     return user;
 }
 
+/** Testa conexão com Supabase e retorna diagnóstico para a tela de login */
+export async function testSupabaseConnection(): Promise<{
+    urlConfigured: boolean;
+    keyConfigured: boolean;
+    ok: boolean;
+    error?: string;
+}> {
+    const url = import.meta.env.VITE_SUPABASE_URL || '';
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+    const urlConfigured = !!url && !url.includes('placeholder');
+    const keyConfigured = !!key && key !== 'placeholder-key';
+
+    if (!urlConfigured || !keyConfigured) {
+        return { urlConfigured, keyConfigured, ok: false, error: 'Variáveis não configuradas no build.' };
+    }
+
+    try {
+        const { error } = await supabase.auth.getSession();
+        if (error) {
+            const msg = error.message || String(error);
+            return { urlConfigured, keyConfigured, ok: false, error: msg };
+        }
+        return { urlConfigured, keyConfigured, ok: true };
+    } catch (err: any) {
+        const msg = err?.message || String(err);
+        return { urlConfigured, keyConfigured, ok: false, error: msg };
+    }
+}
+
 // Helper function to get current user profile
 export async function getCurrentUserProfile() {
     const user = await getCurrentUser();
