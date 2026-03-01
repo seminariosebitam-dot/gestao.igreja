@@ -9,7 +9,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/types';
 import { authService } from '@/services/auth.service';
-import { SHOW_SUPERADMIN_LOGIN, UNRESTRICTED_EMAILS } from '@/lib/constants';
+import { UNRESTRICTED_EMAILS } from '@/lib/constants';
 import { z } from 'zod';
 import {
     Dialog,
@@ -364,14 +364,12 @@ export default function NewLogin() {
                                             active={formData.role === 'diretor_patrimonio'}
                                             onClick={() => setFormData({ ...formData, role: 'diretor_patrimonio' })}
                                         />
-                                        {(SHOW_SUPERADMIN_LOGIN || UNRESTRICTED_EMAILS.some(e => e.trim().toLowerCase() === (formData.email || '').trim().toLowerCase())) && (
-                                            <RoleCard
-                                                icon={<Shield className="h-5 w-5" />}
-                                                label="SuperAdmin"
-                                                active={formData.role === 'superadmin'}
-                                                onClick={() => setFormData({ ...formData, role: 'superadmin' })}
-                                            />
-                                        )}
+                                        <RoleCard
+                                            icon={<Shield className="h-5 w-5" />}
+                                            label="SuperAdmin"
+                                            active={formData.role === 'superadmin'}
+                                            onClick={() => setFormData({ ...formData, role: 'superadmin' })}
+                                        />
                                         <RoleCard
                                             icon={<User className="h-5 w-5" />}
                                             label="Congregado"
